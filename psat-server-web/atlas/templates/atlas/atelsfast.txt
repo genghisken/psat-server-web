@@ -1,0 +1,29 @@
+{% for row in table %}
+TITLE: {% if row.data.transient_object_id.atlas_designation %}{{ row.data.transient_object_id.atlas_designation|ljust:"10" }}{% else %}{{ row.transient_object_id.id }}{% endif %} (AT{{ row.data.transient_object_id.other_designation }}): discovery of a candidate SN in {{ row.sherlockCrossmatches.0.catalogue_object_id }} ({% if row.sherlockCrossmatches.0.direct_distance %}{{ row.sherlockCrossmatches.0.direct_distance|floatformat:"0" }}{% else %}{{ row.sherlockCrossmatches.0.distance|floatformat:"0" }}{% endif %} Mpc)
+{% endfor %}
+
+AUTHORS: A. Firstauthor, K. W. Smith, O. McBrien, S. J. Smartt, A. McCormack (Queen's University Belfast), L. Denneau,  H. Flewelling, A. Heinze, J. Tonry, H. Weiland (IfA,
+University of Hawaii), B. Stalder (LSST) A. Rest (STScI), P. Clark, M. Fulton, D. O'Neill, D. R. Young (Queen's University Belfast), D. E. Wright (University of Minnesota)
+
+<p>
+ATLAS is a twin 0.5m telescope system on Haleakala and Mauna Loa which is robotically surveying the sky above declination -40 with a cadence of 2 days <a href="http://adsabs.harvard.edu/abs/2018PASP..130f4505T">(Tonry et al. 2018, PASP, 13, 064505)</a>. Two filters are used, cyan and orange (denoted c and o; all mags quoted are in the AB system). While carrying out the primary mission for Near Earth Objects, we search for and publicly report stationary transients to the <a href="https://wis-tns.weizmann.ac.il"> IAU Transient Name Server</a>.  More information is on http://www.fallingstar.com. We are submitting Astronomer's Telegrams for transients that are either within 100 Mpc, or have some other interesting feature to bring to the community's attention, such as bright nuclear transients, slowly rising or rapidly fading objects.
+</p>
+
+{% for row in table %}
+<p>
+We report a new transient source, most likely a supernova in the galaxy {{ row.sherlockCrossmatches.0.catalogue_object_id }}. We discovered {% if row.data.transient_object_id.atlas_designation %}{{ row.data.transient_object_id.atlas_designation|ljust:"10" }}{% else %}{{ row.transient_object_id.id }}{% endif %} (AT{{ row.data.transient_object_id.other_designation }}) on MJD {{ row.stats.0.earliest_mjd|floatformat:"2" }} == {{ row.stats.0.earliest_mjd_date }}, at m_{{ row.stats.0.earliest_filter }} = {{ row.stats.0.earliest_mag|floatformat:"2" }} +/- 0.XX. {% if row.data.transient_object_id.atlas_designation %}{{ row.data.transient_object_id.atlas_designation|ljust:"10" }}{% else %}{{ row.transient_object_id.id }}{% endif %} is offset by {% if row.sherlockCrossmatches.0.northseparationarcsec > 0 %}{{ row.sherlockCrossmatches.0.northseparationarcsec|floatformat:"2" }} arcsec south{% else %}{{ row.sherlockCrossmatches.0.northseparationarcsec|floatformat:"2"|slice:"1:" }} arcsec north{% endif %}, {% if row.sherlockCrossmatches.0.eastseparationarcsec > 0 %}{{ row.sherlockCrossmatches.0.eastseparationarcsec|floatformat:"2" }} arcsec west{% else %}{{ row.sherlockCrossmatches.0.eastseparationarcsec|floatformat:"2"|slice:"1:" }} arcsec east{% endif %} from {{ row.sherlockCrossmatches.0.catalogue_object_id }}, which is at z = {{ row.sherlockCrossmatches.0.z|floatformat:"3" }} or d = {% if row.sherlockCrossmatches.0.direct_distance %}{{ row.sherlockCrossmatches.0.direct_distance|floatformat:"1" }}{% else %}{{ row.sherlockCrossmatches.0.distance|floatformat:"1" }}{% endif %} Mpc (from NED), implying an absolute magnitude of M = {{ row.stats.0.earliest_mag|floatformat:"2" }} - {% if row.sherlockCrossmatches.0.direct_distance_modulus %}{{ row.sherlockCrossmatches.0.direct_distance_modulus|floatformat:"2" }}{% else %}{{ row.sherlockCrossmatches.0.distance_modulus|floatformat:"2" }}{% endif %} - 0.XX (assuming m-M = {% if row.sherlockCrossmatches.0.direct_distance_modulus %}{{ row.sherlockCrossmatches.0.direct_distance_modulus|floatformat:"2" }}{% else %}{{ row.sherlockCrossmatches.0.distance_modulus|floatformat:"2" }}{% endif %} and A_r = 0.XX and A_i = 0.XX.). A summary of the transient's properties are summarised below. Followup observations are encouraged.
+</p>
+{% endfor %}
+
+<pre>
+Name      | ATLAS Name | RA (J2000)  | Dec (J2000) | Disc. MJD | Disc. Date | Disc Mag | Offset from host |   z   | Notes | Context | listid
+{% for row in table %}AT{{ row.data.transient_object_id.other_designation|ljust:"8" }}| {% if row.data.transient_object_id.atlas_designation %}{{ row.data.transient_object_id.atlas_designation|ljust:"10" }}{% else %}{{ row.transient_object_id.id }}{% endif %} | {{ row.stats.0.ra_sex }} | {{ row.stats.0.dec_sex }} | {{ row.stats.0.earliest_mjd|floatformat:"2"|ljust:"9"}} | {{ row.stats.0.earliest_mjd_date|slice:"0:10"|ljust:"10" }} |  {{ row.stats.0.earliest_mag|floatformat:"2" }} {{ row.stats.0.earliest_filter }} |  {{ row.sherlockCrossmatches.0.separationarcsec|floatformat:"2"|rjust:"5" }} arcsec   | {{ row.sherlockCrossmatches.0.z|floatformat:"3"|rjust:"5" }} | {{ forloop.counter|rjust:"3" }}. | {{ row.data.transient_object_id.sherlockClassification }} | {{ row.data.transient_object_id.detection_list_id.name }}
+{% endfor %}</pre>
+
+<p>
+{% for row in table %}{{ forloop.counter }}. {{ row.sherlockComments.0.annotation|striptags }}<br />
+{% endfor %}</p>
+
+<p>
+This work has made use of data from the Asteroid Terrestrial-impact Last Alert System (ATLAS) project. ATLAS is primarily funded to search for near earth asteroids through NASA grants NN12AR55G, 80NSSC18K0284, and 80NSSC18K1575; byproducts of the NEO search include images and catalogs from the survey area.  The ATLAS science products have been made possible through the contributions of the University of Hawaii Institute for Astronomy, the Queen's University Belfast, and the Space Telescope Science Institute.
+</p>

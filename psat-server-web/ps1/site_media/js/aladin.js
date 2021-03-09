@@ -1,0 +1,1 @@
+../../../atlas/site_media/js/aladin.js

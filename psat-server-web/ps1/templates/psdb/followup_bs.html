@@ -1,0 +1,84 @@
+{% extends "base_bootstrap.html" %}
+
+{% load pagination_tags %}
+
+{% block title %}{% if listHeader %}{{listHeader}}{% else %}Followup List{% endif %}{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row">
+
+    <div class="col-lg-12 col-md-12 col-sm-12">
+
+    {% if listHeader %}
+       <h3>{{ listHeader }}</h3>
+    {% else %}
+       <h3>Object List</h3>
+    {% endif %}
+
+    <h4>({{table.rows.count}})</h4>
+
+    {% if table.rows.count > 0 %}
+    <div class="table-responsive table-body table-condensed">
+
+      <table>
+      {% autopaginate rows 100 %}
+      <tr>
+        {% for column in table.columns %}
+        <th>
+          {% if column.sortable %}
+            <a href="?sort={{ column.name_toggled }}">
+              {{ column }}
+            </a>
+            {% if column.is_ordered_reverse %}
+              <!-- <img src="{{ STATIC_URL }}images/up.jpg" /> -->
+            {% else %}
+               <!-- <img src="{{ STATIC_URL }}images/down.jpg" /> -->
+            {% endif %}
+          {% else %}
+            {{ column }}
+          {% endif %}
+        </th>
+        {% endfor %}
+      </tr>
+
+      {% for row in rows %}
+        <tr>
+        <td><a href="../{% if listHeader %}../{% endif %}candidate/{{row.data.ID}}/">{{ row.data.rank }}</a></td>
+        <td>{{ row.data.survey_field }}</td>
+        <td>{{ row.data.local_designation|default_if_none:"" }}</td>
+        <td>{{ row.data.ps1_designation|default_if_none:"" }}</td>
+        <td>{{ row.data.other_designation|default_if_none:"" }}</td>
+        <td>{{ row.data.ra_sex }}</td>
+        <td>{{ row.data.dec_sex }}</td>
+        <td>{{ row.data.sherlockClassification|default_if_none:"" }}</td>
+        <td>{{ row.data.followup_flag_date }}</td>
+        <td>{{ row.data.observation_status|default_if_none:"" }}</td>
+        <td>{{ row.data.current_trend|default_if_none:"" }}</td>
+        <td>{{ row.data.earliest_mjd|floatformat:5 }}</td>
+        <td>{{ row.data.earliest_mag|floatformat:2 }}</td>
+        <td>{{ row.data.earliest_filter|default_if_none:"" }}</td>
+        <td>{{ row.data.latest_mjd|floatformat:5 }}</td>
+        <td>{{ row.data.latest_mag|floatformat:2 }}</td>
+        <td>{{ row.data.latest_filter|default_if_none:"" }}</td>
+        {% if row.data.detection_list_id %}
+        <td>{{ row.data.detection_list_id.name }}</td>
+        {% endif %}
+        <td>{{ row.data.confidence_factor|floatformat:2 }}</td>
+        <td>{{ row.data.zooniverse_score|floatformat:2 }}</td>
+        <td>{% for xm in row.data.externalXMs %}{% ifchanged xm.external_designation %}{% if xm.url %}<a href="{{ xm.url }}">{{ xm.external_designation }}</a>{% else %}{{ xm.external_designation }}{% endif %} {% endifchanged %}{% endfor %}</td>
+        </tr>
+      {% endfor %}
+
+      {% paginate %}
+      </table>
+
+    </div>
+    {% endif %}
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

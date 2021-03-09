@@ -1,0 +1,199 @@
+/* 2018-07-06 KWS Bootstrap stuff starts here */
+
+body {background-color: #f4c797;}
+
+.row-striped:nth-of-type(odd){
+  background-color: #efefef;
+}
+
+.row-striped:nth-of-type(even){
+  background-color: #aaaaaa;
+}
+
+.row-border { 
+  border: 1px solid;
+  border-color: #aaaaaa;
+}
+
+.parameter-label {
+  color: gray;
+  font-size: 8px;
+}
+
+.parameter-value {
+  color: black;
+  margin-left: 4px;
+}
+
+a { color: #1111ff; }
+a:hover, a:visited { color: #ff1111; }
+
+.row.parameter-label {
+  font-size: 8px;
+}
+
+.row.parameter-value {
+  /* text-indent: 10%; */
+  /* margin-left: 4px; */
+}
+
+.table-condensed{
+  font-size: 10px;
+}
+
+/* 2018-09-06 KWS Disabled the SVG click event so that any hyperlinks
+                  in the legend can be followed. */
+
+div[id^="flot-recurrenceplot"] .legend .traces .legendtoggle {
+   display: none;
+}
+
+/* 2018-10-05 KWS Add a vertical scroll bar if the table inside this
+                  div is too large. Note that it does NOT shrink the
+                  table yet (if there are e.g. not enough rows to fill
+                  the height). */
+.scrollTable {
+  height:1050px;
+  overflow-y: auto;
+}
+
+/* 2019-08-13 KWS Finder scroll table. */
+.scrollTableFinders {
+  height:250px;
+  overflow-y: auto;
+}
+
+/* For the old style pages we still need the UCGPAET styles */
+
+.radio-ugpt-u input[type="radio"] {
+    display:none; 
+}
+
+.radio-ugpt-u label {
+    display:inline-block;
+    background-color:#aaa;
+    padding:4px 11px;
+    font-size:16px;
+}
+
+.radio-ugpt-u input[type="radio"]:checked + label { 
+    background-color:white;
+}
+
+.radio-ugpt-g input[type="radio"] {
+    display:none; 
+}
+
+.radio-ugpt-g label {
+    display:inline-block;
+    background-color:#aaa;
+    padding:4px 11px;
+    font-size:16px;
+}
+
+.radio-ugpt-g input[type="radio"]:checked + label { 
+    background-color:green;
+}
+
+.radio-ugpt-p input[type="radio"] {
+    display:none; 
+}
+
+.radio-ugpt-p label {
+    display:inline-block;
+    background-color:#aaa;
+    padding:4px 11px;
+    font-size:16px;
+}
+
+.radio-ugpt-p input[type="radio"]:checked + label { 
+    background-color:orange;
+}
+
+
+.radio-ugpt-t input[type="radio"] {
+    display:none; 
+}
+
+.radio-ugpt-t label {
+    display:inline-block;
+    background-color:#aaa;
+    padding:4px 11px;
+    font-size:16px;
+}
+
+.radio-ugpt-t input[type="radio"]:checked + label { 
+    background-color:red;
+}
+
+
+.radio-ugpt-a input[type="radio"] {
+    display:none; 
+}
+
+.radio-ugpt-a label {
+    display:inline-block;
+    background-color:#aaa;
+    padding:4px 11px;
+    font-size:16px;
+}
+
+.radio-ugpt-a input[type="radio"]:checked + label { 
+    background-color:yellow;
+}
+
+
+.radio-ugpt-c input[type="radio"] {
+    display:none;
+}
+
+.radio-ugpt-c label {
+    display:inline-block;
+    background-color:#aaa;
+    padding:4px 11px;
+    font-size:16px;
+}
+
+.radio-ugpt-c input[type="radio"]:checked + label { 
+    background-color:lime;
+}
+
+
+.radio-ugpt-e input[type="radio"] {
+    display:none;
+}
+
+.radio-ugpt-e label {
+    display:inline-block;
+    background-color:#aaa;
+    padding:4px 11px;
+    font-size:16px;
+}
+
+.radio-ugpt-e input[type="radio"]:checked + label { 
+    background-color:skyblue;
+}
+
+/* Render tables with Django-tables2 */
+table.followuplists_quickview
+{
+    border-spacing: 2px;
+    text-align: left;
+}
+
+table.followuplists_quickview tbody tr:hover
+{
+    background: #ccc;
+}
+
+table.followuplists_standardview
+{
+    border-spacing: 2px;
+    text-align: left;
+}
+
+table.followuplists_standardview tbody tr:hover
+{
+    background: #8B9AAF;
+}
+

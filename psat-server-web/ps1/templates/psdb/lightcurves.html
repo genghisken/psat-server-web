@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Lightcurve Data{% endblock %}
+
+{% block content %}
+
+<body bgcolor="#424242" onload="TimerThread()">
+
+
+<script type="text/javascript">
+var a = new Image(); a.src = 'http://cas.sdss.org/astrodr7/en/tools/chart/navi.asp?ra={{ transient.ra_psf }}&dec={{ transient.dec_psf }}&scale=0.1&width=500&height=500&opt=GPS';
+var b = new Image(); b.src = 'http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{ transient.ra_psf }}&dec={{ transient.dec_psf }}&scale=0.1&width=500&height=500&opt=GPS';
+</script>
+
+
+<DIV CLASS="hover">
+<CENTER>
+<!-- <FONT size="6" color="white"><B>lists</B><FONT><BR> -->
+<FONT size="4">
+<A HREF="../../"><B>home</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../followup/1/"><B>confirmed</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../followup/2/"><B>good</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../followup/3/"><B>possible</B></A>
+<FONT color="white">| </FONT>
+<A HREF="../../followup/5/"><B>attic</B></A>
+<FONT color="white">| </FONT>
+<A HREF="../../followup/4/"><B>eyeball</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../followup/8/"><B>eyeball-fast-track</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../userlist/"><B>custom</B></A>
+</FONT><BR>
+</CENTER>
+</DIV>
+<HR>
+
+<center>
+<table><TR><th align="left">
+
+<FONT color="#A9D0F5" size='5'><B>&nbsp Candidate: <FONT color="#FFFFFF"><a href="../../candidate/{{transient.id}}/">{{ transient.id }}</a></FONT> </B></FONT>
+
+{% if transient.followup_id %}
+<FONT color="#A9D0F5" size='5'><B>&nbsp Rank: <FONT color="#FFFFFF">{{ transient.followup_id }}</FONT> </B></FONT>
+{% endif %}
+
+{% if transient.followup_flag_date %}
+<FONT color="#A9D0F5" size='5'><B>&nbsp Flag Date: <FONT color="#FFFFFF">{{ transient.followup_flag_date }}</FONT> </B></FONT>
+{% endif %}
+
+<BR>
+{% if transient.local_designation %}
+<FONT color="#A9D0F5" size='5'><B>&nbsp  QUB Designation: <FONT color="#FFFFFF">{{ transient.local_designation }}</FONT> </B></FONT>
+{% endif %}
+
+<BR>
+{% if transient.ps1_designation %}
+<FONT color="#A9D0F5" size='5'><B>&nbsp  PS1 Designation: <FONT color="#FFFFFF">{{ transient.ps1_designation }}</FONT> </B></FONT>
+{% endif %}
+
+<BR>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Classification: <FONT color="#FFFFFF">{{ transient.object_classification.description }}</FONT> </B></FONT>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Occurrences: <FONT color="#FFFFFF">{{ table.rows.count|add:"1" }}</FONT> </B></FONT>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Survey: <FONT color="#FFFFFF">{{ transient.tcs_cmf_metadata_id.filename|slice:"4" }}</FONT> </B></FONT>
+
+<!-- RA and DEC taken from the second set of observations - would be good take these from the primary observation -->
+<BR>
+<FONT color="#A9D0F5" size='5'><B>&nbsp RA: <FONT color="#FFFFFF">{{ transient.ra_sex }}</FONT> </B></FONT>
+<FONT color="#A9D0F5" size='5'><B>&nbsp DEC: <FONT color="#FFFFFF">{{ transient.dec_sex }}</FONT> </B></FONT>
+<FONT color="#A9D0F5" size='5'><B>&nbsp List: <FONT color="#FFFFFF">{{ transient.detection_list_id.name }}</FONT> </B></FONT>
+{% if transient.local_designation %}<FONT color="#A9D0F5" size='5'><B>&nbsp CfA Match: <a href="http://star.pst.qub.ac.uk/ps/parts/qub_cfa_crossmatches.html#{{ transient.local_designation }}"><FONT color="#FFFFFF">check here</FONT></a> </B></FONT>
+{% endif %}
+
+{% if transient.local_comments %}
+<BR>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Comments: <FONT color="#FFFFFF" size='2'>{{ transient.local_comments }}</FONT> </B></FONT>
+{% endif %}
+{% if transient.observation_status %}
+<BR>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Spectral Type: <FONT color="#FFFFFF" size='4'>{{ transient.observation_status }}</FONT> </B></FONT>
+{% endif %}
+
+</table>
+</center>
+
+
+<BR><BR>
+<BR><BR>
+
+<center>
+<FONT color="#A9D0F5" size='4'><B>Click on the Candidate ID above to return to the main object page</B></FONT>
+</center>
+
+<BR><BR>
+<BR><BR>
+
+
+
+<center>
+
+<table height="500" cellpadding="0" cellspacing="0">
+
+
+
+<TR>
+<TD colspan="5">
+<FONT color="#A9D0F5" size='3'><B> Lightcurve </B></FONT>
+</TD>
+</TR>
+<TR>
+<TD colspan="5" cellpadding="0"> <a href="{{ STATIC_URL }}images/lightcurves/{{transient.id}}_lc.jpeg"><img src="{{ STATIC_URL }}images/lightcurves/{{transient.id}}_lc.jpeg" height="500"  BORDER="0"/></TD>
+</TD>
+</TR>
+</table>
+
+<BR><BR>
+
+
+<BR>
+
+{% if crossmatches.0.z %}
+<BR>
+<FONT color="#A9D0F5" size='4'><B> Possible Associations </B></FONT>
+<BR>
+<table border="1" cellpadding="5" bgcolor="white">
+  <td><FONT color="#3399FF" size='1'><B>Catalogue</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>ID</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>Separation</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>z</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>Distance (Mpc)</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>(m-M)</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>Distance Scale (Kpc/arcsec)</B></FONT></td>
+  
+{% for row in crossmatches %}
+  <tr>
+  <td><font size='2'>{{ row.catalogue_table_id.description }}</td>
+  <td><font size='2'>{{ row.catalogue_object_id }}</td>
+  <td><font size='2'>{{ row.separation|floatformat:2 }}"</td>
+  <td><font size='2'>{{ row.z|floatformat:3 }}</td>
+  <td><font size='2'>{{ row.distance|floatformat:2 }}</td>
+  <td><font size='2'>{{ row.distance_modulus|floatformat:3 }}</td>
+  <td><font size='2'>{{ row.scale|floatformat:2 }}</td>
+  </tr>
+{% endfor %}
+</table>
+<BR><BR>
+{% endif %}
+
+{% if form %}
+{% if form.errors %}
+   <p style="color: red;">
+       Please correct the error{{ form.errors|pluralize }} below.
+   </p>
+{% endif %}
+
+<form action="" method="post">{% csrf_token %}
+<FONT color="#FFFFFF">
+<TABLE class="forms">
+   {{ form.as_table }}
+</TABLE>
+<BR>
+<input type="submit" value="Replot" />
+</FONT>
+</form>
+{% endif %}
+
+</center>
+
+
+{% endblock %}
+

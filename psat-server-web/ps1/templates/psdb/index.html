@@ -1,0 +1,114 @@
+<head>
+<STYLE>
+a:link {text-decoration: none; color: #3399FF;}
+a:visited {text-decoration: none; color: #3399FF;}
+a:active {text-decoration: none; color: #3399FF;}
+a:hover {text-decoration: none; color: red;}
+
+input.submit  {border:0; color:#3399FF; font-family:helvetica; font-weight:bold;}
+input.submit:hover  {border:0; color:red; font-family:helvetica; font-weight:bold;}
+
+a:link img {border:0 none;}
+a:hover hover img {position:relative; right:0px; top:0px; border:0; width:90px; margin:0 0 0 -90px}
+a:hover hover2 img {position:relative; left:0px; top:0px; border:0; height:32px; margin:0 0 0 -240px}
+a:hover hover3 img {position:relative; left:0px; top:0px; border:0; height:32px; margin:0 0 0 -160px}
+a:hover hover4 img {position:relative; left:0px; top:0px; border:0; height:32px; margin:0 0 0 -80px}
+a:hover hover5 img {position:static; left:0px; top:0px; border:0; height:100%; margin:0 0 0 -255px}
+a:hover hover6 img {position:relative; left:0px; top:0px; border:0; height:100%; margin:0 0 0 -184px}
+a:hover hover7 img {position:relative; left:0px; top:0px; border:0; height:100%; margin:0 0 0 -156px}
+a:hover hover8 img {position:relative; left:0px; top:0px; border:0; height:100%; margin:0 0 0 -198px}
+
+a:visited img {border:0 none;}
+
+table.followuplists th, table.followuplists td
+{
+border: 0px;
+border-collapse: collapse;
+border-spacing: 5px;
+font-size : 14px;
+font-family : Verdana,Helvetica,Arial,sans-serif;
+color : #000000;
+}
+
+body
+{
+font-family: Verdana,Helvetica,Arial,sans-serif;
+}
+
+</STYLE>
+</head>
+
+<BODY bgcolor="black">
+
+<br><br><br>
+<center>
+<BR><BR>
+<FONT color="#FFFFFF" size='8'><B> PS1-QUB TRANSIENT SEARCH </B></FONT>
+<BR><BR>
+</center>
+
+<center>
+<table cellpadding="10">
+<tr><td><a href = "http://star.pst.qub.ac.uk/" title="QUB ARC website"><img src="{{ STATIC_URL }}images/qubIcon.jpg"><hover5><IMG SRC="{{ STATIC_URL }}images/qubIconHover.jpg" height='0'></hover5></a></td>
+    <td> <a href = "http://pan-starrs.ifa.hawaii.edu/public/" title="PanSTARRS website"><img src="{{ STATIC_URL }}images/ps1IconHover.jpg"><hover6><IMG SRC="{{ STATIC_URL }}images/ps1Icon.jpg" height='0'></hover6></a></td></tr>
+</table>
+</center>
+
+<BR>
+<DIV CLASS="hover">
+<CENTER>
+<table class="followupreports">
+
+{% if not public %}
+<tr>
+<td align="center"><A HREF="followup/1/"><FONT size="6"><B>confirmed</B><FONT></A></td>
+<td align="center"><A HREF="followup/2/"><FONT size="6"><B>good</B><FONT></A></td>
+<td align="center"><A HREF="followup/3/"><FONT size="6"><B>possible</B><FONT></A></td>
+<td align="center"><A HREF="followup/5/"><FONT size="6"><B>attic</B><FONT></A></td>
+<td align="center"><A HREF="followup/4/"><FONT size="6"><B>eyeball</B><FONT></A></td>
+<td align="center"><A HREF="followup/0/"><FONT size="6"><B>garbage</B><FONT></A></td>
+</tr>
+{% else %}
+<tr>
+<td align="center"><A HREF="public/"><FONT size="6"><B>Object List</B><FONT></A></td>
+</tr>
+{% endif %}
+
+{% if not public %}
+<tr>
+<td align="center"><A HREF="followup_quickview/1/"><FONT size="2"><B>(quickview)</B><FONT></A></td>
+<td align="center"><A HREF="followup_quickview/2/"><FONT size="2"><B>(quickview)</B><FONT></A></td>
+<td align="center"><A HREF="followup_quickview/3/"><FONT size="2"><B>(quickview)</B><FONT></A></td>
+<td align="center"><A HREF="followup_quickview/5/"><FONT size="2"><B>(quickview)</B><FONT></A></td>
+<td align="center"><A HREF="followup_quickview/4/"><FONT size="2"><B>(quickview)</B><FONT></A></td>
+<td align="center"><A HREF="followup_quickview/0/"><FONT size="2"><B>(quickview)</B><FONT></A></td>
+</tr>
+{% else %}
+<tr>
+<td align="center"><A HREF="public_quickview/"><FONT size="2"><B>(quickview)</B><FONT></A></td>
+</tr>
+{% endif %}
+
+</table>
+</CENTER>
+</DIV>
+
+<br><br><br>
+
+<DIV CLASS="hover">
+<CENTER>
+<table cellpadding="10">
+<tr text-align="right"><FONT size="4" color="white"><B>PS1 consortium partners also involved with the Transient Science Server:</B><FONT></tr>
+<tr><td><a href = "http://www.ifa.hawaii.edu/"><img src="{{ STATIC_URL }}images/uhifaIcon.jpg"><hover7><IMG SRC="{{ STATIC_URL }}images/uhifaIconHover.jpg" height='0'><hover7></a></td>
+    <td> <a href = "http://www.cfa.harvard.edu/"><img src="{{ STATIC_URL }}images/cfaIcon.jpg"><hover8><IMG SRC="{{ STATIC_URL }}images/cfaIconHover.jpg" height='0'></hover8></a></td>
+    <td><a href = "http://physics-astronomy.jhu.edu/"><img src="{{ STATIC_URL }}images/jhuIcon.jpg"><hover7><IMG SRC="{{ STATIC_URL }}images/jhuIconHover.jpg" height='0'></hover7></a></td>
+    <td><a href = "http://www.physicsandastronomy.pitt.edu/"><img src="{{ STATIC_URL }}images/pittsIcon.jpg"><hover7><IMG SRC="{{ STATIC_URL }}images/pittsIconHover.jpg" height='0'></hover7></a></td>
+    <td><a href = "http://www.astro.ncu.edu.tw/index_e.shtml"><img src="{{ STATIC_URL }}images/ncuIcon.jpg"><hover7><IMG SRC="{{ STATIC_URL }}images/ncuIconHover.jpg" height='0'></hover7></a></td></tr>
+</table>
+</CENTER>
+</DIV>
+
+<br><br><br>
+
+</html>
+

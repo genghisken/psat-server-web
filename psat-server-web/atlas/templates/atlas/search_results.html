@@ -1,0 +1,182 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title %}{% if listHeader %}{{listHeader}}{% else %}Followup List{% endif %}{% endblock %}
+
+<!-- Lightcurve data Globals -->
+{% block lightcurvedataglobal %}
+<script language="javascript" type="text/javascript">
+var jslcdataglobal = new Object();
+var jslabelsglobal = new Object();
+var jslimitsglobal = new Object();
+</script>
+{% endblock %}
+
+{% block lightcurvedata %}
+{% for row in subdata %}
+<script language="javascript" type="text/javascript">
+var jslcdata = new Array();
+var jslabels = new Array();
+var jslclimits = { "xmin": {{ row.lcLimits.xmin.0|add:"-30" }},
+                   "xmax": {{ row.lcLimits.today }},
+                   "ymin": {{ row.lcLimits.ymin|last }},
+                   "ymax": {{ row.lcLimits.ymax|last }},
+                   "discoveryDate": {{ row.lcLimits.discoveryDate }},
+                   "today": {{ row.lcLimits.today }} };
+
+jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
+
+
+// The first data items are detection data, non-detections, blanks (and anything else)
+{% for dataseries in row.lc|slice:":-1" %}
+  // Normally we have 5 filters, but in case we have more, slice all but the last element
+  // (which is the combined data for all filters).
+  {% for filterdata in dataseries %}
+    jslcdata.push({{filterdata}});
+  {% endfor %}
+  jslcdataglobal["#flot-lightcurve{{row.id}}"] = jslcdata;
+{% endfor %}
+
+
+// The last item is the data labels. The length of this array must be the same as the
+// length of the filterdata (minus the last element).
+{% for lclabels in row.lc|last %}
+  jslabels.push({{lclabels|safe}});
+  jslabelsglobal["#flot-lightcurve{{ row.id }}"] = jslabels;
+{% endfor %}
+
+</script>
+{% endfor %}
+{% endblock %}
+
+
+{% block content %}
+
+<body>
+
+<!-- Idea - use Button Groups for the quickview buttons -->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="../{% if listHeader %}../{% endif %}">ATLAS</a>
+
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      {% if public %}
+      <li class="nav-item"><a class="nav-link" href="..{% if listHeader %}/..{% endif %}/followup/1/">confirmed</a></li>
+      <li class="nav-item"><a class="nav-link" href="..{% if listHeader %}/..{% endif %}/followup/2/">good</a></li>
+      <li class="nav-item"><a class="nav-link" href="..{% if listHeader %}/..{% endif %}/followup/3/">possible</a></li>
+      <li class="nav-item"><a class="nav-link" href="..{% if listHeader %}/..{% endif %}/followup/5/">attic</a></li>
+      <li class="nav-item"><a class="nav-link" href="..{% if listHeader %}/..{% endif %}/followup/4/">eyeball</a></li>
+      <li class="nav-item"><a class="nav-link" href="..{% if listHeader %}/..{% endif %}/followup/8/">eyeball-fast-track</a></li>
+      <li class="nav-item"><a class="nav-link" href="..{% if listHeader %}/..{% endif %}/userlist/">custom</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url "logout" %}">logout</a></li>
+      <li class="nav-item"><a class="nav-link disabled" href="#">{{request.user.username}}</a></li>
+      {% else %}
+      <li class="nav-item"><a class="nav-link" HREF="../{% if listHeader %}../{% endif %}public/">object list</a></li>
+      <li class="nav-item"><a class="nav-link" HREF="../{% if listHeader %}../{% endif %}public_quickview/">object quickview list</a></li>
+      {% endif %}
+    </ul>
+    {% if form_searchobject %}
+    <form class="form-inline my-2 my-lg-0" id="search_form" action="" method="post">{% csrf_token %}
+      {{ form_searchobject.searchText.errors }}
+      {{ form_searchobject.searchText }}
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+    {% if form_searchobject.errors %}{{ form_searchobject.errors|pluralize }}{% endif %}
+    {% endif %}
+  </div>
+</nav>
+
+<div class="container-fluid">
+
+<!--
+<div class="page-header">
+<section id="table_layout">
+<article id="followup_table">
+<header id="followup_list">
+<hgroup>
+-->
+{% if listHeader %}
+   <h1>{{ listHeader }}</h1>
+{% else %}
+   <h1>Object List</h1>
+{% endif %}
+
+<h2>({{subdata.paginator.count}})</h2>
+<!--
+</hgroup>
+</header>
+-->
+</div>
+
+<div class="container-fluid">
+<div class="pagination">
+    <span class="step-links">
+        {% if subdata.has_previous %}
+            <a href="?page={{ subdata.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ subdata.number }} of {{ subdata.paginator.num_pages }}.
+        </span>
+
+        {% if subdata.has_next %}
+            <a href="?page={{ subdata.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+<div class="row">
+{% for row in subdata %}
+<div class="col-lg-4 col-md-6 col-sm-12">
+    {{ row.ra }} {{ row.dec }}
+</div>
+<div class="col-lg-4 col-md-6 col-sm-12">
+    <a href="{% url "candidate" row.id %}">{{ row.id }}</a> {% if row.separation %}({{ row.separation|floatformat:2 }}){% endif %}<br />
+    <div id="flot-lightcurve{{row.id}}" style="width:300px;height:200px;"></div>
+</div>
+<div class="col-lg-4 col-md-6 col-sm-12">
+{% if row.images_id %}
+<table class="images">
+<tr>
+<td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.target }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="100" /></td>
+<td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.ref }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="100" /></td>
+<td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.diff }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="100" /></td>
+</tr>
+</table>
+{% endif %}
+</div>
+{% endfor %}
+</div>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if subdata.has_previous %}
+            <a href="?page={{ subdata.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ subdata.number }} of {{ subdata.paginator.num_pages }}.
+        </span>
+
+        {% if subdata.has_next %}
+            <a href="?page={{ subdata.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+</article>
+</section>
+</div>
+</div>
+
+{% endblock %}
+
+{% block flotplots %}
+{% for row in subdata %}
+<script language="javascript" type="text/javascript">var lcdivname = "#flot-lightcurve{{row.id}}";</script>
+<script src="{{ STATIC_URL }}js/lightcurve.js"></script>
+{% endfor %}
+{% endblock %}

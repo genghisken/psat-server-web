@@ -1,0 +1,3 @@
+#rank|id|name|tns_name|ra|dec|expname|mag|dm|filter|mjd
+{% for row in table %}{{ row.rank }}|{{ row.id }}|{{ row.name|default_if_none:"" }}|{{ row.tns_name|default_if_none:"" }}|{{ row.ra }}|{{ row.dec }}|{{ row.expname }}|{{ row.mag }}|{{ row.dm }}|{{ row.filter }}|{{ row.mjd }}
+{% endfor %}

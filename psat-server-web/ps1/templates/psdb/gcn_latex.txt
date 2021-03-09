@@ -1,0 +1,8 @@
+\begin{center}
+\begin{tabular}{ l l l l l l l p{1cm} }
+\hline \hline
+Name & RA (J2000) & Dec (J2000) & Disc. Date & Disc. MJD & Disc Mag & filter & Notes \\ \hline
+{% for row in table %}{% if row.data.ps1_designation %}{{ row.data.ps1_designation }}{% else %}{% if row.data.local_designation %}{{ row.data.local_designation }}{% else %}{{ row.data.ID }}{% endif %}{% endif %} & {{ row.data.ra_sex_spaces }} & {{ row.data.dec_sex_spaces }} & {{ row.data.getEarliestDate|cut:" " }} & {{ row.data.earliest_mjd|floatformat:2 }} & {{ row.data.earliest_mag|floatformat:2 }} & {{ row.data.earliest_filter }} & \\
+{% endfor %}\hline
+\end{tabular}
+\end{center}

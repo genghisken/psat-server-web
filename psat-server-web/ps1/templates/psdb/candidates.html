@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% load pagination_tags %}
+
+{% block title %}Table Data{% endblock %}
+
+{% block content %}
+
+<body bgcolor="#424242">
+
+<DIV CLASS="hover">
+<CENTER>
+<!-- <FONT size="6" color="white"><B>lists</B><FONT><BR> -->
+<A HREF="../../"><FONT size="6"><B>home</B></A> <FONT color="white">|</FONT>    <A HREF="../../followup/2/"><FONT size="6"><B>good</B></A> <FONT color="white">|</FONT>    <A HREF="../../followup/3/"><B>possible</B></A> <FONT color="white">|</FONT>    <A HREF="../../followup/1/"><B>confirmed</B></A> <FONT color="white">|    <B>attic</B> |</FONT>    <A HREF="../../followup/0/"><B>garbage</B></FONT></A><BR>
+
+</CENTER>
+</DIV>
+<HR>
+
+
+
+<center>
+<BR><BR>
+<FONT color="#FFFFFF" size='8'><B>PS1 {{viewname}} Candidates</B></FONT>
+<BR><BR>
+</center>
+
+
+<center>
+<FONT color="#FFFFFF" size='8'>({{table.rows.count}})</FONT>
+</center>
+<BR><BR>
+
+
+
+<CENTER>
+<table border="1" cellpadding="5" bgcolor="white">
+
+{% autopaginate rows 25 %}
+
+<tr>
+  {% for column in table.columns %}
+  <th>
+    {% if column.sortable %}
+      <a href="?sort={{ column.name_toggled }}">
+        {{ column }}
+      </a>
+      {% if column.is_ordered_reverse %}
+        <img src="../../../site_media/images/up.jpg" />
+      {% else %}
+        <img src="../../../site_media/images/down.jpg" />
+      {% endif %}
+    {% else %}
+      {{ column }}
+    {% endif %}
+  </th>
+  {% endfor %}
+</tr>
+
+{% for row in rows %}
+  <tr>
+  <td><a href="../../candidate/{{row.data.ID}}/">{{ row.data.ID }}</a></td>
+  <td>{{ row.data.ra_sex }}</td>
+  <td>{{ row.data.dec_sex }}</td>
+  <td>{{ row.data.mjd_obs|floatformat:5 }}</td>
+  <td>{{ row.data.psf_inst_mag|floatformat:2 }}</td>
+  <td>{{ row.data.ap_mag|floatformat:2 }}</td>
+  <td>{{ row.data.cal_psf_mag|floatformat:2 }}</td>
+  <td>{{ row.data.filter }}</td>
+  <td>{{ row.data.catalogue }}</td>
+  <td>{{ row.data.catalogue_object_id }}</td>
+  <td>{{ row.data.separation|floatformat:2 }}</td>
+  <td>{{ row.data.image }}</td>
+  <td><a href="http://cas.sdss.org/astrodr7/en/tools/chart/navi.asp?ra={{ row.data.RA }}&dec={{ row.data.DEC }}&scale=0.1&width=400&height=400&opt=GSPT" target="_blank">SDSS</a></td>
+  </tr>
+{% endfor %}
+{% paginate %}
+
+</table>
+
+</CENTER>
+{% endblock %}

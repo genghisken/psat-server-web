@@ -1,0 +1,112 @@
+{% extends "base_new.html" %}
+
+{% load pagination_tags %}
+
+{% block title %}{% if crossmatchTitle %}{{crossmatchTitle}}{% else %}Crossmatch CfA to IPP{% endif %}{% endblock %}
+
+{% block content %}
+
+<body>
+
+<div id="quickfollowup">
+<nav id="navigation">
+<ul>
+{% if not public %}
+<li><a HREF="../{% if listHeader %}../{% endif %}">home</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/1/">confirmed</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/2/">good</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/3/">possible</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/5/">attic</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/4/">eyeball</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/8/">eyeball-fast-track</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/userlist/">custom</a></li>
+{% else %}
+<li><a HREF="../{% if listHeader %}../{% endif %}">home</a></li>
+<li><a HREF="../{% if listHeader %}../{% endif %}public_quickview/">object quickview list</a></li>
+{% endif %}
+{% if form_searchobject %}
+<li>
+{% if form_searchobject.errors %}
+    <p style="color: red;">
+        Please correct the error{{ form_searchobject.errors|pluralize }} below.
+    </p>
+{% endif %}
+
+<form id="search_form" action="" method="post">{% csrf_token %}
+    {{ form_searchobject.non_field_errors }}
+    <div class="fieldWrapper">
+    <p>
+        {{ form_searchobject.searchText.errors }}
+        {{ form_searchobject.searchText }}
+    <input type="submit" value="Find Object" /></p>
+    </div>
+</form>
+</li>
+{% endif %}
+
+</ul>
+</nav>
+
+<section id="table_layout">
+<article id="followup_table">
+<header id="followup_list">
+<hgroup>
+
+<h1>{% if crossmatchTitle %}{{crossmatchTitle}}{% else %}Crossmatch CfA to IPP{% endif %}</h1>
+
+<h2>({{table.rows.count}})</h2>
+</hgroup>
+</header>
+
+<table class="followuplists_standardview">
+{% autopaginate rows 100 %}
+
+<tr>
+  {% for column in table.columns %}
+  <th>
+    {% if column.sortable %}
+      <a href="?sort={{ column.name_toggled }}">
+        {{ column }}
+      </a>
+      {% if column.is_ordered_reverse %}
+        <!-- <img src="../../../site_media/images/up.jpg" /> -->
+      {% else %}
+         <!-- <img src="../../../site_media/images/down.jpg" /> -->
+      {% endif %}
+    {% else %}
+      {{ column }}
+    {% endif %}
+  </th>
+  {% endfor %}
+</tr>
+
+{% for row in rows %}
+  <tr>
+  <td><a href="../candidate/{{ row.data.id }}/">{{ row.data.id|default_if_none:"" }}</a></td>
+  <td>{{ row.data.local_designation|default_if_none:"" }}</td>
+  <td>{{ row.data.rank|default_if_none:"" }}</td>
+  <td>{{ row.data.qubListName|default_if_none:"" }}</td>
+  <td>{{ row.data.followup_flag_date|default_if_none:"" }}</td>
+  <td>{{ row.data.ra_sex|default_if_none:"" }}</td>
+  <td>{{ row.data.dec_sex|default_if_none:"" }}</td>
+  <td>{{ row.data.field|default_if_none:"" }}</td>
+  <td>{{ row.data.eventID|default_if_none:"" }}</td>
+  <td><a href="http://telescopes.rc.fas.harvard.edu/ps1/alerts2011{% if row.data.eventID >= 300000 %}v3{% endif %}/{{row.data.cfa_designation}}/{{row.data.cfa_designation}}.html">{{ row.data.cfa_designation|default_if_none:"" }}</a></td>
+  <td>{{ row.data.alertstatus|default_if_none:"" }}</td>
+  <td>{{ row.data.cfaDateField|default_if_none:"" }}</td>
+  <td>{{ row.data.ra_sex_cfa|default_if_none:"" }}</td>
+  <td>{{ row.data.dec_sex_cfa|default_if_none:"" }}</td>
+  <td>{{ row.data.PS1name|default_if_none:"" }}</td>
+  <td>{{ row.data.separation|default_if_none:"" }}</td>
+  </tr>
+{% endfor %}
+{% paginate %}
+
+</table>
+
+
+</article>
+</section>
+</div>
+{% endblock %}
+

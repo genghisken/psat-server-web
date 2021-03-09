@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}ATLAS Static Transients{% endblock %}
+
+{% block content %}
+
+<body>
+
+<div id="quickfollowup">
+<nav id="navigation">
+<ul>
+{% if not public %}
+<li><a HREF="./">home</a></li>
+<li><a HREF="./followup/1/">confirmed</a></li>
+<li><a HREF="./followup/2/">good</a></li>
+<li><a HREF="./followup/3/">possible</a></li>
+<li><a HREF="./followup/5/">attic</a></li>
+<li><a HREF="./followup/4/">eyeball</a></li>
+<li><a HREF="./followup/8/">eyeball-fast-track</a></li>
+<li><a HREF="./followup/0/">garbage</a></li>
+<li><a HREF="./userlist/">custom</a></li>
+{% if form_searchobject %}
+<li>
+<form id="search_form" action="" method="post">{% csrf_token %}
+    {{ form_searchobject.non_field_errors }}
+    <div class="fieldWrapper">
+        {{ form_searchobject.searchText.errors }}
+        {{ form_searchobject.searchText }}
+    <input type="submit" value="Find Object" name="find_object" />
+    </div>
+</form>
+</li>
+{% if form_searchobject.errors %}{{ form_searchobject.errors|pluralize }}{% endif %}
+{% endif %}
+<ul>
+<li><a href="{% url "logout" %}">logout</a></li>
+<li>{{request.user.username}}</li>
+</ul>
+{% else %}
+<li><a HREF="./">home</a></li>
+<li><a HREF="./public/">object list</a></li>
+<li><a HREF="./public_quickview/">object quickview list</a></li>
+{% endif %}
+</ul>
+</nav>
+
+<section id="table_layout">
+<article id="followup_table">
+<header id="followup_list">
+<hgroup>
+<h1>ATLAS Static Transients</h1>
+</hgroup>
+</header>
+<div id="ps1homepage">
+<p>The <a href="http://fallingstar.com">ATLAS</a> project is a pair of 0.5m f/2.0 Schmidt telescopes situated on Mauna Loa and Haleakala in Hawaii (Tonry 2011, PASP, 123, 58). Each telescope is equipped with an STA-1600 10.5x10.5k CCD with 1.86 arcsec pixels giving a FOV of 5.4x5.4 degrees. The first ATLAS unit has been installed on Haleakala and is robotically surveying the sky, covering up to 18,000 square degrees per night with exposure times of 30s. The current observing pattern uses dithered quads across a sky survey area of 4500 square degrees per night. The design sensitivity is around m ~ 20 AB mag in two broad filters (cyan and orange). The sky coverage will triple as overheads are reduced and when the second unit is installed on Mauna Loa in 2016. The primary mission for ATLAS is to act as an asteroid impact early warning system and find near earth objects, but in the course of the ATLAS sky survey it will find a wealth of stationary transients and variables. We intend to make the transient discoveries public with a minimum of delay. Discoveries are made through a custom built difference imaging pipeline and deep reference sky frames, cross-matched against known star, galaxy and transient catalogues.
+</p>
+</div>
+</article>
+</section>
+</div>
+{% endblock %}

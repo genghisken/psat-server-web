@@ -1,0 +1,3 @@
+#expname,ra,dec,x,y,mag,dm,mag5sig,filter,zp,exptime,mjd,peak,sky,varkrn,pstar,pkast,preal,star,dstar,mstar,kast,dkast,chi_n,tphot_id
+{% for row in table.rows %}{{ row.expname }},{{ row.ra }},{{ row.dec }},{{ row.x }},{{ row.y }},{{ row.mag }},{{ row.dm }},{{ row.mag5sig }},{{ row.filter }},{{ row.zp }},{{ row.exptime }},{{ row.mjd }},{{ row.peak }},{{ row.sky }},{{ row.varkrn }},{{ row.pstar }},{{ row.pkast }},{{ row.preal }},{{ row.star }},{{ row.dstar }},{{ row.mstar }},{{ row.kast }},{{ row.dkast }},{{ row.chi_n }},{{ row.tphot_id }}
+{% endfor %}

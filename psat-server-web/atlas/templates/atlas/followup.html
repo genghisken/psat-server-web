@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% load render_table from django_tables2 %}
+
+{% block title %}{% if listHeader %}{{listHeader}}{% else %}Followup List{% endif %}{% endblock %}
+
+{% block content %}
+
+<body>
+
+<div id="quickfollowup">
+<nav id="navigation">
+<ul>
+{% if not public %}
+<li><a HREF="../{% if listHeader %}../{% endif %}">home</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/1/">confirmed</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/2/">good</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/3/">possible</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/5/">attic</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/4/">eyeball</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/8/">eyeball-fast-track</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/userlist/">custom</a></li>
+{% if form_searchobject %}
+<li>
+{% if form_searchobject.errors %}
+    <p style="color: red;">
+        Please correct the error{{ form_searchobject.errors|pluralize }} below.
+    </p>
+{% endif %}
+
+<form id="search_form" action="{% url "searchresults" %}" method="post">{% csrf_token %}
+    {{ form_searchobject.non_field_errors }}
+    <div class="fieldWrapper">
+    <p>
+        {{ form_searchobject.searchText.errors }}
+        {{ form_searchobject.searchText }}
+    <input type="submit" value="Find Object" name="find_object" /></p>
+    </div>
+</form>
+</li>
+{% endif %}
+
+<ul>
+<li><a href="{% url "logout" %}">logout</a></li>
+<li>{{request.user.username}}</li>
+</ul>
+{% else %}
+<li><a HREF="../{% if listHeader %}../{% endif %}">home</a></li>
+<li><a HREF="../{% if listHeader %}../{% endif %}public_quickview/">object quickview list</a></li>
+{% endif %}
+</ul>
+</nav>
+
+<section id="table_layout">
+<article id="followup_table">
+<header id="followup_list">
+<hgroup>
+{% if listHeader %}
+   <h1>{{ listHeader }}</h1>
+{% else %}
+   <h1>Object List</h1>
+{% endif %}
+
+<h2>({{table.rows|length}})</h2>
+</hgroup>
+</header>
+
+{% render_table table %}
+
+</article>
+</section>
+</div>
+{% endblock %}

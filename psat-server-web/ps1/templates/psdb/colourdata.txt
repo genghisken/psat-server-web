@@ -1,0 +1,21 @@
+{% if colourdata.gr %}#grMJD,grMag,grError
+{% for row in colourdata.gr %}{{row.0}},{{row.1}},{{row.2}}
+{% endfor %}
+{% if colourdata.grmean %}gr mean (mag) = {{ colourdata.grmean }}
+gr trend (mag/day) = {{ colourdata.grtrend }}
+{% endif %}
+{% endif %}
+{% if colourdata.ri %}#riMJD,riMag,riError
+{% for row in colourdata.ri %}{{row.0}},{{row.1}},{{row.2}}
+{% endfor %}
+{% if colourdata.rimean %}ri mean (mag) = {{ colourdata.rimean }}
+ri trend (mag/day) = {{ colourdata.ritrend }}
+{% endif %}
+{% endif %}
+{% if colourdata.iz %}#izMJD,izMag,izError
+{% for row in colourdata.iz %}{{row.0}},{{row.1}},{{row.2}}
+{% endfor %}
+{% if colourdata.izmean %}iz mean (mag) = {{ colourdata.izmean }}
+iz trend (mag/day) = {{ colourdata.iztrend }}
+{% endif %}
+{% endif %}

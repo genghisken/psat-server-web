@@ -1,0 +1,12 @@
+<p>
+{{table.rows.count}} bright transient{% if table.rows.count > 1%}s have{% else %} has{% endif %} been discovered as part of the Pan-STARRS Survey for Transients (PSST). Information on all objects discovered by the Pan-STARRS Survey for Transients is available at http://star.pst.qub.ac.uk/ps1threepi/ (see Huber et al. ATel #7153). We will send all objects brighter than 18 mag as ATel alerts, while all other objects can be found on these webpages.
+</p>
+
+<pre>
+Name      | PS Name | RA (J2000)  | Dec (J2000) | Disc. Date | Disc Mag | Notes
+{% for row in table %}AT{{ row.data.other_designation|ljust:"7" }} | {% if row.data.ps1_designation %}{{ row.data.ps1_designation|ljust:"7" }}{% else %}{% if row.data.local_designation %}{{ row.data.local_designation|ljust:"10" }}{% else %}{{ row.data.ID }}{% endif %}{% endif %} | {{ row.data.ra_sex_spaces }} | {{ row.data.dec_sex_spaces }} |  {{ row.data.getEarliestDate|cut:" "|slice:":8"|ljust:"9" }} |  {{ row.data.earliest_mag|floatformat:2 }} {{ row.data.earliest_filter }} |  ({{ forloop.counter }})
+{% endfor %}</pre>
+
+<p>
+{% for row in table %}({{ forloop.counter }}) {{ row.local_comments }}<br />
+{% endfor %}</p>

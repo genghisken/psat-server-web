@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="{{ STATIC_URL }}css/main_bootstrap.css" type="text/css"/>
+<link rel="stylesheet" href="{{ STATIC_URL }}css/aladin.css" />
+
+<title>{% block title %}Main Base Title{% endblock %}</title>
+
+{% if nobjects <= showObjectLCThreshold %}
+{% block lightcurvedataglobal %}
+{% endblock %}
+
+{% block lightcurvedata %}
+{% endblock %}
+
+{% block lightcurvedataforced %}
+{% endblock %}
+
+{% block lightcurvedataforcedflux %}
+{% endblock %}
+
+{% block lightcurvedataforcedstackflux %}
+{% endblock %}
+
+{% block recurrencedataglobal %}
+{% endblock %}
+
+{% block recurrenceplotdata %}
+{% endblock %}
+{% endif %}
+
+{% block celestial %}
+{% endblock %}
+
+</head>
+
+<body onload="TimerThread()">
+<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<!-- Generic nav bar for all the bootstrap pages -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="{% url 'home' %}"><img src="{{ STATIC_URL }}images/atlas_logo.png" height="50" class="d-inline-block align-top" alt=""></a>
+
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      {% if not public %}
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">confirmed</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=1 %}">quick view</a>
+          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=1 %}">old quick view</a>
+          <a class="dropdown-item" href="{% url 'followup' listNumber=1 %}">table view</a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">good</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=2 %}">quick view</a>
+          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=2 %}">old quick view</a>
+          <a class="dropdown-item" href="{% url 'followup' listNumber=2 %}">table view</a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">possible</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=3 %}">quick view</a>
+          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=3 %}">old quick view</a>
+          <a class="dropdown-item" href="{% url 'followup' listNumber=3 %}">table view</a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">attic</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=5 %}">quick view</a>
+          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=5 %}">old quick view</a>
+          <a class="dropdown-item" href="{% url 'followup' listNumber=5 %}">table view</a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">eyeball</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=4 %}">quick view</a>
+          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=4 %}">old quick view</a>
+          <a class="dropdown-item" href="{% url 'followup' listNumber=4 %}">table view</a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">eyeball-fast-track</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=8 %}">quick view</a>
+          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=8 %}">old quick view</a>
+          <a class="dropdown-item" href="{% url 'followup' listNumber=8 %}">table view</a>
+        </div>
+      </li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'userdefinedlistdefs' %}">custom</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">logout</a></li>
+      <li class="nav-item"><a class="nav-link disabled" href="#">{{request.user.username}}</a></li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">dashboard</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="http://minidash.fallingstar.com/" target="_blank">MiniDash</a>
+          <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/mlo.html" target="_blank">Mauna Loa</a>
+          <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/hko.html" target="_blank">Haleakala</a>
+        </div>
+      </li>
+      {% else %}
+      <li class="nav-item"><a class="nav-link" HREF="../{% if listHeader or transient %}../{% endif %}public/">object list</a></li>
+      <li class="nav-item"><a class="nav-link" HREF="../{% if listHeader or transient %}../{% endif %}public_quickview/">object quickview list</a></li>
+      {% endif %}
+    </ul>
+    {% if form_searchobject %}
+    <form class="form-inline my-2 my-lg-0" id="search_form" action="{% url "searchresults" %}" method="post">{% csrf_token %}
+      {{ form_searchobject.searchText.errors }}
+      {{ form_searchobject.searchText }}
+      <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Find Object" name="find_object">Search</button>
+    </form>
+    {% if form_searchobject.errors %}{{ form_searchobject.errors|pluralize }}{% endif %}
+    {% endif %}
+  </div>
+</nav>
+
+
+{% block content %}
+Unset Content
+{% endblock %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/followup_selectall.js"></script>
+
+<!--
+<script src="{{ STATIC_URL }}js/flot/jquery.flot.js"></script>
+<script src="{{ STATIC_URL }}js/flot/jquery.flot.symbol.js"></script>
+<script src="{{ STATIC_URL }}js/flot/jquery.flot.errorbars.js"></script>
+<script src="{{ STATIC_URL }}js/flot/jquery.flot.axislabels.js"></script>
+<script src="{{ STATIC_URL }}js/flot/jquery.flot.selection.js"></script>
+-->
+
+{% block flotplots %}
+{% endblock %}
+
+</body>
+</html>

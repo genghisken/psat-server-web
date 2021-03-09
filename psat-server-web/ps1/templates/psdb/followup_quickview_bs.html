@@ -1,0 +1,308 @@
+{% extends "base_bootstrap.html" %}
+
+{% load pagination_tags %}
+
+{% block title %}{% if listHeader %}{{listHeader}}{% else %}Followup List{% endif %}{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row">
+
+    <div class="col-lg-12 col-md-12 col-sm-12">
+
+
+{% if listHeader %}
+   <h3>{{ listHeader }}</h3>
+{% else %}
+   <h3>Object List</h3>
+{% endif %}
+
+<h4>({{table.rows.count}})</h4>
+
+{% if not public %}
+{% if listHeader %}
+  {% if list_id >= 0 and list_id < 9 and table.rows.count > 0 %}
+<form id="classify_form" action="" method="post">{% csrf_token %}
+  {% endif %}
+{% endif %}
+{% endif %}
+
+
+{% if table.rows.count > 0 %}
+
+<div class="table-responsive table-body table-condensed">
+<table class="followuplists_quickview">
+
+{% autopaginate rows nobjects %}
+
+<tr>
+  {% for column in table.columns %}
+  <th>
+    {% if column.sortable %}
+      <a href="?sort={{ column.name_toggled }}">{{ column }}</a>
+    {% else %}
+      {{ column }}
+    {% endif %}
+  </th>
+  {% endfor %}
+
+{% if not public %}
+{% if processingStatus != 1 %}
+
+{% if list_id == 4 or list_id == 8 %}
+  <th>
+    <a id="select_all_u" name="select_all_u" value="all_u">U</a>
+  </th>
+  <th>
+    <a id="select_all_p" name="select_all_p" value="all_p">P</a>
+  </th>
+  <th>
+    <a id="select_all_a" name="select_all_a" value="all_a">A</a>
+  </th>
+  <th>
+    <a id="select_all_t" name="select_all_t" value="all_t">T</a>
+  </th>
+{% endif %}
+{% if list_id == 3 %}
+  <th>
+    <a id="select_all_u" name="select_all_u" value="all_u">U</a>
+  </th>
+  <th>
+    <a id="select_all_a" name="select_all_a" value="all_a">A</a>
+  </th>
+  <th>
+    <a id="select_all_t" name="select_all_t" value="all_t">T</a>
+  </th>
+{% endif %}
+{% if list_id == 2 %}
+  <th>
+    <a id="select_all_u" name="select_all_u" value="all_u">U</a>
+  </th>
+  <th>
+    <a id="select_all_p" name="select_all_p" value="all_p">P</a>
+  </th>
+  <th>
+    <a id="select_all_a" name="select_all_a" value="all_a">A</a>
+  </th>
+  <th>
+    <a id="select_all_t" name="select_all_t" value="all_t">T</a>
+  </th>
+{% endif %}
+{% if list_id == 5 %}
+  <th>
+    <a id="select_all_u" name="select_all_u" value="all_u">U</a>
+  </th>
+  <th>
+    <a id="select_all_p" name="select_all_p" value="all_p">P</a>
+  </th>
+  <th>
+    <a id="select_all_t" name="select_all_t" value="all_t">T</a>
+  </th>
+{% endif %}
+{% if list_id == 6 %}
+  <th>
+    <a id="select_all_u" name="select_all_u" value="all_u">U</a>
+  </th>
+  <th>
+    <a id="select_all_e" name="select_all_e" value="all_e">E</a>
+  </th>
+  <th>
+    <a id="select_all_t" name="select_all_t" value="all_t">T</a>
+  </th>
+{% endif %}
+{% if list_id == 0 %}
+  <th>
+    <a id="select_all_u" name="select_all_u" value="all_u">U</a>
+  </th>
+  <th>
+    <a id="select_all_e" name="select_all_e" value="all_e">E</a>
+  </th>
+{% endif %}
+
+{% endif %}
+{% endif %}
+</tr>
+
+{% for row in rows %}
+  <tr>
+  <td><a href="../{% if listHeader %}../{% endif %}candidate/{{row.data.id}}/">{{ row.data.followup_id }}</a></td>
+  <td>{{ row.data.followup_flag_date }}</td>
+  <td>{{ row.data.ra_sex }}</td>
+  <td>{{ row.data.dec_sex }}</td>
+  <td>{{ row.data.decode_flag_bits }}</td>
+  <td>{{ row.data.sherlockClassification|default_if_none:"" }}</td>
+  <td>{{ row.data.observation_status|default_if_none:"" }}</td>
+  <td>{{ row.data.other_designation|default_if_none:"" }}</td>
+  <td>{{ row.data.ps1_designation|default_if_none:"" }}</td>
+  <td>{{ row.data.classification_confidence|floatformat:"2" }}</td>
+{% if not public %}
+  <td>{{ row.data.current_trend|default_if_none:"" }}</td>
+{% endif %}
+  <td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.data.tcs_images_id.whole_mjd }}/{{ row.data.tcs_images_id.target }}.jpeg" alt="triplet" title="{{ image.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" /></td>
+  {% if not fgss %}
+  <td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.data.tcs_images_id.whole_mjd }}/{{ row.data.tcs_images_id.ref }}.jpeg" alt="triplet" title="{{ image.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" /></td>
+  <td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.data.tcs_images_id.whole_mjd }}/{{ row.data.tcs_images_id.diff }}.jpeg" alt="triplet" title="{{ image.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" /></td>
+  {% endif %}
+{% if not public %}
+  <td>{{ row.data.confidence_factor|floatformat:2 }}</td>
+{% endif %}
+  <td>{{ row.data.tcs_images_id.mjd_obs|floatformat:5 }}</td>
+
+{% if not public %}
+{% if processingStatus != 1 %}
+
+{% if list_id == 4 or list_id == 8 %}
+  <td>
+      <div class="radio-ugpt-u">
+<input class="U" type="radio" id="{{row.data.id}}_promote_demote_1000" value="U" name="{{row.data.id}}_promote_demote" checked />
+<label for="{{row.data.id}}_promote_demote_1000">U</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-p">
+<input class="P" type="radio" id="{{row.data.id}}_promote_demote_3" value="P" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_3">P</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-a">
+<input class="A" type="radio" id="{{row.data.id}}_promote_demote_5" value="A" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_5">A</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-t">
+<input class="T" type="radio" id="{{row.data.id}}_promote_demote_0" value="T" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_0">T</label>
+      </div>
+  </td>
+{% endif %}
+{% if list_id == 3 %}
+  <td>
+      <div class="radio-ugpt-u">
+<input class="U" type="radio" id="{{row.data.id}}_promote_demote_1000" value="U" name="{{row.data.id}}_promote_demote" checked />
+<label for="{{row.data.id}}_promote_demote_1000">U</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-a">
+<input class="A" type="radio" id="{{row.data.id}}_promote_demote_5" value="A" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_5">A</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-t">
+<input class="T" type="radio" id="{{row.data.id}}_promote_demote_0" value="T" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_0">T</label>
+      </div>
+  </td>
+{% endif %}
+{% if list_id == 2 %}
+  <td>
+      <div class="radio-ugpt-u">
+<input class="U" type="radio" id="{{row.data.id}}_promote_demote_1000" value="U" name="{{row.data.id}}_promote_demote" checked />
+<label for="{{row.data.id}}_promote_demote_1000">U</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-p">
+<input class="P" type="radio" id="{{row.data.id}}_promote_demote_3" value="P" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_3">P</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-a">
+<input class="A" type="radio" id="{{row.data.id}}_promote_demote_5" value="A" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_5">A</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-t">
+<input class="T" type="radio" id="{{row.data.id}}_promote_demote_0" value="T" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_0">T</label>
+      </div>
+  </td>
+{% endif %}
+{% if list_id == 5 %}
+  <td>
+      <div class="radio-ugpt-u">
+<input class="U" type="radio" id="{{row.data.id}}_promote_demote_1000" value="U" name="{{row.data.id}}_promote_demote" checked />
+<label for="{{row.data.id}}_promote_demote_1000">U</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-p">
+<input class="P" type="radio" id="{{row.data.id}}_promote_demote_3" value="P" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_3">P</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-t">
+<input class="T" type="radio" id="{{row.data.id}}_promote_demote_0" value="T" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_0">T</label>
+      </div>
+  </td>
+{% endif %}
+{% if list_id == 6 %}
+  <td>
+      <div class="radio-ugpt-u">
+<input class="U" type="radio" id="{{row.data.id}}_promote_demote_1000" value="U" name="{{row.data.id}}_promote_demote" checked />
+<label for="{{row.data.id}}_promote_demote_1000">U</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-e">
+<input class="E" type="radio" id="{{row.data.id}}_promote_demote_4" value="E" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_4">E</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-t">
+<input class="T" type="radio" id="{{row.data.id}}_promote_demote_0" value="T" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_0">T</label>
+      </div>
+  </td>
+{% endif %}
+{% if list_id == 0 %}
+  <td>
+      <div class="radio-ugpt-u">
+<input class="U" type="radio" id="{{row.data.id}}_promote_demote_1000" value="U" name="{{row.data.id}}_promote_demote" checked />
+<label for="{{row.data.id}}_promote_demote_1000">U</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-e">
+<input class="E" type="radio" id="{{row.data.id}}_promote_demote_4" value="E" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_4">E</label>
+      </div>
+  </td>
+{% endif %}
+
+{% endif %}
+{% endif %}
+
+  </tr>
+{% endfor %}
+{% paginate %}
+
+</table>
+</div>
+{% endif %}
+
+{% if not public %}
+{% if processingStatus != 1 %}
+{% if listHeader %}
+  {% if list_id >= 0 and list_id < 9 and table.rows.count > 0 %}
+<input type="submit" value="Classify Objects" name="classify" /></p>
+  {% endif %}
+</form>
+{% endif %}
+{% endif %}
+{% endif %}
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,9 @@
+doq -f commonqueries.py -w --formatter=google
+doq -f dbviews.py -w --formatter=google
+doq -f formchoices.py -w --formatter=google
+doq -f helpers.py -w --formatter=google
+doq -f lightcurvequeries.py -w --formatter=google
+doq -f models.py -w --formatter=google
+doq -f urls.py -w --formatter=google
+doq -f views.py -w --formatter=google
+doq -f wsgi.example.py -w --formatter=google

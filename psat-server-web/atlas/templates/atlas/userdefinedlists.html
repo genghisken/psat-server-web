@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% load pagination_tags %}
+
+{% block title %}User Defined Lists{% endblock %}
+
+{% block content %}
+
+<body>
+
+<div id="quickfollowup">
+<nav id="navigation">
+<ul>
+{% if not public %}
+<li><a HREF="../{% if listHeader %}../{% endif %}">home</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/1/">confirmed</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/2/">good</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/3/">possible</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/5/">attic</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/4/">eyeball</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup/8/">eyeball-fast-track</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/userlist/">custom</a></li>
+<ul>
+<li><a href="{% url "logout" %}">logout</a></li>
+<li>{{request.user.username}}</li>
+</ul>
+{% else %}
+<li><a HREF="../{% if listHeader %}../{% endif %}">home</a></li>
+<li><a HREF="../{% if listHeader %}../{% endif %}public_quickview/">object quickview list</a></li>
+{% endif %}
+</ul>
+</nav>
+
+<section id="table_layout">
+<article id="followup_table">
+<header id="followup_list">
+<hgroup>
+
+<h1>User Defined Lists</h1>
+
+<h2>({{table.rows.count}})</h2>
+</hgroup>
+</header>
+
+<table class="followuplists_standardview">
+{% autopaginate table.rows 100 %}
+
+<tr>
+  {% for column in table.columns %}
+  <th>
+    {% if column.sortable %}
+      <a href="?sort={{ column.name_toggled }}">
+        {{ column }}
+      </a>
+      {% if column.is_ordered_reverse %}
+        <!-- <img src="../../../site_media/images/up.jpg" /> -->
+      {% else %}
+         <!-- <img src="../../../site_media/images/down.jpg" /> -->
+      {% endif %}
+    {% else %}
+      {{ column }}
+    {% endif %}
+  </th>
+  {% endfor %}
+</tr>
+
+{% for row in table.rows %}
+  <tr>
+  <td><a href="./{{row.data.id}}/">{{ row.data.id }}</a></td>
+  <td>{{ row.data.description }}</td>
+  </tr>
+{% endfor %}
+{% paginate %}
+
+</table>
+
+
+</article>
+</section>
+</div>
+{% endblock %}
+

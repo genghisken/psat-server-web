@@ -1,0 +1,3 @@
+#rank,name,tns_name,followup_flag_date,ra,dec,object_classification,observation_status,earliest_mjd,earliest_date,earliest_mag,earliest_filter
+{% for row in table.rows %}{{ row.rank }},{% if row.atlas_designation %}{{ row.atlas_designation }}{% else %}{{ row.id }}{% endif %},{{ row.other_designation }},{{ row.followup_flag_date|date:"Y-m-d" }},{{ row.ra_deg }},{{ row.dec_deg }},{{ row.object_classification|default_if_none:"" }},{{ row.observation_status|default_if_none:"" }},{{ row.earliest_mjd }},{{ row.earliest_mjd_date }},{{ row.earliest_mag|floatformat:2 }},{{ row.earliest_filter|default_if_none:"" }}
+{% endfor %}

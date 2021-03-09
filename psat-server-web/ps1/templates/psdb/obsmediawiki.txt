@@ -1,0 +1,29 @@
+ {| class="wikitable sortable"
+ ! scope="col" | Name
+ ! scope="col" | RA
+ ! scope="col" | DEC
+ ! scope="col" class="unsortable" | Instrument
+ ! scope="col" | Exp. time (s)
+ ! scope="col" | Filter
+ ! scope="col" | Shots
+ ! scope="col" | Total Exp. time (s)
+ ! scope="col" | Mag
+ ! scope="col" | Target type
+ ! scope="col" class="unsortable" | Notes
+ ! scope="col" | Priority
+ ! scope="col" | Approx Start Time {% for row in table %}
+ |-
+ | [[Media:{% if row.data.ps1_designation %}{{ row.data.ps1_designation }}{% else %}{% if row.data.local_designation %}{{ row.data.local_designation }}{% else %}{{ row.data.id }}{% endif %}{% endif %}.jpeg|{% if row.data.ps1_designation %}{{ row.data.ps1_designation }}{% else %}{% if row.data.local_designation %}{{ row.data.local_designation }}{% else %}{{ row.data.id }}{% endif %}{% endif %}]]
+ | {{ row.data.ra_sex }}
+ | {{ row.data.dec_sex }}
+ | ACAM Spectroscopy
+ | 1500
+ | -
+ | 1
+ | 1500
+ | {{ row.data.latest_mag|floatformat:2 }} ({{ row.data.latest_filter }})
+ | Classification
+ | [http://star.pst.qub.ac.uk{% url 'home' %}candidate/{{ row.data.ID }}/ {% if row.data.ps1_designation %}{{ row.data.ps1_designation }}{% else %}{% if row.data.local_designation %}{{ row.data.local_designation }}{% else %}{{ row.data.id }}{% endif %}{% endif %}] {{ row.data.decode_flag_bits }}
+ |
+ | {% endfor %}
+ |}

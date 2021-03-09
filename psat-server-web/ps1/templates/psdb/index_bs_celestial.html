@@ -1,0 +1,241 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title %}Pan-STARRS Transients{% endblock %}
+
+{% block celestial %}
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/celestial/d3.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/celestial/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/celestial/celestial.js"></script>
+  <link rel="stylesheet" href="{{ STATIC_URL }}/css/celestial.css">
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row">
+
+    <div class="col-lg-12 col-md-12 col-sm-12">
+
+<h3>Pan-STARRS Transients</h3>
+
+<p>
+The Pan-STARRS1 telescope carried out the 3Pi survey of the whole sky
+north of -30 degrees between 2010-2014 in grizy (PS1 specific
+filters). This was run by the PS1 Science Consortium.  Each region on
+the sky was typically visited four times a year in each filter. As
+described in <a href="http://adsabs.harvard.edu/abs/2013ApJS..205...20M">Magnier et al. (2013, ApJS, 205, 20)</a> and <a href="http://adsabs.harvard.edu/abs/2013ApJ...770..128I">Inserra et al. (2013, ApJ, 770, 128)</a> the four epochs were typically split into
+two pairs called Transient Time Interval (TTI) pairs which are single
+observations separated by 20-30 minutes to allow for the discovery of
+moving objects. The exposure times at each epoch (i.e. in each of the
+TTI exposures) were 43 s, 40 s, 45 s, 30 s, and 30 s in grizy(PS1). An
+all sky image of these stacked frames between 2010-2012 has been
+created in each band (internally called Processing Version 1) and all
+individual exposures since mid-June 2013 were differenced with respect
+to this static sky and transient sources have been catalogued. We
+typically reached high confidence transients (greater than 5-sigma) at
+depths of approximately 21.0, 20.6, 20.7, 20.4, and 18.3 (AB mags) in
+the grizy PS1 filters.
+</p>
+
+<p>
+The Pan-STARRS1 Science Consortium finished this sky survey and since
+mid-2014 the PS1 telescope has been running a wide-field survey for near 
+earth objects, funded by NASA through the NEO Observation Program. 
+This survey takes data in w-band in dark time, and combinations of
+i, z and y during bright moon time. We are now processing these data 
+through the PS1 IPP difference imaging pipeline and recovering stationary
+transients. Effectively the 3Pi survey for transients that started during
+the PS1 Science Consortium is being continued under the new NEO optimised
+operations mode. The observing procedure in this case is to take a quad of
+exposures, typically 30-45s separated by 10-20mins each. This cadence may
+be repeated on subsequent nights.
+</p>
+
+<p>
+In <a href="http://www.astronomerstelegram.org/?read=5850">ATel 5850</a>,
+we announced the public release of the first 880 transients from the PS1 3Pi
+survey, during the search period September 2013 - January 2014.  These are
+mostly supernova candidates, but the list also contained some variable stars,
+AGN, and nuclear transients (defined below).  The lightcurves are too sparsely
+sampled to be of standalone use, but they may be of use to the community in
+combining with existing data (e.g. <a href="http://adsabs.harvard.edu/abs/2013ApJ...779L...8F">Fraser et al. 2013, ApJ, 779, L8</a>),
+constraining explosion and rise times (e.g. <a href="http://adsabs.harvard.edu/abs/2013Natur.502..346N">Nicholl et al. 2013, Nature, 502, 346</a>)
+as well as many being new discoveries.
+</p>
+
+<p>
+In <a href="http://www.astronomerstelegram.org/?read=7153">ATel 7153</a> (Huber et al. 2015) we publicly announced the start of new data processing and transient
+searching beginning February 2015 using the data from the the Pan-STARRS NEO Science Consortium. 
+</p>
+
+<div style="overflow:hidden;"><div id="celestial-map"></div></div>
+<div id="celestial-form"></div>
+
+
+<script type="text/javascript">
+
+/* D3-Celestial sky map
+   Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
+   
+   Edit configuration to your liking and display in browser. 
+   Data files in folder data for stars and DSOs, number indicates limit magnitude, 
+   or roll your own with the format template in templ.json
+*/
+
+// First quick-and-dirty solution - replace the stars list with the Supernovae list
+
+// Properties different from default
+var config = { 
+  projection: "aitoff", 
+  transform: "equatorial",
+  center: null,
+  datapath: "{{ STATIC_URL }}/js/celestial/data/",
+  stars: { show: false, colors: false, names: false, size: 5 },
+  constellations: { names: false },
+  dsos: { show: false },
+  mw: { style: { fill:"#ffffff", opacity: "0.17" }},
+  lines: {
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
+			// grid values: "outline", "center", or [lat,...] specific position
+      lon: {pos: ["center"], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}, 
+			// grid values: "outline", "center", or [lon,...] specific position
+		  lat: {pos: ["center"], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}},
+    equatorial: { show: true, stroke: "#aaaaff", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
+    ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
+    galactic: { show: true, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
+    supergalactic: { show: false, stroke: "#cc66cc", width: 1.3, opacity: 0.7 } // Show supergalactic plane 
+  }
+};
+
+
+// LG objects style properties
+var cfgLG = {
+ LG: { fill:"#e63" },
+ MWS: { fill:"#ee9" },
+ N3109: { fill:"#3df" },
+ M31: { fill:"#6d3" },
+ text: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", align: "left", baseline: "top" },
+ g: { stroke:"#faa", fill:"#faa" }
+};
+
+var scale = 1, baseScale, 
+    showMW = true, showM31 = true, showLG = true;
+
+
+Celestial.add({file:"{% url 'snejson' %}", type:"dso", callback: function(error, json) {
+//Celestial.add({sne, type:"dso", callback: function(error, json) {
+  if (error) return console.warn(error);
+  baseScale = Celestial.mapProjection.scale();
+  var lg = Celestial.getData(json, config.transform)
+  //Add the symbols  
+  Celestial.container.selectAll(".lgs").data(lg.features.filter( function(d) { return d.properties.type.search(/GC/) === -1; }))
+    .enter().append("path")
+    .attr("class", "lg"); 
+  Celestial.redraw();
+}, redraw: function() { 
+  scale = Celestial.mapProjection.scale()/baseScale;
+  
+  Celestial.container.selectAll(".lg").each(function(d) {
+    if (Celestial.clip(d.geometry.coordinates) && lgDisplay(d.properties)) {
+      var pt = Celestial.mapProjection(d.geometry.coordinates),
+          group = lgSub(d.properties);
+      Celestial.setStyle(cfgLG[group]);
+      var r = lgSymbol(d.properties, pt);
+      Celestial.context.fill();
+      
+      if (lgDisplayName(d)) {
+        var style = cfgLG.text;
+        style.fill = cfgLG[group].fill;
+        Celestial.setTextStyle(style);
+        Celestial.context.fillText(lgName(d.properties), pt[0]+r, pt[1]+r);         
+      }         
+    }
+  });
+} });
+
+
+function lgDisplay(prop) {
+  return ((showMW === true && prop.sub.search(/MW/) !== -1) ||
+          (showM31 === true && prop.sub.search(/M31/) !== -1) ||
+          (showLG === true && prop.sub.search(/LG|N3109/) !== -1)); 
+}
+      
+function lgDisplayName(d) {
+  var prop = d.properties;
+  if (scale >= 4.7) return true;
+//  if (d3.geo.distance([121.17, -21.57], d.geometry.coordinates) < 0.3) {
+//    if (prop.mag === "" || prop.mag > 4 + scale) return false;
+//  }
+  return false;
+}
+
+function lgSub(prop) {
+  var r = prop.sub.match(/^(MW|M31|N3109|LG)/);
+  if (r === null) return "LG";
+  if (r[1] === "MW") return "MWS";
+  else return r[1];
+}
+
+function lgType(prop) {
+  //^I|dSph|dIrr|UFD|dE|cE|^S
+  var r = prop.type.match(/^(S|dS|I|dI|dE|cE|U)/);
+  if (r === null) return "g";
+  switch (r[1]) {
+    case "S": return "s";
+    case "dS": return "ds";
+    case "I": case "dI": return "i";
+    case "cE": case "dE": return "e"; 
+    case "U": return "uf";
+  }
+}
+
+function lgSymbol(prop, pt) {
+  var base = 9+scale*1.5, size = 9, type = "ellipse";
+  if (has(prop, "mag") && prop.mag !== "") size = Math.pow(2.7*base-prop.mag, 1.2);
+  else if (has(prop, "dim") && prop.dim !== "") size = Math.pow(parseInt(prop.dim)*base/7, 0.5); 
+  
+  var type = lgType(prop);
+  switch (type) {
+    case "e": tp = "ellipse"; break;
+    case "uf": case "ds": tp = "circle"; break;
+    case "i": tp = "triangle"; break;
+    case "s": tp = "diamond"; break;
+  }
+  
+  Celestial.Canvas.symbol().type(tp).size(size).position(pt)(Celestial.context);
+  return Math.sqrt(size)/2;
+}
+ 
+function lgName(prop) {
+  return prop.name !== "" ? prop.name : prop.desig; 
+} 
+
+Celestial.display(config);
+
+
+function $(id) { return document.getElementById(id); }
+function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
+
+
+
+</script>
+
+
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="page-footer font-small blue">
+
+<h5>Acknowledgment for data after May 2014</h5>
+<p>
+Operation of the Pan-STARRS1 telescope is supported by the National Aeronautics and Space Administration under Grant No. NNX12AR65G and Grant No. NNX14AM74G issued through the NEO Observation Program.
+</p>
+<h5>Acknowledgment for data before May 2014</h5>
+<p>The Pan-STARRS1 Surveys (PS1) have been made possible through contributions of the Institute for Astronomy, the University of Hawaii, the Pan-STARRS Project Office, the Max-Planck Society and its participating institutes, the Max Planck Institute for Astronomy, Heidelberg and the Max Planck Institute for Extraterrestrial Physics, Garching, The Johns Hopkins University, Durham University, the University of Edinburgh, Queen's University Belfast, the Harvard-Smithsonian Center for Astrophysics, the Las Cumbres Observatory Global Telescope Network Incorporated, the National Central University of Taiwan, the Space Telescope Science Institute, the National Aeronautics and Space Administration under Grant No. NNX08AR22G issued through the Planetary Science Division of the NASA Science Mission Directorate, the National Science Foundation under Grant No. AST-1238877, the University of Maryland, and Eotvos Lorand University (ELTE).</p>
+
+</footer>
+<!-- Footer -->
+{% endblock %}

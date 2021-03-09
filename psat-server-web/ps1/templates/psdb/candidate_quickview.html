@@ -1,0 +1,826 @@
+{% extends "base.html" %}
+
+{% block title %}Candidate {{transient.id}}{% endblock %}
+
+
+<!-- Lightcurve data Globals -->
+{% block lightcurvedataglobal %}
+<script language="javascript" type="text/javascript">
+var jslcdataglobal = new Object();
+var jslabelsglobal = new Object();
+var jslimitsglobal = new Object();
+</script>
+{% endblock %}
+
+
+
+{% block lightcurvedata %}
+<script language="javascript" type="text/javascript">
+var jslcdata = new Array();
+var jslabels = new Array();
+// We have an array with 4 elements. Each element is another array of n elements (usually 5).
+// They must all be the same size - the length of which is captured in the jslabels array.
+// 1. Data points
+// 2. Blanks
+// 3. Nondetections
+// 4. Data labels
+
+// 2013-01-14 KWS Add max/min limits.  The last value in the (e.g.) xmin array is the min for the whole array.
+//                Likewise for the other limits.  Note that we had to add x2min and x2max here into the
+//                javascript array, because for some reason Flot doesn't allow calculations within its axis
+//                element specifiers.
+
+// 2012-01-16 KWS Moved graphing specific max/min limits (e.g. padding, x2min and x2max) into the lightcurve
+//                javascript code to restrict the HTML code to just presenting the required data values.
+
+// 2013-02-14 KWS Change the xmin to the FIRST value of the xmin array (which doesn't include the limit dates).
+var jslclimits = { "xmin": {{ lclimits.xmin.0 }},
+                   "xmax": {{ lclimits.today }},
+                   "ymin": {{ lclimits.ymin|last }},
+                   "ymax": {{ lclimits.ymax|last }},
+                   "discoveryDate": {{ lclimits.discoveryDate }},
+                   "today": {{ lclimits.today }} };
+
+jslimitsglobal["#flot-lightcurve"] = jslclimits;
+
+
+// The first data items are detection data, non-detections, blanks (and anything else)
+{% for dataseries in lcdata|slice:":-1" %}
+  // Normally we have 5 filters, but in case we have more, slice all but the last element
+  // (which is the combined data for all filters).
+  {% for filterdata in dataseries %}
+    jslcdata.push({{filterdata}});
+  {% endfor %}
+{% endfor %}
+
+jslcdataglobal["#flot-lightcurve"] = jslcdata;
+
+// The last item is the data labels. The length of this array must be the same as the
+// length of the filterdata (minus the last element).
+{% for lclabels in lcdata|last %}
+  jslabels.push({{lclabels|safe}});
+{% endfor %}
+
+jslabelsglobal["#flot-lightcurve"] = jslabels;
+</script>
+{% endblock %}
+
+
+
+
+{% block lightcurvedataforced %}
+{% if lcdataforced.0 %}
+<script language="javascript" type="text/javascript">
+
+// lcDataForced = [forcedDetectionData, forcedDetectionDataBlanks, plotLabels, plotLimits]
+// lcDataForcedFlux = [forcedDetectionDataFlux, plotLabelsFlux, fluxLimits]
+// colourDataForced = [colourPlotData, colourPlotLimits, colourPlotLabels]
+
+var jslcdataforced = new Array();
+var jslabelsforced = new Array();
+var jslclimitsforced = { "xmin": {{ lcdataforced.3.xmin.0 }},
+                         "xmax": {{ lcdataforced.3.today }},
+                         "ymin": {{ lcdataforced.3.ymin|last }},
+                         "ymax": {{ lcdataforced.3.ymax|last }},
+                         "discoveryDate": {{ lcdataforced.3.discoveryDate }},
+                         "today": {{ lcdataforced.3.today }} };
+
+jslimitsglobal["#flot-lightcurve-forced"] = jslclimitsforced;
+
+
+{% for dataseries in lcdataforced|slice:":-2" %}
+  {% for filterdata in dataseries %}
+    jslcdataforced.push({{filterdata}});
+  {% endfor %}
+{% endfor %}
+
+jslcdataglobal["#flot-lightcurve-forced"] = jslcdataforced;
+
+// The last item is the data labels. The length of this array must be the same as the
+// length of the filterdata (minus the last element).
+{% for lclabels in lcdataforced.2 %}
+  jslabelsforced.push({{lclabels|safe}});
+{% endfor %}
+
+jslabelsglobal["#flot-lightcurve-forced"] = jslabelsforced;
+</script>
+{% endif %}
+{% endblock %}
+
+
+
+{% block lightcurvedataforcedflux %}
+{% if lcdataforcedflux.0 %}
+<script language="javascript" type="text/javascript">
+// lcDataForcedFlux = [forcedDetectionDataFlux, plotLabelsFlux, fluxLimits]
+var jslcdataforcedflux = new Array();
+var jslabelsforcedflux = new Array();
+var jslclimitsforcedflux = { "xmin": {{ lcdataforcedflux.2.xmin.0 }},
+                             "xmax": {{ lcdataforcedflux.2.today }},
+                             "ymin": {{ lcdataforcedflux.2.ymin|last }},
+                             "ymax": {{ lcdataforcedflux.2.ymax|last }},
+                             "discoveryDate": {{ lcdataforcedflux.2.discoveryDate }},
+                             "today": {{ lcdataforcedflux.2.today }} };
+
+jslimitsglobal["#flot-lightcurve-forced-flux"] = jslclimitsforcedflux;
+
+
+{% for dataseries in lcdataforcedflux|slice:":1" %}
+  {% for filterdata in dataseries %}
+    jslcdataforcedflux.push({{filterdata}});
+  {% endfor %}
+{% endfor %}
+
+jslcdataglobal["#flot-lightcurve-forced-flux"] = jslcdataforcedflux;
+
+// The last item is the data labels. The length of this array must be the same as the
+// length of the filterdata (minus the last element).
+{% for lclabels in lcdataforcedflux.1 %}
+  jslabelsforcedflux.push({{lclabels|safe}});
+{% endfor %}
+
+jslabelsglobal["#flot-lightcurve-forced-flux"] = jslabelsforcedflux;
+
+</script>
+{% endif %}
+{% endblock %}
+
+
+<!-- Colour data Globals -->
+{% block colourplotdataglobal %}
+<script language="javascript" type="text/javascript">
+var jscolourdataglobal = new Object();
+var jscolourlabelsglobal = new Object();
+var jscolourlimitsglobal = new Object();
+</script>
+{% endblock %}
+
+
+
+{% block colourplotdata %}
+{% if colourdata.0.0 or colourdata.0.1 or colourdata.0.2 %}
+<script language="javascript" type="text/javascript">
+
+var jscolourdata = new Array();
+var jscolourlabels = new Array();
+// The colour limits currently rely on the lightcurve data, but in future we may change this
+var jscolourlimits = { "xmin": {{ lclimits.xmin.0 }},
+                       "xmax": {{ lclimits.today }},
+                       "ymin": {{ colourplotlimits.ymin|last }},
+                       "ymax": {{ colourplotlimits.ymax|last }},
+                       "discoveryDate": {{ lclimits.discoveryDate }},
+                       "today": {{ lclimits.today }} };
+
+jscolourlimitsglobal["#flot-colourplot"] = jscolourlimits;
+
+// We have an array with 2 elements. Each element is another array of n elements (currently up to 3 colours).
+// They must all be the same size - the length of which is captured in the jscolorlabels array.
+// 1. Data points
+// 2. Data labels
+
+// We will reuse the lightcuve limits (jslclimits) above for max and min date values.
+
+// The first data item is the detection colours
+{% for colourdataseries in colourdata|slice:":1" %}
+  {% for colour in colourdataseries %}
+    jscolourdata.push({{colour}});
+  {% endfor %}
+{% endfor %}
+
+jscolourdataglobal["#flot-colourplot"] = jscolourdata;
+
+// The last item is the data labels. The length of this array must be the same as the
+// length of the filterdata (minus the last element).
+{% for colourlabels in colourdata|last %}
+  jscolourlabels.push({{colourlabels|safe}});
+{% endfor %}
+
+jscolourlabelsglobal["#flot-colourplot"] = jscolourlabels;
+
+</script>
+{% endif %}
+{% endblock %}
+
+{% block recurrenceplotdata %}
+<script language="javascript" type="text/javascript">
+var jsrecurrencedata = new Array();
+var jsrecurrencelabels = new Array();
+var jsrecurrencelimits = { "xmin": -3.0,  // arcsec
+                           "xmax": 3.0,
+                           "ymin": -3.0,
+                           "ymax": 3.0 };
+
+{% for recurrencepoints in recurrencedata.0 %}
+  jsrecurrencedata.push({{recurrencepoints}});
+{% endfor %}
+
+{% for labels in recurrencedata.1 %}
+  jsrecurrencelabels.push({{labels|safe}});
+{% endfor %}
+
+</script>
+{% endblock %}
+
+
+
+
+
+{% block colourplotdataforced %}
+{% if colourdataforced.0.0 or colourdataforced.0.1 or colourdataforced.0.2 %}
+<script language="javascript" type="text/javascript">
+    //colourDataForced = [colourPlotData, colourPlotLimits, colourPlotLabels]
+var jscolourdataforced = new Array();
+var jscolourlabelsforced = new Array();
+// The colour limits currently rely on the lightcurve data, but in future we may change this
+var jscolourlimitsforced = { "xmin": {{ lclimits.xmin.0 }},
+                             "xmax": {{ lclimits.today }},
+                             "ymin": {{ colourdataforced.1.ymin|last }},
+                             "ymax": {{ colourdataforced.1.ymax|last }},
+                             "discoveryDate": {{ lclimits.discoveryDate }},
+                             "today": {{ lclimits.today }} };
+
+jscolourlimitsglobal["#flot-colourplot-forced"] = jscolourlimitsforced;
+
+{% for colourdataseries in colourdataforced|slice:":1" %}
+  {% for colour in colourdataseries %}
+    jscolourdataforced.push({{colour}});
+  {% endfor %}
+{% endfor %}
+
+jscolourdataglobal["#flot-colourplot-forced"] = jscolourdataforced;
+
+{% for colourlabels in colourdataforced|last %}
+  jscolourlabelsforced.push({{colourlabels|safe}});
+{% endfor %}
+
+jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
+</script>
+{% endif %}
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+<body bgcolor="#424242" onload="TimerThread()">
+
+
+
+<script type="text/javascript">
+// var a = new Image(); a.src = 'http://cas.sdss.org/astrodr7/en/tools/chart/navi.asp?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale=0.1&width=500&height=500&opt=GPS';
+// 2012-12-07 KWS Added DR9 equivalents
+var a = new Image(); a.src = 'http://skyserver.sdss3.org/dr9/en/tools/chart/navi.asp?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale=0.1&width=500&height=500&opt=GPS';
+// var b = new Image(); b.src = 'http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale=0.1&width=500&height=500&opt=GPS';
+var b = new Image(); b.src = 'http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpeg.aspx?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale=0.1&width=500&height=500&opt=GPS';
+</script>
+
+
+<DIV CLASS="hover">
+<CENTER>
+<!-- <FONT size="6" color="white"><B>lists</B><FONT><BR> -->
+<FONT size="4">
+<A HREF="../../"><B>home</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../followup/2/"><B>good</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../followup/3/"><B>possible</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../followup/1/"><B>confirmed</B></A>
+<FONT color="white">| </FONT>
+<A HREF="../../followup/5/"><B>attic</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../followup/8/"><B>eyeball-fast-track</B></A>
+<FONT color="white">|</FONT>
+<A HREF="../../userlist/"><B>custom</B></A>
+</FONT><BR>
+
+</CENTER>
+</DIV>
+<HR>
+
+<CENTER>
+<TABLE><TR><th align="left">
+<FONT color="#A9D0F5" size='5'><B>&nbsp Candidate: <FONT color="#FFFFFF">{{ transient.id }}</FONT> </B></FONT>
+
+{% if transient.followup_id %}
+<FONT color="#A9D0F5" size='5'><B>&nbsp Rank: <FONT color="#FFFFFF">{{ transient.followup_id }}</FONT> </B></FONT>
+{% endif %}
+
+{% if transient.followup_flag_date %}
+<FONT color="#A9D0F5" size='5'><B>&nbsp Flag Date: <FONT color="#FFFFFF">{{ transient.followup_flag_date }}</FONT> </B></FONT>
+{% endif %}
+
+<BR>
+{% if transient.local_designation %}
+<FONT color="#A9D0F5" size='5'><B>&nbsp  QUB Designation: <FONT color="#FFFFFF">{{ transient.local_designation }}</FONT> </B></FONT>
+{% endif %}
+
+<BR>
+{% if transient.ps1_designation %}
+<FONT color="#A9D0F5" size='5'><B>&nbsp  PS1 Designation: <FONT color="#FFFFFF">{{ transient.ps1_designation }}</FONT> </B></FONT>
+{% endif %}
+
+<BR>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Classification: <FONT color="#FFFFFF">{{ transient.decode_flag_bits }}</FONT> </B></FONT>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Occurrences: <FONT color="#FFFFFF">{{ table.rows.count|add:"1" }}</FONT> </B></FONT>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Survey: <FONT color="#FFFFFF">{{ transient.tcs_cmf_metadata_id.filename|slice:"4" }}</FONT> </B></FONT>
+
+<!-- RA and DEC taken from the second set of observations - would be good take these from the primary observation -->
+<BR>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Coordinates: <FONT color="#FFFFFF">{{ avg_coords.ra_sex }} {{ avg_coords.dec_sex }}</FONT> </B></FONT>
+<FONT color="#A9D0F5" size='5'><B>&nbsp List: <FONT color="#FFFFFF">{{ transient.detection_list_id.name }}</FONT> </B></FONT>
+{% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}
+<FONT color="#A9D0F5" size='5'><B>&nbsp Object Crossmatch: <a href="http://star.pst.qub.ac.uk/ps/parts/SNcrossmatches.html#{{ transient.local_designation }}"><FONT color="#FFFFFF">check here</FONT></a> </B></FONT>
+{% endif %}
+
+
+{% if cfaMatch %}
+<BR>
+<FONT color="#A9D0F5" size='5'><B>&nbsp CfA ID(s): {% for row in cfaMatch %} <a href="http://telescopes.rc.fas.harvard.edu/ps1/alerts2011{% if row.eventID >= 300000 %}v3{% endif %}/{{row.xmid}}/{{row.xmid}}.html"><FONT color="#FFFFFF">{{ row.xmid|default_if_none:"" }}{% endfor %}</FONT></a> </B></FONT>
+{% endif %}
+
+{% if transient.local_comments %}
+<BR>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Comments: <FONT color="#FFFFFF" size='2'>{{ transient.local_comments }}</FONT> </B></FONT>
+{% endif %}
+
+{% if transient.observation_status %}
+<BR>
+<FONT color="#A9D0F5" size='5'><B>&nbsp Spectral Type: <FONT color="#FFFFFF" size='4'>{{ transient.observation_status }}</FONT> </B></FONT>
+{% endif %}
+
+</TR>
+
+</TABLE>
+</CENTER>
+
+<BR>
+<BR>
+<!-- lightcurve and recurrence plot -->
+<!-- 2012-12-17 KWS Had to specify images sizes below in PIXELS not percentages, otherwise Firefox doesn't render correctly. -->
+<CENTER>
+<div id="plots">
+    <div id="lightcurve"><div id="flot-lightcurve" style="width:88%;height:96%;"></div></div>
+    <div id="recurrenceplot"><div id="flot-recurrenceplot" style="width:88%;height:96%;"></div></div>
+    <div id="locationmap"><center><a href="../../../site_media/images/location_maps/{{transient.id}}_np.png"><img src="../../../site_media/images/location_maps/{{transient.id}}_np.png" height="239"  border="0" /></a></center></div>
+</div>
+</CENTER>
+
+
+<!-- The following condition is a kludge. Will fix with a sent flag in future. -->
+{% if lcdataforced.0 %}
+<CENTER>
+<div id="plots">
+    <div id="lightcurve"><div id="flot-lightcurve-forced" style="width:88%;height:96%;"></div></div>
+</div>
+</CENTER>
+<BR>
+<BR>
+{% endif %}
+
+{% if lcdataforcedflux.0 %}
+<CENTER>
+<div id="plots">
+    <div id="lightcurve"><div id="flot-lightcurve-forced-flux" style="width:88%;height:96%;"></div></div>
+</div>
+</CENTER>
+<BR>
+<BR>
+{% endif %}
+
+{% if colourdata.0.0 or colourdata.0.1 or colourdata.0.2 %}
+<CENTER>
+<div id="plots">
+    <div id="colourplot"><div id="flot-colourplot" style="width:88%;height:96%;"></div></div>
+</div>
+</CENTER>
+<BR>
+<BR>
+{% endif %}
+
+{% if colourdataforced.0.0 or colourdataforced.0.1 or colourdataforced.0.2 %}
+<CENTER>
+<div id="plots">
+    <div id="colourplot"><div id="flot-colourplot-forced" style="width:88%;height:96%;"></div></div>
+</div>
+</CENTER>
+<BR>
+<BR>
+{% endif %}
+
+<script language="javascript" type="text/javascript" src="../../../site_media/js/flot/jquery-1.7.2.js"></script>
+<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../../../site_media/js/flot/excanvas.js"></script><![endif]-->
+<script language="javascript" type="text/javascript" src="../../../site_media/js/flot/jquery.flot.js"></script>
+<script language="javascript" type="text/javascript" src="../../../site_media/js/flot/jquery.flot.errorbars.js"></script>
+<script language="javascript" type="text/javascript" src="../../../site_media/js/flot/jquery.flot.axislabels.js"></script>
+<script language="javascript" type="text/javascript" src="../../../site_media/js/flot/jquery.flot.selection.js"></script>
+<script language="javascript" type="text/javascript">var lcdivname = "#flot-lightcurve";</script>
+<script language="javascript" type="text/javascript" src="../../../site_media/js/lightcurve.js"></script>
+
+{% if lcdataforced.0 %}
+<script language="javascript" type="text/javascript">var lcdivname = "#flot-lightcurve-forced";</script>
+<script language="javascript" type="text/javascript" src="../../../site_media/js/lightcurve.js"></script>
+{% endif %}
+
+{% if lcdataforcedflux.0 %}
+<script language="javascript" type="text/javascript">var lcdivname = "#flot-lightcurve-forced-flux";</script>
+<script language="javascript" type="text/javascript" src="../../../site_media/js/lightcurve.js"></script>
+{% endif %}
+
+{% if colourdata.0.0 or colourdata.0.1 or colourdata.0.2 %}
+<script language="javascript" type="text/javascript">var colourdivname = "#flot-colourplot";</script>
+<script language="javascript" type="text/javascript" src="../../../site_media/js/colourplot.js"></script>
+{% endif %}
+
+{% if colourdataforced.0.0 or colourdataforced.0.1 or colourdataforced.0.2 %}
+<script language="javascript" type="text/javascript">var colourdivname = "#flot-colourplot-forced";</script>
+<script language="javascript" type="text/javascript" src="../../../site_media/js/colourplot.js"></script>
+{% endif %}
+
+<script language="javascript" type="text/javascript" src="../../../site_media/js/recurrenceplot.js"></script>
+
+<!--
+<P>g ---------------------------- </P>
+<P> {{ lcdata.0.0 }} </P>
+<P> {{ lcdata.1.0 }} </P>
+<P> {{ lcdata.2.0 }} </P>
+<P>r ---------------------------- </P>
+<P> {{ lcdata.0.1 }} </P>
+<P> {{ lcdata.1.1 }} </P>
+<P> {{ lcdata.2.1 }} </P>
+<P>i ---------------------------- </P>
+<P> {{ lcdata.0.2 }} </P>
+<P> {{ lcdata.1.2 }} </P>
+<P> {{ lcdata.2.2 }} </P>
+<P>z ---------------------------- </P>
+<P> {{ lcdata.0.3 }} </P>
+<P> {{ lcdata.1.3 }} </P>
+<P> {{ lcdata.2.3 }} </P>
+<P>y ---------------------------- </P>
+<P> {{ lcdata.0.4 }} </P>
+<P> {{ lcdata.1.4 }} </P>
+<P> {{ lcdata.2.4 }} </P>
+-->
+
+
+<CENTER>
+<TABLE>
+<TR><TD>
+<FORM name="Boxes" onsubmit="0" color="#A9D0F5">
+<FONT color="#A9D0F5" size='4'><B>&nbsp Current MJD : <FONT color="#FFFFFF"><INPUT name="row2d" size="28" value="just a sec ..." style="color: #FFFFFF;  border:0; font-family:helvetica; font-weight: bold; font-style: normal; font-size:14pt; background-color: #424242"></FONT> </B></FONT>
+</FORM></TD>
+
+</TR></TABLE>
+</CENTER>
+
+
+<!-- 2012-03-26 KWS Add OLD DB ConeSearch results -->
+{% if conesearchold %}
+  <CENTER>
+  <BR />
+  <FONT color="#A9D0F5" size='5'><B> OLD Database PS1 Objects in the Vicinity </B></FONT>
+  <BR />
+  <BR />
+
+  <TABLE border="1" cellpadding="5" bgcolor="white">
+  <tr>
+    <th>PS1 Object ID</th>
+    <th>Separation</th>
+  </tr>
+
+  {% for row in conesearchold %}
+    <tr>
+    <td><a href="{{olddburl}}candidate/{{row.xmid}}/">{{ row.xmid }}</a></td>
+    <td>{{ row.separation|floatformat:2 }}&quot;</td>
+    </tr>
+
+  {% endfor %}
+
+  </TABLE>
+
+  <BR />
+  <BR />
+  </CENTER>
+{% endif %}
+
+
+<!-- Plot new lightcurve, flux and forced photometry -->
+<CENTER>
+
+<FONT color="#A9D0F5" size='2'>Lightcurve Data <a href="../../lightcurve/{{transient.id}}/"> here</a></FONT>
+<BR />
+<FONT color="#A9D0F5" size='2'>Colour Data <a href="../../colour/{{transient.id}}/"> here</a></FONT>
+
+</CENTER>
+
+<BR><BR>
+
+<!-- Plot new lightcurve, flux and forced photometry -->
+<CENTER>
+
+<FONT color="#A9D0F5" size='5'><B>Lightcurve replotting options: <a href="../../lightcurves/{{transient.id}}/"> here</a> </B></FONT>
+
+</CENTER>
+
+<BR><BR>
+
+<!-- Data table -->
+{% ifnotequal table.rows.count 0 %}
+<CENTER>
+<TABLE border="1" cellpadding="5" bgcolor="white">
+<tr>
+  {% for column in table.columns %}
+  <th>
+    {% if column.sortable %}
+      <a href="?sort={{ column.name_toggled }}">
+        {{ column }}
+      </a>
+      {% if column.is_ordered_reverse %}
+        <!-- <img src="../../../site_media/images/up.jpg" /> -->
+      {% else %}
+        <!-- <img src="../../../site_media/images/down.jpg" /> -->
+      {% endif %}
+    {% else %}
+      {{ column }}
+    {% endif %}
+  </th>
+  {% endfor %}
+</tr>
+
+{% for row in table.rows %}
+  <tr>
+  <td>{{ row.data.imageid }}</td>
+  <td>{{ row.data.mjd_obs|floatformat:3 }}</td>
+  <td>{{ row.data.ra_sex }}</td>
+  <td>{{ row.data.dec_sex }}</td>
+  <td>{{ row.data.psf_inst_mag|floatformat:3 }}</td>
+  <td>{{ row.data.ap_mag|floatformat:3 }}</td>
+  <td>{{ row.data.cal_psf_mag|floatformat:3}}</td>
+  <td>{{ row.data.filter }}</td>
+  <td>{{ row.data.cmf_file }}</td>
+  <td>{{ row.data.image }}</td>
+  </tr>
+
+{% endfor %}
+
+</TABLE>
+{% endifnotequal %}
+<BR>
+
+{% if crossmatches.0.z %}
+<BR>
+<FONT color="#A9D0F5" size='5'><B> Possible Associations </B></FONT>
+<BR>
+<TABLE border="1" cellpadding="5" bgcolor="white">
+  <tr>
+  <td><FONT color="#3399FF" size='1'><B>Catalogue</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>ID</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>Separation</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>z</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>Distance (Mpc)</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>(m-M)</B></FONT></td>
+  <td><FONT color="#3399FF" size='1'><B>Distance Scale (Kpc/arcsec)</B></FONT></td>
+  </tr>
+  
+{% for row in crossmatches %}
+  <tr>
+  <td><FONT size='1'>{{ row.catalogue_table_id.description }}</FONT></td>
+  <td><FONT size='1'>{{ row.catalogue_object_id }}</FONT></td>
+  <td><FONT size='1'>{{ row.separation|floatformat:2 }}"</FONT></td>
+  <td><FONT size='1'>{{ row.z|floatformat:3 }}</FONT></td>
+  <td><FONT size='1'>{{ row.distance|floatformat:2 }}</FONT></td>
+  <td><FONT size='1'>{{ row.distance_modulus|floatformat:3 }}</FONT></td>
+  <td><FONT size='1'>{{ row.scale|floatformat:2 }}</FONT></td>
+  </tr>
+{% endfor %}
+</TABLE>
+<BR><BR>
+{% endif %}
+
+
+
+
+<!-- Stamps, external data & possible associations -->
+<TABLE><TR style='vertical-align:top'><TD>
+{% if images %}
+  <TABLE class="images">
+  <TR>
+  {% for image in images %}
+     {% ifchanged image.image_group_id %}
+        </TR><TR>
+     {% endifchanged %}
+     <TD>
+     <FONT color="#FFFFFF" size="2">
+     {{ image.image_type }}
+     {% if image.filter %}
+     ({{ image.filter }})
+     {% endif %}
+     <BR>
+     mjd: {{ image.stamp_mjd|floatformat:5 }}<BR>
+     </FONT>
+     <!-- {% if image.pss_filename %}
+     <FONT color="#FFFFFF" size="2">
+     {{ image.pss_filename }}<BR>
+     </FONT>
+     {% endif %} -->
+
+     <a href="../../../site_media/images/data/{{ image.filename }}.fits">
+     <img src="../../../site_media/images/data/{{ image.filename }}.jpeg" alt="{{ image.pss_filename }}" title="{{ image.pss_filename }}" onerror="this.src='../../../site_media/images/image_not_available.jpeg';" {% if transient.tcs_cmf_metadata_id.filename|slice:"4" != "FGSS"  %} height="250" {% endif %} />
+     </a><BR>
+     </TD>
+  {% endfor %}
+  </TR>
+  </TABLE>
+{% endif %}
+</TD>
+
+<TD valign="top">
+<TABLE border="1" cellpadding="5" align="center" style="border: 3px #FFFFFF solid">
+<tr align="center"><td>
+<!-- possible associations -->
+
+{% ifnotequal transient.object_classification.flag_id 1 %}
+
+{% if not crossmatches.0.z %}
+<FONT color="#A9D0F5" size='5'><B> Possible Associations </B></FONT>
+<BR>
+<TABLE border="1" cellpadding="5" bgcolor="white">
+
+  {% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}
+    <td><FONT color="#3399FF" size='1'><B>SDSS ID</B></FONT></td>
+    <td><FONT color="#3399FF" size='1'><B>Separation</B></FONT></td>
+    <td><FONT color="#3399FF" size='1'><B>Assoc Type</B></FONT></td>
+    <td><FONT color="#3399FF" size='1'><B>Obj Type</B></FONT></td>
+    <td><FONT color="#3399FF" size='1'><B>g</B></FONT></td>
+    <td><FONT color="#3399FF" size='1'><B>r</B></FONT></td>
+    <td><FONT color="#3399FF" size='1'><B>i</B></FONT></td>
+    <td><FONT color="#3399FF" size='1'><B>z</B></FONT></td>
+    
+    {% for row in crossmatches %}
+      <tr>
+      <td><FONT size='1'>{{ row.catalogue_object_id }}</FONT></td>
+      <td><FONT size='1'>{{ row.separation|floatformat:2 }}"</FONT></td>
+      <td><FONT size='1'>{{ row.association_type }}</FONT></td>
+      <td><FONT size='1'>{{ row.type }}</FONT></td>
+      <td><FONT size='1'>{{ row.g_|floatformat:2 }}</FONT></td>
+      <td><FONT size='1'>{{ row.r_|floatformat:2 }}</FONT></td>
+      <td><FONT size='1'>{{ row.i_|floatformat:2 }}</FONT></td>
+      <td><FONT size='1'>{{ row.z_|floatformat:2 }}</FONT></td>
+      </tr>
+    {% endfor %}
+
+  {% else %}
+    <td><FONT color="#3399FF" size='1'><B>Catalogue</B></FONT></td>
+    <td><FONT color="#3399FF" size='1'><B>ID</B></FONT></td>
+    <td><FONT color="#3399FF" size='1'><B>Separation</B></FONT></td>
+  
+    {% for row in crossmatches %}
+      <tr>
+      <td><font size='1'>{{ row.catalogue_table_id.description }}</FONT></td>
+      <td><font size='1'>{{ row.catalogue_object_id }}</FONT></td>
+      <td><font size='1'>{{ row.separation|floatformat:2 }}"</FONT></td>
+      </tr>
+    {% endfor %}
+  {% endif %}
+
+</TABLE>
+{% endif %}
+
+<BR><BR>
+{% endifnotequal %}
+
+
+
+<FONT color="#A9D0F5" size='5'><B> External Information </B></FONT>
+<BR>
+<script type='text/javascript' src='http://wikisky.org/js/skywindow2'></script>
+<div style='position:relative;left:0px;top:0px;{% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}width:500px;height:500px{% else %}width:300px;height:300px{% endif %}'>
+<DIV id='mySkyWnd'
+  style='position:absolute;left:0;top:0;{% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}width:500px;height:500px{% else %}width:300px;height:300px{% endif %};overflow:hidden;border:0px solid gray'
+  onmouseout='hideddrivetip();'></DIV></div>
+<script type="text/javascript">
+// NEED TO INPUT RA (DECIMAL HOURS) HERE 
+var options = {ra:{{ transient.ra_in_hours }}, de:{{ avg_coords.dec }}, initZoom:6, {% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}zoom:11{% else %}zoom:12{% endif %},
+  survey:"", imgSource:"DSS2", allowTopPanel:true, showTopPanel:true, showRightPanel:true,
+  allowMove:false, allowZoom:false,
+  showPanZoomControl:true, panZoomControlLeft:6, panZoomControlTop:10,
+  showScale:true, showStatus:false, showPosition:true, showStickers:false, showLabels:false,
+  jpegQuality:0.8,
+  showGrid:false, showOverlayGrid:false,
+  showConstLines:false, showOverlayConstLines:false,
+  showConstBoundaries:false, showOverlayConstBoundaries:false,
+  showConstNames:false, showOverlayConstNames:false,
+  showGalaxies:false, showOverlayGalaxies:false,
+  showStars:false, showOverlayStars:false,
+  buffer:1, moveTime:2000, smoothMoveAccelerationTime:500,
+  posColor:"lightgray",posFontSize:"8pt",posFontWeight:"normal",posFontFamily:"verdana",
+  scaleMaxLen:90, scaleHeight:6, scaleColor:"lightgray", scaleLineWidth:1
+};
+new SkyWindow2(options).attach($('#mySkyWnd')[0]);
+</script>
+<BR>
+
+<!-- DR9 Navigate -->
+<p><FONT color="#FFFFFF">SDSS DR9</FONT></p>
+<a href="http://skyserver.sdss3.org/dr9/en/tools/chart/navi.asp?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale={% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}0.2{% else %}0.1{% endif %}&width=500&height=500&opt=GPS" onmouseover="document.images['s1a'].src='http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpeg.aspx?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec}}&scale={% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}0.2{% else %}0.1{% endif %}&width=500&height=500&opt=GPSI';" onmouseout="document.images['s1a'].src='http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpeg.aspx?ra={{ avg_coords.ra}}&dec={{avg_coords.dec }}&scale={% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}0.2{% else %}0.1{% endif %}&width=500&height=500&opt=GPS';">
+<img src="http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpeg.aspx?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec}}&scale={% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}0.2{% else %}0.1{% endif %}&width=500&height=500&opt=GPS" name="s1a" {% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %} height="500" width="500" {% else %} height="300" width="300" {% endif %} alt="" border="0"></a>
+
+<!-- DR7 Navigate -->
+<p><FONT color="#FFFFFF">SDSS DR7</FONT></p>
+<a href="http://cas.sdss.org/astrodr7/en/tools/chart/navi.asp?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale={% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}0.2{% else %}0.1{% endif %}&width=500&height=500&opt=GPS" onmouseover="document.images['s1a'].src='http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec}}&scale={% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}0.2{% else %}0.1{% endif %}&width=500&height=500&opt=GPSI';" onmouseout="document.images['s1a'].src='http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{ avg_coords.ra}}&dec={{avg_coords.dec }}&scale={% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}0.2{% else %}0.1{% endif %}&width=500&height=500&opt=GPS';">
+<img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec}}&scale={% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %}0.2{% else %}0.1{% endif %}&width=500&height=500&opt=GPS" name="s1a" {% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "FGSS"  %} height="500" width="500" {% else %} height="300" width="300" {% endif %} alt="" border="0"></a>
+
+<BR><BR><FONT size='2'>
+<!-- WIKISKY --> <!-- NEED TO INPUT RA (DECIMAL HOURS) HERE x 2 -->
+<a href="http://www.wikisky.org/?ra={{ transient.ra_in_hours }}&de={{ avg_coords.dec }}&zoom=13&show_grid=1&show_constellation_lines=1&show_constellation_boundaries=1&show_const_names=0&show_galaxies=1&show_box=1&box_ra={{ transient.ra_in_hours }}&box_de={{ avg_coords.dec }}&box_width=50&box_height=50&img_source=DSS2" target="blank">WIKISKY</a><BR>
+
+<!-- SDSS DR9 NAVIGATE LINK -->
+<a href="http://skyserver.sdss3.org/dr9/en/tools/chart/navi.asp?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale=0.1&width=500&height=500&opt=GPS" target="blank">SDSS DR9 Navigate</a><BR>
+
+<!--SDSS DR9 NEAREST OBJECT (EXPLORE TOOL) -->
+<a href="http://skyserver.sdss3.org/dr9/en/tools/explore/obj.asp?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}" target="blank">SDSS DR9 Nearest Object</a><BR>
+
+<!-- SDSS NAVIGATE LINK -->
+<a href="http://cas.sdss.org/astrodr7/en/tools/chart/navi.asp?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale=0.1&width=500&height=500&opt=GPS" target="blank">SDSS DR7 Navigate</a><BR>
+
+<!--SDSS NEAREST OBJECT (EXPLORE TOOL) -->
+<a href="http://cas.sdss.org/astrodr7/en/tools/explore/obj.asp?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}" target="blank">SDSS DR7 Nearest Object</a><BR>
+
+<!-- SDSS DR7 Stripe 82 -->
+<a href="http://cas.sdss.org/stripe82/en/tools/chart/navi.asp?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale=0.1&width=500&height=500&opt=GPS" target="blank">SDSS DR7 Stripe 82</a><BR>
+
+<!-- NED LINK -->
+<a href="http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch?in_csys=Equatorial&in_equinox=J2000.0&lon={{ avg_coords.ra|floatformat:6 }}d&lat={{ avg_coords.dec|floatformat:6 }}d&radius=0.16667&hconst=73&omegam=0.27&omegav=0.73&corr_z=1&z_constraint=Unconstrained&z_value1=&z_value2=&z_unit=z&search_type=Near+Position+Search&ot_include=ANY&nmp_op=ANY&out_csys=Equatorial&out_equinox=J2000.0&obj_sort=Distance+to+search+center&of=pre_text&zv_breaker=30000.0&list_limit=5&img_stamp=YES" target="_blank">NED : 10 arcsec radius</a><BR>
+
+<!-- LEDA -->
+<a href="http://leda.univ-lyon1.fr/fG.cgi?n=0&c=o&p=J{{ avg_coords.ra }}d{{ avg_coords.dec }}d&f=0.16667&ob=ra" target="blank">LEDA : 10 arcsec radius</a><BR>
+
+<!-- SIMBAD -->
+<a href="http://simbad.u-strasbg.fr/simbad/sim-coo?Coord={{avg_coords.ra}}d{{ avg_coords.dec }}d&Radius=10&Radius.unit=arcsec&CooFrame=FK5&CooEqui=2000&CooEpoch=2000" target="blank">SIMBAD : 10 arcsec radius</a><BR>
+
+<!-- Galactic Extinction -->
+<a href="http://nedwww.ipac.caltech.edu/cgi-bin/nph-calc?in_csys=Equatorial&in_equinox=J2000.0&obs_epoch=2000.0&lon={{ avg_coords.ra }}d&lat={{ avg_coords.dec }}d&pa=0.0&out_csys=Equatorial&out_equinox=J2000.0" target="blank">Galactic Extinction</a><BR>
+<BR></FONT>
+</TD></TR>
+</TABLE>
+</TD></TR>
+</TABLE>
+<!-- </TABLE> -->
+<BR>
+
+</CENTER>
+
+<!-- 2011-04-04 KWS Added the User Defined Lists -->
+
+<CENTER>
+
+{% if userList %}
+<BR>
+<TABLE class="userlists">
+   <TR>
+      <TH>Object is a member of:</TH>
+   </TR>
+   {% for row in userList %}
+   <TR>
+      <TD><a href="../../userlist/{{row.object_group_id.id}}/">{{ row.object_group_id.description }}</a></TD>
+   </TR>
+   {% endfor %}
+</TABLE>
+<BR>
+<BR>
+<BR>
+{% endif %}
+
+</CENTER>
+
+<CENTER>
+
+<!-- 2011-10-04 KWS Removed the ifnotequal for list = 0 - i.e. allow form for Garbage objects now -->
+
+{% if transient.detection_list_id.id >= 0 %}
+   {% if form %}
+   {% if form.errors %}
+       <p style="color: red;">
+           Please correct the error{{ form.errors|pluralize }} below.
+       </p>
+   {% endif %}
+
+   <form action="" method="post">
+   <FONT color="#FFFFFF">
+   <TABLE class="forms">
+       {{ form.as_table }}
+   </TABLE>
+   <BR>
+   <input type="submit" value="Update Object" />
+   </FONT>
+   </form>
+   {% endif %}
+{% endif %}
+
+</CENTER>
+
+
+{% endblock %}
+

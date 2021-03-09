@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="{{ STATIC_URL }}css/main.css" type="text/css"/>
+
+<!-- include Aladin Lite CSS file in the head section of your page -->
+<!-- <link rel="stylesheet" href="http://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" /> -->
+<link rel="stylesheet" href="{{ STATIC_URL }}css/aladin.css" />
+
+<title>{% block title %}Main Base Title{% endblock %}</title>
+
+
+{% block lightcurvedataglobal %}
+{% endblock %}
+
+{% block recurrencedataglobal %}
+{% endblock %}
+
+{% block lightcurvedata %}
+{% endblock %}
+
+{% block lightcurvedataforced %}
+{% endblock %}
+
+{% block lightcurvedataforcedflux %}
+{% endblock %}
+
+{% block colourplotdataglobal %}
+{% endblock %}
+
+{% block colourplotdata %}
+{% endblock %}
+
+{% block colourplotdataforced %}
+{% endblock %}
+
+{% block recurrenceplotdata %}
+{% endblock %}
+
+</head>
+{% block content %}
+Unset Content
+{% endblock %}
+</body>
+</html>

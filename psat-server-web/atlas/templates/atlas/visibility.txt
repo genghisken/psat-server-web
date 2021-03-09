@@ -1,0 +1,1 @@
+{% for row in table.rows %}{% if row.atlas_designation %}{{ row.atlas_designation }}{% else %}{{ row.idtxt }}{% endif %}=[{{ row.ra_avg }},{{ row.dec_avg }},2000] {% endfor %}

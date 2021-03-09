@@ -1,0 +1,19 @@
+** TITLE ** (Cut and paste)
+
+Pan-STARRS Search for Kilonovae: discovery of an intrinsically faint transient (AT{{ stats.0.id.other_designation }}) in {{ sxm.catalogue_object_id }} ({% if sxm.direct_distance %}{{ sxm.direct_distance|floatformat:"0" }}{% else %}{{ sxm.distance|floatformat:"0" }}{% endif %} Mpc)
+
+** ABSTRACT ** (Cut and paste)
+
+Here we report the discovery of an intrinsically faint transient {% if stats.0.id.ps1_designation %}{{ stats.0.id.ps1_designation }}{% else %}{{ transient.id }}{% endif %} (AT{{ stats.0.id.other_designation }}) in the host galaxy {{ sxm.catalogue_object_id }}, at a redshift of z = {{ sxm.z|floatformat:"3" }}, or d = {% if sxm.direct_distance %}{{ sxm.direct_distance|floatformat:"0" }}{% else %}{{ sxm.distance|floatformat:"0" }}{% endif %} Mpc (from NED). Its discovery magnitude (MJD = {{ stats.0.earliest_mjd|floatformat:"2" }}) is {{ stats.0.earliest_filter }} = {{ stats.0.earliest_mag|floatformat:"2" }} +/- {{ transient.psf_inst_mag_sig|floatformat:"2" }}, and hence an absolute magnitude of M_{{ stats.0.earliest_filter }} = {{ stats.0.earliest_mag|floatformat:"2" }} - {% if sxm.direct_distance_modulus %}{{ sxm.direct_distance_modulus|floatformat:"2" }}{% else %}{{ sxm.distance_modulus|floatformat:"2" }}{% endif %} - 0.XX +/- {{ transient.psf_inst_mag_sig|floatformat:"2" }}.
+
+
+** TEXT ** (Cut and paste, DOUBLE CHECK NED numbers, FILL IN XX blanks)
+
+**********
+
+
+We report the discovery of an intrinsically faint transient {% if stats.0.id.ps1_designation %}{{ stats.0.id.ps1_designation }}{% else %}{{ transient.id }}{% endif %} (AT{{ stats.0.id.other_designation }}) in the host galaxy {{ sxm.catalogue_object_id }}, at a redshift of z = {{ sxm.z|floatformat:"3" }} or d = {% if sxm.direct_distance %}{{ sxm.direct_distance|floatformat:"0" }}{% else %}{{ sxm.distance|floatformat:"0" }}{% endif %} Mpc (from NED).  The transient was discovered at MJD {{ stats.0.earliest_mjd|floatformat:"2" }} == {{ stats.0.earliest_mjd_date }}, at m_{{ stats.0.earliest_filter }} = {{ stats.0.earliest_mag|floatformat:"2" }} +/- {{ transient.psf_inst_mag_sig|floatformat:"2" }}. It is offset from the host by {% if sxm.northseparationarcsec > 0 %}{{ sxm.northseparationarcsec|floatformat:"2" }}" S{% else %}{{ sxm.northseparationarcsec|floatformat:"2"|slice:"1:" }}" N{% endif %}, {% if sxm.eastseparationarcsec > 0 %}{{ sxm.eastseparationarcsec|floatformat:"2" }}" W{% else %}{{ sxm.eastseparationarcsec|floatformat:"2"|slice:"1:" }}" E{% endif %} (a projected {{ sxm.physical_separation_kpc|floatformat:"1" }} kpc radius from the galaxy centre). At this distance the absolute magnitude is M_{{ stats.0.earliest_filter }} = {{ stats.0.earliest_mag|floatformat:"2" }} - {% if sxm.direct_distance_modulus %}{{ sxm.direct_distance_modulus|floatformat:"2" }}{% else %}{{ sxm.distance_modulus|floatformat:"2" }}{% endif %} - 0.XX (assuming m-M = {% if sxm.direct_distance_modulus %}{{ sxm.direct_distance_modulus|floatformat:"2" }}{% else %}{{ sxm.distance_modulus|floatformat:"2" }}{% endif %} and foreground extinction of A_{% if stats.0.earliest_filter == 'w' %}r{% else %}{{ stats.0.earliest_filter }}{% endif %} = X.XX). Spectroscopic classification is encouraged.
+
+
+
+**********

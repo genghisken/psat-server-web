@@ -1,0 +1,18 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title %}Error!{% endblock %}
+
+{% block content %}
+
+<!-- For my own sanity - see comments describing which columns are which in the layout -->
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- First part of the page - 3 columns in large format, width 4, 2, 6 -->
+
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <font class="text-danger">{{ error_message }}</font>
+    </div>
+</div>
+
+{% endblock %}

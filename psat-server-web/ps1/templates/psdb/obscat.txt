@@ -1,0 +1,2 @@
+{% for row in table %}{% if row.data.ps1_designation %}{{ row.data.ps1_designation }}{% else %}{% if row.data.local_designation %}{{ row.data.local_designation }}{% else %}{{ row.data.ID }}{% endif %}{% endif %}  {{ row.data.ra_sex_spaces }}  {{ row.data.dec_sex_spaces }}   J2000
+{% endfor %}

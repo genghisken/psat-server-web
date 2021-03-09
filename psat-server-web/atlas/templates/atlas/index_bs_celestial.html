@@ -1,0 +1,183 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title %}ATLAS Static Transients{% endblock %}
+
+{% block celestial %}
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/celestial/d3.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/celestial/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/celestial/celestial.js"></script>
+  <link rel="stylesheet" href="{{ STATIC_URL }}/css/celestial.css">
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row">
+
+    <div class="col-lg-12 col-md-12 col-sm-12">
+
+<h3>ATLAS Static Transients</h3>
+
+<p>The <a href="http://fallingstar.com">ATLAS</a> project is a pair of 0.5m f/2.0 Schmidt telescopes situated on Mauna Loa and Haleakala in Hawaii (Tonry 2011, PASP, 123, 58). Each telescope is equipped with an STA-1600 10.5x10.5k CCD with 1.86 arcsec pixels giving a FOV of 5.4x5.4 degrees. The first telescope on Haleakala has been fully operational since 2015, and the Mauna Loa telescope was commissioned at the end of January 2017. Each telescope is robotically surveying the sky, covering up to 29,000 square degrees per night on each summit with exposure times of 30s. The current observing pattern uses dithered quads across a sky survey area of 7,250 square degrees per night per summit. Each summit observes the same declination strip every four days, and the summit observing schedules are interlocked such that the whole visible sky is observed every two days. The design sensitivity is around m ~ 20 AB mag in two broad filters (cyan and orange). The primary mission for ATLAS is to act as an asteroid impact early warning system and find near earth objects, but in the course of the ATLAS sky survey it will find a wealth of stationary transients and variables. We intend to make the transient discoveries public with a minimum of delay. Discoveries are made through a custom built difference imaging pipeline and deep reference sky frames, cross-matched against known star, galaxy and transient catalogues.
+</p>
+
+
+<div style="overflow:hidden;"><div id="celestial-map"></div></div>
+<div id="celestial-form"></div>
+
+
+<script type="text/javascript">
+
+/* D3-Celestial sky map
+   Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
+   
+   Edit configuration to your liking and display in browser. 
+   Data files in folder data for stars and DSOs, number indicates limit magnitude, 
+   or roll your own with the format template in templ.json
+*/
+
+// First quick-and-dirty solution - replace the stars list with the Supernovae list
+
+// Properties different from default
+var config = { 
+  projection: "aitoff", 
+  transform: "equatorial",
+  center: null,
+  datapath: "{{ STATIC_URL }}/js/celestial/data/",
+  stars: { show: false, colors: false, names: false, size: 5 },
+  constellations: { names: false },
+  dsos: { show: false },
+  mw: { style: { fill:"#ffffff", opacity: "0.17" }},
+  lines: {
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
+			// grid values: "outline", "center", or [lat,...] specific position
+      lon: {pos: ["center"], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}, 
+			// grid values: "outline", "center", or [lon,...] specific position
+		  lat: {pos: ["center"], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}},
+    equatorial: { show: true, stroke: "#aaaaff", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
+    ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
+    galactic: { show: true, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
+    supergalactic: { show: false, stroke: "#cc66cc", width: 1.3, opacity: 0.7 } // Show supergalactic plane 
+  }
+};
+
+
+// LG objects style properties
+var cfgLG = {
+ LG: { fill:"#e63" },
+ MWS: { fill:"#ee9" },
+ N3109: { fill:"#3df" },
+ M31: { fill:"#6d3" },
+ text: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", align: "left", baseline: "top" },
+ g: { stroke:"#faa", fill:"#faa" }
+};
+
+var scale = 1, baseScale, 
+    showMW = true, showM31 = true, showLG = true;
+
+
+Celestial.add({file:"{% url 'snejson' %}", type:"dso", callback: function(error, json) {
+//Celestial.add({sne, type:"dso", callback: function(error, json) {
+  if (error) return console.warn(error);
+  baseScale = Celestial.mapProjection.scale();
+  var lg = Celestial.getData(json, config.transform)
+  //Add the symbols  
+  Celestial.container.selectAll(".lgs").data(lg.features.filter( function(d) { return d.properties.type.search(/GC/) === -1; }))
+    .enter().append("path")
+    .attr("class", "lg"); 
+  Celestial.redraw();
+}, redraw: function() { 
+  scale = Celestial.mapProjection.scale()/baseScale;
+  
+  Celestial.container.selectAll(".lg").each(function(d) {
+    if (Celestial.clip(d.geometry.coordinates) && lgDisplay(d.properties)) {
+      var pt = Celestial.mapProjection(d.geometry.coordinates),
+          group = lgSub(d.properties);
+      Celestial.setStyle(cfgLG[group]);
+      var r = lgSymbol(d.properties, pt);
+      Celestial.context.fill();
+      
+      if (lgDisplayName(d)) {
+        var style = cfgLG.text;
+        style.fill = cfgLG[group].fill;
+        Celestial.setTextStyle(style);
+        Celestial.context.fillText(lgName(d.properties), pt[0]+r, pt[1]+r);         
+      }         
+    }
+  });
+} });
+
+
+function lgDisplay(prop) {
+  return ((showMW === true && prop.sub.search(/MW/) !== -1) ||
+          (showM31 === true && prop.sub.search(/M31/) !== -1) ||
+          (showLG === true && prop.sub.search(/LG|N3109/) !== -1)); 
+}
+      
+function lgDisplayName(d) {
+  var prop = d.properties;
+  if (scale >= 4.7) return true;
+//  if (d3.geo.distance([121.17, -21.57], d.geometry.coordinates) < 0.3) {
+//    if (prop.mag === "" || prop.mag > 4 + scale) return false;
+//  }
+  return false;
+}
+
+function lgSub(prop) {
+  var r = prop.sub.match(/^(MW|M31|N3109|LG)/);
+  if (r === null) return "LG";
+  if (r[1] === "MW") return "MWS";
+  else return r[1];
+}
+
+function lgType(prop) {
+  //^I|dSph|dIrr|UFD|dE|cE|^S
+  var r = prop.type.match(/^(S|dS|I|dI|dE|cE|U)/);
+  if (r === null) return "g";
+  switch (r[1]) {
+    case "S": return "s";
+    case "dS": return "ds";
+    case "I": case "dI": return "i";
+    case "cE": case "dE": return "e"; 
+    case "U": return "uf";
+  }
+}
+
+function lgSymbol(prop, pt) {
+  var base = 9+scale*1.5, size = 9, type = "ellipse";
+  if (has(prop, "mag") && prop.mag !== "") size = Math.pow(2.7*base-prop.mag, 1.2);
+  else if (has(prop, "dim") && prop.dim !== "") size = Math.pow(parseInt(prop.dim)*base/7, 0.5); 
+  
+  var type = lgType(prop);
+  switch (type) {
+    case "e": tp = "ellipse"; break;
+    case "uf": case "ds": tp = "circle"; break;
+    case "i": tp = "triangle"; break;
+    case "s": tp = "diamond"; break;
+  }
+  
+  Celestial.Canvas.symbol().type(tp).size(size).position(pt)(Celestial.context);
+  return Math.sqrt(size)/2;
+}
+ 
+function lgName(prop) {
+  return prop.name !== "" ? prop.name : prop.desig; 
+} 
+
+Celestial.display(config);
+
+
+function $(id) { return document.getElementById(id); }
+function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
+
+
+
+</script>
+
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

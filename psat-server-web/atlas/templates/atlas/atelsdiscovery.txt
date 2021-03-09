@@ -1,0 +1,16 @@
+<p>
+We report the following {{table.rows.count}} transients found by the ATLAS survey (see Tonry et al. ATel #8680).  ATLAS is a twin 0.5m telescope system on Haleakala and Mauna Loa which are robotically surveying the sky. Two filters are used, cyan and orange (denoted c and o, all mags in AB system), more information is on http://www.fallingstar.com. All transients have been registered with the IAU.
+</p>
+
+<p>
+Host galaxy identifications and redshifts are from NED or the Pan-STARRS1 3Pi image stack, and absolute magnitude calculations include an estimate of Milky Way foreground extinction at the filter wavelength.
+</p>
+
+<pre>
+Name      | ATLAS Name | RA (J2000)  | Dec (J2000) | Disc. MJD | Disc. Date  | Disc Mag |   z    | Notes
+{% for row in table.rows %}{{ row.other_designation|ljust:"10" }}| {% if row.atlas_designation %}{{ row.atlas_designation|ljust:"10" }}{% else %}{{ row.idtxt }}{% endif %} | {{ row.ra_avg }} | {{ row.dec_avg }} | {{ row.earliest_mjd|floatformat:"2"|ljust:"9"}} | {{ row.earliest_mjd_date|ljust:"11" }} |  {{ row.earliest_mag|floatformat:"2" }} {{ row.earliest_filter }} |        | {{ forloop.counter|rjust:"3" }}.
+{% endfor %}</pre>
+
+<p>
+{% for row in table.rows %}{{ forloop.counter }}. {{ row.local_comments }}<br />
+{% endfor %}</p>

@@ -1,0 +1,118 @@
+{% extends "base_new.html" %}
+
+{% block title %}{% if listHeader %}{{listHeader}}{% else %}Followup List{% endif %}{% endblock %}
+
+{% block content %}
+
+<body>
+
+<div id="quickfollowup">
+<nav id="navigation">
+<ul>
+{% if not public %}
+<li><a href="{% url "home2" %}">home</a></li>
+<li><a href="{% url "followuplist" 1 %}">confirmed</a></li>
+<li><a href="{% url "followuplist" 2 %}">good</a></li>
+<li><a href="{% url "followuplist" 3 %}">possible</a></li>
+<li><a href="{% url "followuplist" 5 %}">attic</a></li>
+<li><a href="{% url "followuplist" 4 %}">eyeball</a></li>
+<li><a href="{% url "followuplist" 0 %}">garbage</a></li>
+<li><a href="{% url "userlists" %}">custom</a></li>
+<ul>
+<li><a href="{% url "logout" %}">logout</a></li>
+<li>{{request.user.username}}</li>
+</ul>
+{% else %}
+<li><a href="{% url "home2" %}">home</a></li>
+<li><a href="{% url "public_quickview" %}">object quickview list</a></li>
+{% endif %}
+
+{% if form_searchobject %}
+<li>
+<form id="search_form" action="" method="post">{% csrf_token %}
+    {{ form_searchobject.non_field_errors }}
+    <div class="fieldWrapper">
+        {{ form_searchobject.searchText.errors }}
+        {{ form_searchobject.searchText }}
+    <input type="submit" value="Find Object" name="find_object" />
+    </div>
+</form>
+</li>
+{% if form_searchobject.errors %}{{ form_searchobject.errors|pluralize }}{% endif %}
+{% endif %}
+</ul>
+</nav>
+
+<section id="table_layout">
+<article id="followup_table">
+<header id="followup_list">
+<hgroup>
+{% if listHeader %}
+   <h1>{{ listHeader }}</h1>
+{% else %}
+   <h1>Object List</h1>
+{% endif %}
+
+<h2>({{subdata.paginator.count}})</h2>
+</hgroup>
+</header>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if subdata.has_previous %}
+            <a href="?page={{ subdata.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ subdata.number }} of {{ subdata.paginator.num_pages }}.
+        </span>
+
+        {% if subdata.has_next %}
+            <a href="?page={{ subdata.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+<div class="object_container">
+{% for row in subdata %}
+<div class="object_container_coords">
+    {{ row.ra_avg }} {{ row.dec_avg }}
+</div>
+<div class="object_container_links">
+    <a href="{% url "candidate" row.id %}">{{ row.id }}</a> {% if row.separation %}({{ row.separation|floatformat:2 }}){% endif %}<br />
+</div>
+<div class="object_container_triplet">
+{% if row.tcs_images_id %}
+<table class="images">
+<tr>
+<td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.tcs_images_id.whole_mjd }}/{{ row.tcs_images_id.target }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" /></td>
+<td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.tcs_images_id.whole_mjd }}/{{ row.tcs_images_id.ref }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" /></td>
+<td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.tcs_images_id.whole_mjd }}/{{ row.tcs_images_id.diff }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" /></td>
+</tr>
+</table>
+{% endif %}
+</div>
+{% endfor %}
+</div>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if subdata.has_previous %}
+            <a href="?page={{ subdata.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ subdata.number }} of {{ subdata.paginator.num_pages }}.
+        </span>
+
+        {% if subdata.has_next %}
+            <a href="?page={{ subdata.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+</article>
+</section>
+</div>
+{% endblock %}
+

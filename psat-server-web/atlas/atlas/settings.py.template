@@ -1,0 +1,177 @@
+"""
+Django settings for atlas project.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.7/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.7/ref/settings/
+"""
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+SITE_ID = 1
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'gcu3znpf+#a5iglpe1y+g*s7k^&mz8xe)=6h606rk46o*3-!!f'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+TEMPLATE_DEBUG = True
+
+ALLOWED_HOSTS = ['*']
+
+ROOT_URLCONF = 'atlas.urls'
+
+WSGI_APPLICATION = 'atlas.wsgi.application'
+
+# 2016-11-07 KWS Fixed the authentication issues by setting cookie names
+CSRF_COOKIE_NAME = 'csrf_GENERIC_DATABASE'
+SESSION_COOKIE_NAME = 'session_GENERIC_DATABASE'
+
+# 2017-10-03 KWS Had to add this setting because of SSL proxy.
+CSRF_TRUSTED_ORIGINS = ['star.pst.qub.ac.uk']
+
+CSRF_FAILURE_VIEW = 'atlas.views.csrf_failure'
+LOGIN_REDIRECT_URL = '/sne/GENERIC_DATABASE/'
+LOGIN_URL = '/sne/GENERIC_DATABASE/accounts/login/'
+LOGOUT_URL = '/sne/GENERIC_DATABASE/accounts/logout/'
+
+# Database
+# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'GENERIC_DATABASE',
+        'USER': 'GENERIC_USER',
+        'PASSWORD': 'GENERIC_PASSWORD',
+        'HOST': 'GENERIC_HOST'
+    }
+}
+
+DAEMONS = {
+    'tns': {
+        'host': GENERIC_DAEMON_HOST_TNS,
+        'port': GENERIC_DAEMON_PORT_TNS,
+        'test': True
+    },
+    'mpc': {
+        'host': GENERIC_DAEMON_HOST_MPC,
+        'port': GENERIC_DAEMON_PORT_MPC,
+        'test': True
+    }
+}
+
+# Internationalization
+# https://docs.djangoproject.com/en/1.7/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_L10N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.7/howto/static-files/
+
+STATIC_URL = '/sne/GENERIC_DATABASE/site_media/'
+STATIC_ROOT = 'GENERIC_FILESYSTEM/code/web/atlas/site_media'
+MEDIA_ROOT = ''
+MEDIA_URL = ''
+
+
+# These settings will be deprecated in Django 1.8. You have been warned.
+#TEMPLATE_DIRS = (
+#    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+#    # Always use forward slashes, even on Windows.
+#    # Don't forget to use absolute paths, not relative paths.
+#    "GENERIC_FILESYSTEM/code/web/atlas/templates",
+#)
+
+# All below copied from PS1 web app.
+
+# List of callables that know how to import templates from various sources.
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
+
+# 2018-06-06 KWS Added new TEMPLATES settings in place of TEMPLATE_CONTEXT_PROCESSORS
+#                and TEMPLATE_DIRS
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            # insert your TEMPLATE_DIRS here
+            "GENERIC_FILESYSTEM/code/web/atlas/templates",
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+                # list if you haven't customized them:
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.request",
+                "django.template.context_processors.static",
+                "django.template.context_processors.request",
+            ],
+        },
+    },
+]
+
+# 2015-11-30 KWS Added django.core.context_processors.request for django-tables2
+#TEMPLATE_CONTEXT_PROCESSORS = (
+#    "django.contrib.auth.context_processors.auth",
+#    "django.contrib.messages.context_processors.messages",
+#    "django.core.context_processors.debug",
+#    "django.core.context_processors.i18n",
+#    "django.core.context_processors.media",
+#    "django.core.context_processors.request",
+#    "django.core.context_processors.static",
+#    "django.core.context_processors.request",
+#)
+
+# KWS - Added pagination
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'pagination.middleware.PaginationMiddleware',
+)
+
+ROOT_URLCONF = 'atlas.urls'
+
+# 2015-11-30 KWS Added django-tables2
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.staticfiles',
+    'atlas',
+    # 2016-02-09 KWS Try sqlpaginator
+    'sqlpaginator',
+    'pagination',
+    'django_tables2',
+)

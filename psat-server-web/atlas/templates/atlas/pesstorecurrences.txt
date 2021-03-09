@@ -1,0 +1,3 @@
+#rank|id|name|tns_name|ra|dec|expname|mag|dm|filter|mjd
+{% for row in table %}{{ row.atlas_object_id.followup_id }}|{{ row.atlas_object_id.id }}|{{ row.atlas_object_id.atlas_designation|default_if_none:"" }}|{{ row.atlas_object_id.other_designation|default_if_none:"" }}|{{ row.ra }}|{{ row.dec }}|{{ row.atlas_metadata_id.expname }}|{{ row.mag }}|{{ row.dm }}|{{ row.atlas_metadata_id.filter }}|{{ row.atlas_metadata_id.mjd_obs }}
+{% endfor %}

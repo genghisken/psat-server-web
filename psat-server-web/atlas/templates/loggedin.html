@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Logged In{% endblock %}
+
+{% block content %}
+
+  {% if full_name %}
+  <h2>Hi {{full_name}} you are now logged in!</h2>
+  <p>Click <a href="{% url "logout" %}">here</a> to log out.</p>
+  {% else %}
+  <p>Not logged in. Click <a href="{% url "login" %}">here</a> to log in.</p></h2>
+  {% endif %}
+  
+{% endblock %}

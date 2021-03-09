@@ -1,0 +1,30 @@
+{% extends "base_new.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+
+<section id="table_layout">
+<article id="followup_table">
+<header id="followup_list">
+<hgroup>
+  {% if form.errors %}
+    <p class="error">Sorry, that's not a valid username or password</p>
+  {% endif %}
+
+  <form action="{% url "auth" %}" method="post" id="loginform">{% csrf_token %}
+  {% if request.GET.next %}
+  <input type="hidden" name="next" value="{{ request.GET.next }}" />
+  {% endif %}
+
+  <table class="forms">
+      {{ form.as_table }}
+  </table>
+  <input type="submit" value="login" />
+  </form>
+</hgroup>
+</header>
+
+<p>Can't login? Checkout the PS1 <a href="http://ps1sc.ifa.hawaii.edu/PS1wiki/index.php/QUB_TSS">wiki</a></p>
+</article>
+</section>
+</div>
+{% endblock %}

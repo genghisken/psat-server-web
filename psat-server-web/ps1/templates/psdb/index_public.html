@@ -1,0 +1,195 @@
+{% extends "base_new.html" %}
+
+{% block title %}The Pan-STARRS Survey for Transients{% endblock %}
+
+{% block content %}
+
+<body>
+
+<div id="ps1homepage">
+<nav id="navigation">
+<ul>
+<li><a HREF="./public/">object list</a></li>
+<li><a HREF="./public_quickview/">object quickview list</a></li>
+{% if form_searchobject %}
+<li>
+{% if form_searchobject.errors %}
+    <p style="color: red;">
+        Please correct the error{{ form_searchobject.errors|pluralize }} below.
+    </p>
+{% endif %}
+
+<form id="search_form" action="" method="post">{% csrf_token %}
+    {{ form_searchobject.non_field_errors }}
+    <div class="fieldWrapper">
+    <p>
+        {{ form_searchobject.searchText.errors }}
+        {{ form_searchobject.searchText }}
+    <input type="submit" value="Find Object" /></p>
+    </div>
+</form>
+</li>
+{% endif %}
+
+</ul>
+</nav>
+
+<section id="table_layout">
+<article id="homepage_text">
+<header id="followup_list">
+<hgroup>
+<h1>
+The Pan-STARRS Survey for Transients
+</h1>
+</hgroup>
+</header>
+
+
+<p>
+The Pan-STARRS1 telescope carried out the 3Pi survey of the whole sky
+north of -30 degrees between 2010-2014 in grizy (PS1 specific
+filters). This was run by the PS1 Science Consortium.  Each region on
+the sky was typically visited four times a year in each filter. As
+described in <a href="http://adsabs.harvard.edu/abs/2013ApJS..205...20M">Magnier et al. (2013, ApJS, 205, 20)</a> and <a href="http://adsabs.harvard.edu/abs/2013ApJ...770..128I">Inserra et al. (2013, ApJ, 770, 128)</a> the four epochs were typically split into
+two pairs called Transient Time Interval (TTI) pairs which are single
+observations separated by 20-30 minutes to allow for the discovery of
+moving objects. The exposure times at each epoch (i.e. in each of the
+TTI exposures) were 43 s, 40 s, 45 s, 30 s, and 30 s in grizy(PS1). An
+all sky image of these stacked frames between 2010-2012 has been
+created in each band (internally called Processing Version 1) and all
+individual exposures since mid-June 2013 were differenced with respect
+to this static sky and transient sources have been catalogued. We
+typically reached high confidence transients (greater than 5-sigma) at
+depths of approximately 21.0, 20.6, 20.7, 20.4, and 18.3 (AB mags) in
+the grizy PS1 filters.
+</p>
+
+<p>
+The Pan-STARRS1 Science Consortium finished this sky survey and since
+mid-2014 the PS1 telescope has been running a wide-field survey for near 
+earth objects, funded by NASA through the NEO Observation Program. 
+This survey takes data in w-band in dark time, and combinations of
+i, z and y during bright moon time. We are now processing these data 
+through the PS1 IPP difference imaging pipeline and recovering stationary
+transients. Effectively the 3Pi survey for transients that started during
+the PS1 Science Consortium is being continued under the new NEO optimised
+operations mode. The observing procedure in this case is to take a quad of
+exposures, typically 30-45s separated by 10-20mins each. This cadence may
+be repeated on subsequent nights.
+</p>
+
+<p>
+PS1 is also beginning observations for the Foundation Supernova Survey,
+a low-z SN Ia survey which plans to observe several hundred z &lt; 0.1
+SNe Ia over the next few years.  These observations consist of a series
+of griz imaging and a cadence of roughly 5 days.  The subset of SNe
+discovered by PSST in the Foundation data will have early color information.
+</p>
+
+<p>
+In <a href="http://www.astronomerstelegram.org/?read=5850">ATel 5850</a>,
+we announced the public release of the first 880 transients from the PS1 3Pi
+survey, during the search period September 2013 - January 2014.  These are
+mostly supernova candidates, but the list also contained some variable stars,
+AGN, and nuclear transients (defined below).  The lightcurves are too sparsely
+sampled to be of standalone use, but they may be of use to the community in
+combining with existing data (e.g. <a href="http://adsabs.harvard.edu/abs/2013ApJ...779L...8F">Fraser et al. 2013, ApJ, 779, L8</a>),
+constraining explosion and rise times (e.g. <a href="http://adsabs.harvard.edu/abs/2013Natur.502..346N">Nicholl et al. 2013, Nature, 502, 346</a>)
+as well as many being new discoveries.
+</p>
+
+<p>
+In <a href="http://www.astronomerstelegram.org/?read=7153">ATel 7153</a> (Huber et al. 2015) we publicly announced the start of new data processing and transient
+searching beginning February 2015 using the data from the the Pan-STARRS NEO Science Consortium. 
+</p>
+
+<div id="navigation_again">
+<ul>
+<li><a HREF="./public/">object list</a></li>
+<li><a HREF="./public_quickview/">object quickview list</a></li>
+</ul>
+</div>
+
+<p>
+Examples of detections which may be useful to the community for already discovered objects:
+</p>
+<ul>
+<li>We detected <a href="./candidate/1034216880044318600/">SN2013gy</a> on MJD 56631.33897 which, combined with the Kim et al. (CBET 3743) discovery and upper limit, could help constrain the explosion time to within 24hrs.</li>
+<li>We also detected <a href="./candidate/1121848721142443400/">SN2014L</a> in M99 on MJD 56683.506, a few hours before the Zhang et al. discovery epoch in (CBET 3795).</li>
+<li>SN2014J was detected in saturated pixels on 2014 January 19.53 but unfortunately this doesn't help constrain the explosion epoch further than Zheng et al. (2014 arXiv:1401.7968).</li>
+<li><a href="./candidate/1013335101303600300/">PS1-13dni</a> is a detection of high variability of the Hubble &amp; Sandage (1953) Variable C in M33 - an erupting luminous blue variable which reached g=16.17 in the PS1 images as noted in <a href="http://www.astronomerstelegram.org/?read=5362">ATel #5362</a>.</li>
+</ul>
+
+
+<p>All magnitudes quoted are AB magnitudes in the PS1 photometric system (see <a href="http://adsabs.harvard.edu/abs/2012ApJ...750...99T">Tonry et al. 2012, ApJ, 750, 99</a>). They are PSF magnitudes measured on the difference images and tied to the zeropoints in the nightly processed 3Pi images which are tied to the calibration in <a href="http://adsabs.harvard.edu/abs/2012ApJ...756..158S">Schlafly et al. (2012, ApJ, 756, 158)</a>. Where possible, we have cross-matched the detections with transient objects announced in Astronomer's Telegrams, CBETs, and on publicly accessible webpages such as those of the Catalina Real Time Transient Survey (<a href = "http://crts.caltech.edu/" title="Catalina Real Time Transient Survey">http://crts.caltech.edu/</a>).</p>
+
+<p>All PS1 transients are cross-matched with external sky catalogues (SDSS, 2MASS, GSC, NED, Veron-Cetty &amp; Veron 2010 [<a href="http://adsabs.harvard.edu/cgi-bin/bib_query?2010A&A...518A..10V">A&A 518 10</a>], Milliquas [Flesch, v2.7, <a href="http://quasars.org/milliquas.htm">http://quasars.org/milliquas.htm</a>] to provide a contextual classification of the object</p>
+<ol>
+<li>"sn" : the transient is likely associated with an extended source likely to be a galaxy. The transient is offset from the galaxy core.</li>
+<li>"agn" : the transient is associated with the core of a galaxy which is either known to be an AGN (the Veron catalogue) or a likely AGN catalogue (milliquas catalogue).</li>
+<li>"variablestar" : the transient is coincident with a previously catalogued star.</li>
+<li>"nt" : defines what we call a "nuclear transient". The transient appears coincident with the core of an extended source, but the source is not a known AGN or QSO. It could be a superonova, AGN activity or a tidal disruption event.</li>
+<li>"orphan" : the transient is not associated with any catalogued source. Most likely a hostless supernova.</li>
+</ol>
+
+
+<div id="detection_non_detection">
+<ul>
+<li><img src="{{ STATIC_URL }}images/detection_example.jpg" width="150px"></img></li>
+<li><img src="{{ STATIC_URL }}images/non_detection_example.jpg" width="150px"></img></li>
+</ul>
+<p>Green crosshairs = detection.</p>
+<p>Red crosshairs = non-detection.</p>
+</div>
+<p>The individual object pages contain the Pan-STARRS photometric measurements in lightcurve form. Together with DSS and SDSS (DR9, when there is overlap) images and nearest objects, possible associations with known objects are listed along with the separations. Typically these lightcurves include all data taken by Pan-STARRS within the last 200 days or so. A downwards pointing arrow means that the telescope pointed at this position at the specific MJD but no object at this position was recorded. The limits are set at the nominal detection limits for the 3Pi exposures, but users should note that these are not measured upper limits. A detection may not appear simply because the transient has fallen on a bad pixel area of the giga-pixel camera. We provide postage stamps of the images, references and subtractions for users to judge. Objects which are detected and for which photometry has been carried out are marked with green cross-hairs. If an image exists, but no detection was made at the transient position, the image will be marked with red cross-hairs.</p>
+
+<p>All objects have been through tailored and tuned filters to weed out spurious sources, moving objects, and camera cross-talk ghosts. Furthermore all have been screened by humans, but it is possible a small number (likely less than a few per cent) of transient objects are false positives. We are currently applying image recognition algorithms on the pixel data, similar to the approach described in Wright et al. 2015 (<a href="http://adsabs.harvard.edu/abs/2015MNRAS.449..451W">http://adsabs.harvard.edu/abs/2015MNRAS.449..451W</a>) to automatically distinguish between spurious and real objects. These algorithms have been updated and tailored for PSST as described in Darry Wright’s PhD thesis (2015, submitted and available on request).  Each detection in a quad of exposures is rated by the machine learning algorithm and combined into a "Real-Bogus" factor (RB Factor) for each object. Each night objects with an RB Factor less than a set threshold (currently 0.436, corresponding to ~84% on average of objects passing the simple filters) are automatically rejected with the remaining candidates being screened by humans, though it is possible a small number (likely less than a few per cent) of transient objects are false positives. The Pan-STARRS Transient Science Server is hosted at Queen's University Belfast and based on the data products produced by the PS1 Image Processing Pipeline (<a href="http://www.amostech.com/technicalpapers/2006/pan-starrs/magnier.pdf">Magnier, E., Kaiser, N., and Chambers, K., "The Pan-STARRS PS1 Image Processing Pipeline", AMOS Conference Proceedings, Sept. 10-14, 455-461, 2006</a>) produced by the Pan-STARRS team at the University of Hawaii.</p>
+
+<p>Further information on the data can be obtained from Ken Smith, Stephen Smartt and Darryl Wright.</p>
+
+<h2>Contributors</h2>
+
+<p>
+The <em>Pan-STARRS NEO survey</em> contributors are: K. W. Smith, S.J. Smartt, D. Wright (Queen’s University Belfast), 
+K. C. Chambers, H. Flewelling, M. Huber, E. Magnier, R.J. Wainscoat, C. Waters, J. Tonry, 
+M. Willman, N. Primak, A. Schultz, B. Gibson (IfA, Hawaii),
+R. J. Foley (Univ. of Illinois), S. W. Jha (Rutgers), A. Rest (STScI), D. Scolnic (Chicago/KICP).
+</p>
+
+<p>
+The <em>PS1SC 3Pi survey</em> contributors were: S. J. Smartt, K. W. Smith, D. Wright, D. R. Young, R. Kotak, M. Nicholl, J. Polshaw, C. Inserra, T.-W. Chen, G. Terreran, E. Gall, M. Fraser (Queen's University Belfast), S. Valenti (LCOGT), R. J. Foley (Univ. of Illinois), A. Lawrence (Univ. Of Edinburgh), S. Gezari (Univ. of Maryland), W. Burgett, K. Chambers, M. Huber, R. P. Kudritzki, E. Magnier, J. Morgan, J. Tonry, W. Sweeney, C. Waters (IfA, Hawaii) C. W. Stubbs, R. P. Kirshner (Harvard University) N. Metcalfe, P. Draper (Univ. of Durham) A. Rest (STScI)</p>
+
+<p>Authors are free to use the public data presented here for either classification or scientific publication.  We ask that any classification announcements include the following short credit text:</p>
+
+<p>For all data taken after May 2014:<br />
+<strong>The target(s) were provided from the Pan-STARRS NEO survey and made public via via <a href="http://star.pst.qub.ac.uk/ps1threepi/">http://star.pst.qub.ac.uk/ps1threepi/</a>. (See M. Huber et al. <a href="http://www.astronomerstelegram.org/?read=7153">ATel 7153</a>.)  Operation of the Pan-STARRS1 telescope is supported by the National Aeronautics and Space Administration under Grant No. NNX12AR65G and Grant No. NNX14AM74G issued through the NEO Observation Program.</strong></p>
+
+<p>For all data taken before May 2014:<br />
+<strong>The target(s) were provided from the 3Pi survey operated by the Pan-STARRS1 Science Consortium (<a href="http://ps1sc.org">http://ps1sc.org</a>) and made public via <a href="http://star.pst.qub.ac.uk/ps1threepi/">http://star.pst.qub.ac.uk/ps1threepi/</a>. (See Smartt et al. <a href="http://www.astronomerstelegram.org/?read=5850">ATel 5850</a> and <a href="http://adsabs.harvard.edu/abs/2013ApJ...770..128">Inserra et al. 2013, ApJ, 770, 128</a> for a description of the 3Pi survey.)</strong></p>
+
+<p>
+If any results are used in any scientific paper we ask that the full acknowledgement to the Pan-STARRS1 Science Consortium is provided, using the text in the footer of this page (though this is not necessary for classification ATels, for example) if the data are before from before May 2014.  And if data are from after May 2014 then the NEO Observation Program should be acknowledged.
+</p>
+
+<p>
+This project is funded by from the European Research Council under the European Union's Seventh Framework Programme (FP7/2007-2013)/ERC Grant agreement no [291222] (PI: S. J. Smartt).
+</p>
+
+</article>
+</section>
+
+<footer>
+<h2>Acknowledgment for data after May 2014</h2>
+<p>
+Operation of the Pan-STARRS1 telescope is supported by the National Aeronautics and Space Administration under Grant No. NNX12AR65G and Grant No. NNX14AM74G issued through the NEO Observation Program.
+</p>
+<h2>Acknowledgment for data before May 2014</h2>
+<div id="ps1sc_logo">
+<a href = "http://ps1sc.org/" title="PanSTARRS Science Consortium website"><img src="{{ STATIC_URL }}images/ps1sc.gif"></img></a>
+</div>
+<p>The Pan-STARRS1 Surveys (PS1) have been made possible through contributions of the Institute for Astronomy, the University of Hawaii, the Pan-STARRS Project Office, the Max-Planck Society and its participating institutes, the Max Planck Institute for Astronomy, Heidelberg and the Max Planck Institute for Extraterrestrial Physics, Garching, The Johns Hopkins University, Durham University, the University of Edinburgh, Queen's University Belfast, the Harvard-Smithsonian Center for Astrophysics, the Las Cumbres Observatory Global Telescope Network Incorporated, the National Central University of Taiwan, the Space Telescope Science Institute, the National Aeronautics and Space Administration under Grant No. NNX08AR22G issued through the Planetary Science Division of the NASA Science Mission Directorate, the National Science Foundation under Grant No. AST-1238877, the University of Maryland, and Eotvos Lorand University (ELTE).</p>
+</footer>
+
+</div>
+{% endblock %}
+

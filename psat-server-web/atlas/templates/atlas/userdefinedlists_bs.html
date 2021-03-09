@@ -1,0 +1,38 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title %}User Defined Lists{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row">
+
+    <div class="col-lg-12 col-md-12 col-sm-12">
+      <h3>User Defined Lists</h3>
+
+      <h4>({{table.rows.count}})</h4>
+
+    <div class="table-responsive table-body table-condensed">
+
+    <table>    
+    {% for row in table.rows %}
+      <tr>
+      <td>
+        <a class="dropdown-toggle" href="#" data-toggle="dropdown">{{ row.data.id }}</a>
+        <div class="dropdown-menu">
+        <a class="dropdown-item" href="../userlist_quickview/{{row.data.id}}/">quick view</a>
+        <a class="dropdown-item" href="./{{row.data.id}}/">table view</a>
+        </div>
+      </td>
+      <td>{{ row.data.description }}</td>
+      </tr>
+    {% endfor %}
+    </table>
+    </div>
+
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
