@@ -1,0 +1,21 @@
+WSGIDaemonProcess GENERIC_URL python-path=WEB_ROOT/code/web:VIRTUALENV_ROOT/lib/python2.7/site-packages maximum-requests=50
+WSGIProcessGroup GENERIC_URL
+WSGIScriptAlias /sne/GENERIC_URL WEB_ROOT/code/web/ps1/psdb/wsgi.py process-group=GENERIC_URL
+
+<Directory WEB_ROOT/code/web/ps1/psdb>
+  <Files wsgi.py>
+    Require all granted
+  </Files>
+</Directory>
+
+Alias /sne/GENERIC_URL/media VIRTUALENV_ROOT/lib/python2.7/site-packages/django/contrib/admin/media
+<Directory VIRTUALENV_ROOT/lib/python2.7/site-packages/django/contrib/admin/media>
+  Options FollowSymLinks
+  Require all granted
+</Directory>
+
+Alias /sne/GENERIC_URL/site_media WEB_ROOT/code/web/ps1/site_media
+<Directory WEB_ROOT/code/web/ps1/site_media>
+  Options FollowSymLinks
+  Require all granted
+</Directory>

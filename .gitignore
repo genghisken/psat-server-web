@@ -41,12 +41,13 @@ HTMCircleAllIDs
 code/htm/Makefile
 intersect
 lookup
+wsgi.atlas.conf
 
 # Symlinks and directories
 data
 lightcurves
 location_maps
 recurrence_plots
-images/reports
+reports
 admin/
 django_tables2/
