@@ -171,7 +171,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'atlas',
     # 2016-02-09 KWS Try sqlpaginator
-    'sqlpaginator',
     'pagination',
     'django_tables2',
 )

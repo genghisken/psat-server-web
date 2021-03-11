@@ -47,7 +47,7 @@ class TcsPostageStampImages(models.Model):
     image_filename = models.CharField(max_length=255)
     pss_filename = models.CharField(max_length=255, blank=True)
     mjd_obs = models.FloatField(null=True, blank=True)
-    image_group_id = models.ForeignKey(TcsImageGroups, to_field='id', db_column='image_group_id')
+    image_group_id = models.ForeignKey(TcsImageGroups, to_field='id', db_column='image_group_id', on_delete=models.CASCADE)
     pss_error_code = models.IntegerField()
     filter = models.CharField(max_length=80, blank=True)
     mask_ratio = models.FloatField(null=True, blank=True)
@@ -110,7 +110,7 @@ class TcsPostageStampRequests(models.Model):
     name = models.CharField(unique=True, max_length=80)
     pss_id = models.IntegerField(null=True, blank=True)
     download_attempts = models.IntegerField()
-    status = models.ForeignKey(TcsPostageStampStatusCodes, to_field='id', db_column='status')
+    status = models.ForeignKey(TcsPostageStampStatusCodes, to_field='id', db_column='status', on_delete=models.CASCADE)
     created = models.DateTimeField()
     updated = models.DateTimeField(null=True, blank=True)
     class Meta:
@@ -128,7 +128,7 @@ class TcsZooRequests(models.Model):
     zoo_id = models.IntegerField(null=True, blank=True)
     download_attempts = models.IntegerField()
     # Re-use the postage stamp status codes.  No need to create new ones.
-    status = models.ForeignKey(TcsPostageStampStatusCodes, to_field='id', db_column='status')
+    status = models.ForeignKey(TcsPostageStampStatusCodes, to_field='id', db_column='status', on_delete=models.CASCADE)
     created = models.DateTimeField()
     updated = models.DateTimeField(null=True, blank=True)
     class Meta:
@@ -333,7 +333,7 @@ class TcsCrossMatches(models.Model):
 
     transient_object_id = models.IntegerField(null=True, blank=True)
     catalogue_object_id = models.CharField(max_length=30, blank=True)
-    catalogue_table_id = models.ForeignKey(TcsCatalogueTables, to_field='id', db_column='catalogue_table_id')
+    catalogue_table_id = models.ForeignKey(TcsCatalogueTables, to_field='id', db_column='catalogue_table_id', on_delete=models.CASCADE)
     search_parameters_id = models.IntegerField(null=True, blank=True)
     separation = models.FloatField(null=True, blank=True)
     id = models.IntegerField(primary_key=True)
@@ -367,7 +367,7 @@ class TcsTransientObjects(models.Model):
     survey_field = models.CharField(max_length=10, blank=True)
     local_designation = models.CharField(max_length=40, blank=True)
     ps1_designation = models.CharField(max_length=40, blank=True)
-    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id')
+    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id', on_delete=models.CASCADE)
 
     ipp_idet = models.IntegerField(null=True, blank=True)
     x_psf = models.FloatField(null=True, blank=True)
@@ -406,17 +406,17 @@ class TcsTransientObjects(models.Model):
     cx = models.FloatField(null=True, blank=True)
     cy = models.FloatField(null=True, blank=True)
     cz = models.FloatField(null=True, blank=True)
-    tcs_cmf_metadata_id = models.ForeignKey(TcsCmfMetadata, to_field='id', db_column='tcs_cmf_metadata_id')
+    tcs_cmf_metadata_id = models.ForeignKey(TcsCmfMetadata, to_field='id', db_column='tcs_cmf_metadata_id', on_delete=models.CASCADE)
 #   This Foreign key reference to the classification flags table will need to be removed if the object
 #   is to be a member of more than one classification.
-    tcs_images_id = models.ForeignKey(TcsImages, to_field='id', db_column='tcs_images_id')
+    tcs_images_id = models.ForeignKey(TcsImages, to_field='id', db_column='tcs_images_id', on_delete=models.CASCADE)
     date_inserted = models.DateTimeField()
     date_modified = models.DateTimeField(null=True, blank=True)
-#    object_classification = models.ForeignKey(TcsClassificationFlags, to_field='flag_id', db_column='object_classification')
+#    object_classification = models.ForeignKey(TcsClassificationFlags, to_field='flag_id', db_column='object_classification', on_delete=models.CASCADE)
     followup_priority = models.IntegerField(null=True, blank=True)
     external_reference_id = models.CharField(max_length=40, blank=True)
-    postage_stamp_request_id = models.ForeignKey(TcsPostageStampRequests, null=True, to_field='id', db_column='postage_stamp_request_id')
-    image_group_id = models.ForeignKey(TcsImageGroups, null=True, to_field='id', db_column='image_group_id')
+    postage_stamp_request_id = models.ForeignKey(TcsPostageStampRequests, null=True, to_field='id', db_column='postage_stamp_request_id', on_delete=models.CASCADE)
+    image_group_id = models.ForeignKey(TcsImageGroups, null=True, to_field='id', db_column='image_group_id', on_delete=models.CASCADE)
 
 
     # 2010-02-25 KWS Eight new columns added
@@ -428,7 +428,7 @@ class TcsTransientObjects(models.Model):
 
     # 2010-06-11 KWS New columns added for diff stats, local magnitude calculations and zoo requests
     locally_calculated_mag = models.FloatField(null=True, blank=True)
-    zoo_request_id = models.ForeignKey(TcsZooRequests, null=True, to_field='id', db_column='zoo_request_id')
+    zoo_request_id = models.ForeignKey(TcsZooRequests, null=True, to_field='id', db_column='zoo_request_id', on_delete=models.CASCADE)
     psf_inst_flux = models.FloatField(null=True, blank=True)
     psf_inst_flux_sig = models.FloatField(null=True, blank=True)
     diff_npos = models.IntegerField(null=True, blank=True)
@@ -576,14 +576,14 @@ class TcsTransientReobservations(models.Model):
     cy = models.FloatField()
     cz = models.FloatField()
     id = models.BigIntegerField(primary_key=True)
-    tcs_cmf_metadata_id = models.ForeignKey(TcsCmfMetadata, to_field='id', db_column='tcs_cmf_metadata_id')
-    tcs_images_id = models.ForeignKey(TcsImages, to_field='id', db_column='tcs_images_id')
+    tcs_cmf_metadata_id = models.ForeignKey(TcsCmfMetadata, to_field='id', db_column='tcs_cmf_metadata_id', on_delete=models.CASCADE)
+    tcs_images_id = models.ForeignKey(TcsImages, to_field='id', db_column='tcs_images_id', on_delete=models.CASCADE)
     transient_object_id = models.BigIntegerField()
     date_inserted = models.DateTimeField()
     date_modified = models.DateTimeField(null=True, blank=True)
     local_comments = models.CharField(max_length=255, blank=True)
-    postage_stamp_request_id = models.ForeignKey(TcsPostageStampRequests, null=True, to_field='id', db_column='postage_stamp_request_id')
-    image_group_id = models.ForeignKey(TcsImageGroups, null=True, to_field='id', db_column='image_group_id')
+    postage_stamp_request_id = models.ForeignKey(TcsPostageStampRequests, null=True, to_field='id', db_column='postage_stamp_request_id', on_delete=models.CASCADE)
+    image_group_id = models.ForeignKey(TcsImageGroups, null=True, to_field='id', db_column='image_group_id', on_delete=models.CASCADE)
 
     # 2010-02-25 KWS New column added
     quality_threshold_pass = models.NullBooleanField(null=True, blank=True)
@@ -691,7 +691,7 @@ class TcsCrossMatchesExternal(models.Model):
     """
 
     id = models.IntegerField(primary_key=True)
-    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     external_designation = models.CharField(max_length=180)
     type = models.CharField(max_length=120, blank=True)
     host_galaxy = models.CharField(max_length=180, blank=True)
@@ -734,8 +734,8 @@ class TcsObjectGroups(models.Model):
 
     #id = models.BigIntegerField(primary_key=True)  # This can't be used as an auto increment by Django!
     id = models.AutoField(primary_key=True)
-    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id')
-    object_group_id = models.ForeignKey(TcsObjectGroupDefinitions, to_field='id', db_column='object_group_id')
+    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
+    object_group_id = models.ForeignKey(TcsObjectGroupDefinitions, to_field='id', db_column='object_group_id', on_delete=models.CASCADE)
     class Meta:
         """Meta.
         """
@@ -766,7 +766,7 @@ class TcsObjectComments(models.Model):
     """
 
     id = models.BigIntegerField(db_column='id', primary_key=True)
-    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     date_inserted = models.DateTimeField(db_column='date_inserted', blank=False, null=False)
     comment = models.CharField(max_length=768, db_column='comment', blank=True, null=True)
     username = models.CharField(max_length=90, db_column='username', blank=True, null=True)
@@ -783,7 +783,7 @@ class SherlockClassifications(models.Model):
     """SherlockClassifications.
     """
 
-    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', primary_key=True)
+    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', primary_key=True, on_delete=models.CASCADE)
     classification = models.CharField(max_length=45, blank=True, null=True)
     annotation = models.TextField(blank=True, null=True)
     summary = models.CharField(max_length=50, blank=True, null=True)
@@ -806,7 +806,7 @@ class SherlockCrossmatches(models.Model):
     """SherlockCrossmatches.
     """
 
-    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     catalogue_object_id = models.CharField(max_length=30, blank=True, null=True)
     catalogue_table_id = models.SmallIntegerField(blank=True, null=True)
     separationarcsec = models.FloatField(db_column='separationArcsec', blank=True, null=True)  # Field name made lowercase.
@@ -905,8 +905,8 @@ class TcsGravityEventAnnotations(models.Model):
     """
 
     primaryid = models.BigIntegerField(db_column='primaryId', primary_key=True)  # Field name made lowercase.
-    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id')
-    gravity_event_id = models.ForeignKey(TcsGravityEvents, to_field='gravity_event_id', db_column='gravity_event_id')
+    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
+    gravity_event_id = models.ForeignKey(TcsGravityEvents, to_field='gravity_event_id', db_column='gravity_event_id', on_delete=models.CASCADE)
     gracedb_id = models.CharField(max_length=10)
     enclosing_contour = models.IntegerField(blank=True, null=True)
     map_name = models.CharField(max_length=30, blank=True, null=True)
@@ -964,7 +964,7 @@ class TcsZooniverseScores(models.Model):
     """
 
     id = models.BigIntegerField(db_column='id', primary_key=True)
-    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     score = models.FloatField(blank=True, null=True)
     user1 = models.CharField(max_length=384, db_column='user1', blank=True, null=True)
     user2 = models.CharField(max_length=384, db_column='user2', blank=True, null=True)

@@ -376,7 +376,7 @@ class WebViewAbstractUserDefined(models.Model):
     separation = models.FloatField(db_column='separation')
     # Extra columns for the user defined object list table
     object_group_id = models.IntegerField(db_column='object_group_id')
-    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id')
+    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id', on_delete=models.CASCADE)
     object_id = models.BigIntegerField(primary_key=True, db_column='object_id')
     confidence_factor = models.FloatField(db_column='confidence_factor')
     zooniverse_score = models.FloatField(db_column='zooniverse_score')

@@ -167,8 +167,8 @@ class TcsImages(models.Model):
     def whole_mjd(self):
         """whole_mjd.
         """
-       m = int(self.mjd_obs)
-       return m
+        m = int(self.mjd_obs)
+        return m
 
 
 class AtlasDiffObjects(models.Model):
@@ -180,7 +180,7 @@ class AtlasDiffObjects(models.Model):
     followup_flag_date = models.DateField(blank=True, null=True)
     #detection_id = models.IntegerField()
     # Note the quoted model name in the foreign key. This model has not yet been defined.
-    detection_id = models.ForeignKey('AtlasDiffDetections', to_field='id', db_column='detection_id')
+    detection_id = models.ForeignKey('AtlasDiffDetections', to_field='id', db_column='detection_id', on_delete=models.CASCADE)
     ra = models.FloatField()
     dec = models.FloatField()
     object_classification = models.IntegerField(blank=True, null=True)
@@ -188,14 +188,14 @@ class AtlasDiffObjects(models.Model):
     observation_status = models.CharField(max_length=40, blank=True)
     htm16id = models.BigIntegerField(db_column='htm16ID')  # Field name made lowercase.
     jtindex = models.IntegerField(blank=True, null=True)
-    images_id = models.ForeignKey(TcsImages, to_field='id', db_column='images_id')
+    images_id = models.ForeignKey(TcsImages, to_field='id', db_column='images_id', on_delete=models.CASCADE)
     date_inserted = models.DateTimeField()
     date_modified = models.DateTimeField(blank=True, null=True)
     processing_flags = models.IntegerField(blank=True, null=True)
     updated_by = models.CharField(max_length=40, blank=True)
     followup_priority = models.IntegerField(blank=True, null=True)
     external_reference_id = models.CharField(max_length=40, blank=True)
-    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id')
+    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id', on_delete=models.CASCADE)
     survey_field = models.CharField(max_length=10, blank=True)
     followup_counter = models.IntegerField(blank=True, null=True)
     atlas_designation = models.CharField(max_length=40, blank=True)
@@ -247,8 +247,8 @@ class AtlasDiffDetections(models.Model):
     """
 
     id = models.BigIntegerField(primary_key=True)
-    atlas_metadata_id = models.ForeignKey(AtlasMetadata, to_field='id', db_column='atlas_metadata_id')
-    atlas_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='atlas_object_id')
+    atlas_metadata_id = models.ForeignKey(AtlasMetadata, to_field='id', db_column='atlas_metadata_id', on_delete=models.CASCADE)
+    atlas_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='atlas_object_id', on_delete=models.CASCADE)
     tphot_id = models.IntegerField()
     x = models.FloatField(blank=True, null=True)
     y = models.FloatField(blank=True, null=True)
@@ -283,7 +283,7 @@ class AtlasDiffDetections(models.Model):
     jtindex = models.IntegerField(blank=True, null=True)
     date_inserted = models.DateTimeField()
     date_modified = models.DateTimeField(blank=True, null=True)
-    image_group_id = models.ForeignKey(TcsImageGroups, to_field='id', db_column='image_group_id')
+    image_group_id = models.ForeignKey(TcsImageGroups, to_field='id', db_column='image_group_id', on_delete=models.CASCADE)
     quality_threshold_pass = models.IntegerField(blank=True, null=True)
     deprecated = models.IntegerField(blank=True, null=True)
     realbogus_factor = models.FloatField(blank=True, null=True)
@@ -301,8 +301,8 @@ class AtlasDetectionsddc(models.Model):
     """
 
     id = models.BigIntegerField(primary_key=True)
-    atlas_metadata_id = models.ForeignKey(AtlasMetadataddc, to_field='id', db_column='atlas_metadata_id')
-    atlas_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='atlas_object_id')
+    atlas_metadata_id = models.ForeignKey(AtlasMetadataddc, to_field='id', db_column='atlas_metadata_id', on_delete=models.CASCADE)
+    atlas_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='atlas_object_id', on_delete=models.CASCADE)
     det_id = models.IntegerField()
     ra = models.FloatField(blank=True, null=True)
     dec = models.FloatField(blank=True, null=True)
@@ -353,8 +353,8 @@ class AtlasForcedPhotometry(models.Model):
     """
 
     id = models.BigIntegerField(primary_key=True)
-    atlas_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='atlas_object_id')
-    expname = models.ForeignKey(AtlasMetadataddc, to_field='obs', db_column='expname')
+    atlas_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='atlas_object_id', on_delete=models.CASCADE)
+    expname = models.ForeignKey(AtlasMetadataddc, to_field='obs', db_column='expname', on_delete=models.CASCADE)
     #expname = models.CharField(max_length=255, blank=True)
     mjd_obs = models.FloatField(blank=True, null=True)
     ra = models.FloatField(blank=True, null=True)
@@ -430,7 +430,7 @@ class TcsClassificationHistory(models.Model):
     """
 
     id = models.BigIntegerField(primary_key=True)
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     last_classification = models.IntegerField()
     reclassification_date = models.DateTimeField()
     comments = models.CharField(max_length=255, blank=True)
@@ -447,7 +447,7 @@ class TcsCrossMatches(models.Model):
     """TcsCrossMatches.
     """
 
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     catalogue_object_id = models.CharField(max_length=30)
     catalogue_table_id = models.IntegerField()
     search_parameters_id = models.IntegerField()
@@ -472,7 +472,7 @@ class TcsCrossMatchesExternal(models.Model):
     """
 
     id = models.BigIntegerField(primary_key=True)
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     external_designation = models.CharField(max_length=60)
     type = models.CharField(max_length=40, blank=True)
     host_galaxy = models.CharField(max_length=60, blank=True)
@@ -501,7 +501,7 @@ class TcsFollowupPhotometry(models.Model):
     """
 
     id = models.BigIntegerField(primary_key=True)
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     telescope_instrument_id = models.IntegerField()
     mjd = models.FloatField()
     filter = models.CharField(max_length=20, blank=True)
@@ -555,7 +555,7 @@ class TcsForcedPhotometry(models.Model):
 
     id = models.BigIntegerField(primary_key=True)
     postage_stamp_request_id = models.BigIntegerField(blank=True, null=True)
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     rownum = models.IntegerField(blank=True, null=True)
     skycell = models.CharField(max_length=10, blank=True)
     mjd_obs = models.FloatField(blank=True, null=True)
@@ -689,7 +689,7 @@ class TcsObjectGroups(models.Model):
     """
 
     id = models.BigIntegerField(primary_key=True)
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     object_group_id = models.IntegerField()
 
     class Meta:
@@ -729,7 +729,7 @@ class TcsPostageStampImages(models.Model):
     image_filename = models.CharField(max_length=255)
     pss_filename = models.CharField(max_length=255, blank=True)
     mjd_obs = models.FloatField(blank=True, null=True)
-    image_group_id = models.ForeignKey(TcsImageGroups, to_field='id', db_column='image_group_id')
+    image_group_id = models.ForeignKey(TcsImageGroups, to_field='id', db_column='image_group_id', on_delete=models.CASCADE)
     pss_error_code = models.IntegerField()
     filter = models.CharField(max_length=80, blank=True)
     mask_ratio = models.FloatField(blank=True, null=True)
@@ -862,7 +862,7 @@ class SherlockClassifications(models.Model):
     """SherlockClassifications.
     """
 
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', primary_key=True)
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', primary_key=True, on_delete=models.CASCADE)
     classification = models.CharField(max_length=45, blank=True, null=True)
     annotation = models.TextField(blank=True, null=True)
     summary = models.CharField(max_length=50, blank=True, null=True)
@@ -885,7 +885,7 @@ class SherlockCrossmatches(models.Model):
     """SherlockCrossmatches.
     """
 
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     catalogue_object_id = models.CharField(max_length=30, blank=True, null=True)
     catalogue_table_id = models.SmallIntegerField(blank=True, null=True)
     separationarcsec = models.FloatField(db_column='separationArcsec', blank=True, null=True)  # Field name made lowercase.
@@ -984,8 +984,8 @@ class TcsGravityEventAnnotations(models.Model):
     """
 
     primaryid = models.BigIntegerField(db_column='primaryId', primary_key=True)  # Field name made lowercase.
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id')
-    gravity_event_id = models.ForeignKey(TcsGravityEvents, to_field='gravity_event_id', db_column='gravity_event_id')
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
+    gravity_event_id = models.ForeignKey(TcsGravityEvents, to_field='gravity_event_id', db_column='gravity_event_id', on_delete=models.CASCADE)
     gracedb_id = models.CharField(max_length=10)
     enclosing_contour = models.IntegerField(blank=True, null=True)
     map_name = models.CharField(max_length=30, blank=True, null=True)
@@ -1005,7 +1005,7 @@ class TcsObjectComments(models.Model):
     """
 
     id = models.BigIntegerField(db_column='id', primary_key=True)
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id')
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     date_inserted = models.DateTimeField(db_column='date_inserted', blank=False, null=False)
     comment = models.CharField(max_length=768, db_column='comment', blank=True, null=True)
     username = models.CharField(max_length=90, db_column='username', blank=True, null=True)
@@ -1023,7 +1023,7 @@ class AtlasStackedForcedPhotometry(models.Model):
     """
 
     id = models.BigIntegerField(primary_key=True)
-    atlas_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='atlas_object_id')
+    atlas_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='atlas_object_id', on_delete=models.CASCADE)
     mjd = models.FloatField(blank=True, null=True)
     m = models.FloatField(blank=True, null=True)
     dm = models.FloatField(blank=True, null=True)

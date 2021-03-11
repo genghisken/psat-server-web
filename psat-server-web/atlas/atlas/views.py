@@ -76,7 +76,8 @@ from django_tables2.utils import A  # alias for Accessor
 import django_tables2 as tables2
 
 # 2016-02-09 KWS Attempt to paginate raw query with django-sqlpaginator
-from sqlpaginator.paginator import SqlPaginator
+#from sqlpaginator.paginator import SqlPaginator
+from sqlpaginator import SqlPaginator
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # 2016-02-26 KWS Required for authentication

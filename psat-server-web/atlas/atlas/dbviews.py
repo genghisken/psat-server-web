@@ -146,8 +146,8 @@ class WebViewAbstractFollowup(models.Model):
     external_crossmatches = models.CharField(max_length=1500, db_column='external_crossmatches')
     discovery_target = models.CharField(max_length=90, db_column='discovery_target')
     rms = models.FloatField(db_column='rms')
-    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id')
-    images_id = models.ForeignKey(TcsImages, to_field='id', db_column='images_id')
+    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id', on_delete=models.CASCADE)
+    images_id = models.ForeignKey(TcsImages, to_field='id', db_column='images_id', on_delete=models.CASCADE)
 
     class Meta:
         """Meta.
@@ -371,7 +371,7 @@ class WebViewAbstractUserDefined(models.Model):
     separation = models.FloatField(db_column='separation')
     # Extra columns for the user defined object list table
     object_group_id = models.IntegerField(db_column='object_group_id')
-    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id')
+    detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id', on_delete=models.CASCADE)
     realbogus_factor = models.FloatField(db_column='realbogus_factor')
     zooniverse_score = models.FloatField(db_column='zooniverse_score')
     date_modified = models.DateTimeField(db_column='date_modified')
