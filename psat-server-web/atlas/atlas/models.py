@@ -381,8 +381,8 @@ class AtlasForcedPhotometry(models.Model):
     snrlimit = models.FloatField(blank=True, null=True)
     apfit = models.FloatField(blank=True, null=True)
     date_inserted = models.DateTimeField()
-    limiting_mag = models.NullBooleanField(null=True, blank=True)
-    redo_photometry = models.NullBooleanField(null=True, blank=True)
+    limiting_mag = models.BooleanField(null=True, blank=True)
+    redo_photometry = models.BooleanField(null=True, blank=True)
 
     class Meta:
         """Meta.
@@ -862,7 +862,7 @@ class SherlockClassifications(models.Model):
     """SherlockClassifications.
     """
 
-    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', primary_key=True, on_delete=models.CASCADE)
+    transient_object_id = models.OneToOneField(AtlasDiffObjects, to_field='id', db_column='transient_object_id', primary_key=True, on_delete=models.CASCADE)
     classification = models.CharField(max_length=45, blank=True, null=True)
     annotation = models.TextField(blank=True, null=True)
     summary = models.CharField(max_length=50, blank=True, null=True)

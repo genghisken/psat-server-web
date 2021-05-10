@@ -314,13 +314,13 @@ FOLLOWUP_LIST_QUERY = """\
 
 
 def followupListQuery(listId, djangoRawObject = None, conn = None):
-    """followupListQuery.
+   """followupListQuery.
 
-    Args:
-        listId:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       listId:
+       djangoRawObject:
+       conn:
+   """
    from gkutils.commonutils import Struct
 
    resultset = []
@@ -352,13 +352,13 @@ def followupListQuery(listId, djangoRawObject = None, conn = None):
 
 # In this query, we'll extract each plotting series and their labels in one go.
 def followupPhotometryQuery(candidate, djangoRawObject = None, conn = None):
-    """followupPhotometryQuery.
+   """followupPhotometryQuery.
 
-    Args:
-        candidate:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       candidate:
+       djangoRawObject:
+       conn:
+   """
    from gkutils.commonutils import Struct
 
    resultset = []
@@ -494,14 +494,14 @@ def getForcedPhotometry(candidate, djangoRawObject = None, conn = None, limits =
 
 
 def lightcurvePlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = None, conn = None):
-    """lightcurvePlainQuery.
+   """lightcurvePlainQuery.
 
-    Args:
-        candidate:
-        mjdLimit:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       candidate:
+       mjdLimit:
+       djangoRawObject:
+       conn:
+   """
    from gkutils.commonutils import Struct
 
    recurrences = []
@@ -532,14 +532,14 @@ def lightcurvePlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = None, 
 
 # 2015-10-13 KWS Plain text forced photometry query
 def lightcurveForcedPlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = None, conn = None):
-    """lightcurveForcedPlainQuery.
+   """lightcurveForcedPlainQuery.
 
-    Args:
-        candidate:
-        mjdLimit:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       candidate:
+       mjdLimit:
+       djangoRawObject:
+       conn:
+   """
    from gkutils.commonutils import Struct
 
    recurrences = []
@@ -856,15 +856,15 @@ def getNonDetectionsUsingATLASFootprint(recurrences, filters = FILTERS, ndQuery=
 
 # 2014-11-05 KWS Flux query
 def getLightcurvePointsFlux(candidate, filters=FILTERS, applyFudge = False, djangoRawObject = None, conn = None):
-    """getLightcurvePointsFlux.
+   """getLightcurvePointsFlux.
 
-    Args:
-        candidate:
-        filters:
-        applyFudge:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       candidate:
+       filters:
+       applyFudge:
+       djangoRawObject:
+       conn:
+   """
 
    from gkutils.commonutils import Struct
 
@@ -919,15 +919,15 @@ def getLightcurvePointsFlux(candidate, filters=FILTERS, applyFudge = False, djan
 
 
 def getLightcurveBlanks(candidate, filters=FILTERS, djangoRawObject = None, conn = None, limits = LIMITS):
-    """getLightcurveBlanks.
+   """getLightcurveBlanks.
 
-    Args:
-        candidate:
-        filters:
-        djangoRawObject:
-        conn:
-        limits:
-    """
+   Args:
+       candidate:
+       filters:
+       djangoRawObject:
+       conn:
+       limits:
+   """
 
    from gkutils.commonutils import Struct
 

@@ -722,7 +722,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
         {% for row in finderImages %}
           <div class="col-lg-12 col-md-12 col-sm-12">
-          <a href="{{ STATIC_URL }}images/data/{{ dbName }}/{{ row.whole_mjd }}/{{ row.image_filename }}.jpeg"><img src="{{ STATIC_URL }}images/data/{{ dbName }}/{{ row.whole_mjd }}/{{ row.image_filename }}.jpeg" alt="{{ row.pss_filename }}" title="{{ row.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="250px" /></a>
+          <a href="{{ MEDIA_URL }}images/data/{{ dbName }}/{{ row.whole_mjd }}/{{ row.image_filename }}.jpeg"><img src="{{ MEDIA_URL }}images/data/{{ dbName }}/{{ row.whole_mjd }}/{{ row.image_filename }}.jpeg" alt="{{ row.pss_filename }}" title="{{ row.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="250px" /></a>
           </div>
         {% endfor %}
         {% endif %}
@@ -799,8 +799,8 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
          mjd: {{ image.stamp_mjd|floatformat:5 }}<br />
          </span>
 
-         {% if not public %}<a href="{{ STATIC_URL }}images/data/{{ dbName }}/{{ image.filename }}.fits">{% endif %}
-         <img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbName }}/{{ image.filename }}.jpeg" alt="{{ image.pss_filename }}" title="{{ image.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150px" />
+         {% if not public %}<a href="{{ MEDIA_URL }}images/data/{{ dbName }}/{{ image.filename }}.fits">{% endif %}
+         <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbName }}/{{ image.filename }}.jpeg" alt="{{ image.pss_filename }}" title="{{ image.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150px" />
          {% if not public %}</a>{% endif %}
          </td>
       {% endfor %}

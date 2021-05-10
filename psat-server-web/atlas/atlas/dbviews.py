@@ -347,7 +347,7 @@ class WebViewAbstractUserDefined(models.Model):
     """
 
     rank = models.IntegerField(db_column='rank')
-    id = models.BigIntegerField(db_column='id')
+    id = models.BigIntegerField(db_column='id', primary_key=True)
     atlas_designation = models.CharField(max_length=60, db_column='atlas_designation')
     other_designation = models.CharField(max_length=60, db_column='other_designation')
     local_comments = models.CharField(max_length=768, db_column='local_comments')
@@ -469,7 +469,7 @@ class AtlasVRecurrencesddcPessto(models.Model):
     """
 
     rank = models.IntegerField(db_column='rank')
-    id = models.BigIntegerField(db_column='id')
+    id = models.BigIntegerField(db_column='id', primary_key=True)
     name = models.CharField(max_length=90, db_column='name')
     tns_name = models.CharField(max_length=90, db_column='tns_name')
     ra = models.FloatField(db_column='ra')

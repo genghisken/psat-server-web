@@ -1,6 +1,6 @@
 {% extends "base_bootstrap.html" %}
 
-{% load pagination_tags %}
+{% load render_table from django_tables2 %}
 
 {% block title %}{% if listHeader %}{{listHeader}}{% else %}Followup List{% endif %}{% endblock %}
 
@@ -18,7 +18,7 @@
    <h3>Object List</h3>
 {% endif %}
 
-<h4>({{table.rows.count}})</h4>
+<h4>({{table.rows|length}})</h4>
 
 {% if not public %}
 {% if listHeader %}
@@ -29,12 +29,11 @@
 {% endif %}
 
 
-{% if table.rows.count > 0 %}
+{% if table.rows|length > 0 %}
 
 <div class="table-responsive table-body table-condensed">
 <table class="followuplists_quickview">
 
-{% autopaginate rows nobjects %}
 
 <tr>
   {% for column in table.columns %}
@@ -324,7 +323,6 @@
 
   </tr>
 {% endfor %}
-{% paginate %}
 
 </table>
 </div>

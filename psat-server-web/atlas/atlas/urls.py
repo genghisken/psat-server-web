@@ -1,12 +1,16 @@
-from django.conf.urls import url, include
+from django.conf.urls import url
+from django.urls import path, include
 from django.contrib import admin
 from atlas import views
+from django.conf import settings
+from django.conf.urls.static import static
+
 admin.autodiscover()
 
 
 urlpatterns = [
     # 2016-02-24 KWS Introduced the Django Admin URL
-    url(r'^admin/', include(admin.site.urls)),
+    path('admin/', admin.site.urls),
     # 2016-02-26 KWS Add the authentication URLs
     url(r'^accounts/login/', views.login, name="login"),
     url(r'^accounts/logout/', views.logout, name="logout"),
@@ -48,7 +52,7 @@ urlpatterns = [
 
     url(r'^summarycsv/(?P<listNumber>\d+)/$', views.summarycsv, name='summarycsv'),
 
-    url(r'^followup2/(?P<listNumber>\d+)/$', views.followupList2, name='followup2'),
+#    url(r'^followup2/(?P<listNumber>\d+)/$', views.followupList2, name='followup2'),
 
     url(r'^followup3/(?P<listNumber>\d+)/$', views.followupList3, name='followup3'),
 
@@ -69,3 +73,7 @@ urlpatterns = [
     url(r'^snejson/$', views.jsonSNe, name='snejson'),
 ]
 
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

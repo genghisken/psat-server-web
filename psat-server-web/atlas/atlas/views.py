@@ -10,7 +10,7 @@ from django.contrib import auth
 from django.template.context_processors import csrf
 #from django.template.context_processors import csrf
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Avg, Max, Min, Count
 from django.db import IntegrityError
 from atlas.models import TcsPostageStampImages
@@ -36,7 +36,7 @@ from atlas.models import TcsObjectComments
 # 2019-06-06 KWS Get the new diff stack forced photometry data
 from atlas.models import AtlasStackedForcedPhotometry
 from atlas.dbviews import *
-import django_tables as tables
+# import django_tables as tables
 from math import log
 import datetime
 
@@ -77,7 +77,7 @@ import django_tables2 as tables2
 
 # 2016-02-09 KWS Attempt to paginate raw query with django-sqlpaginator
 #from sqlpaginator.paginator import SqlPaginator
-from sqlpaginator import SqlPaginator
+#from atlas.sqlpaginator import SqlPaginator
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # 2016-02-26 KWS Required for authentication
@@ -332,30 +332,41 @@ class SearchForObjectForm(forms.Form):
 
 
 
-class TcsTransientObjectTable(tables.ModelTable):
-    """TcsTransientObjectTable.
-    """
+#class TcsTransientObjectTable(tables2.ModelTable):
+#    """TcsTransientObjectTable.
+#    """
+#
+#    id = tables.Column(name="id")
+#    object_classification__flag_name = tables.Column(name="object_classification")
+#    class Meta:
+#        """Meta.
+#        """
+#
+#        model = AtlasDiffObjects
 
-    id = tables.Column(name="id")
-    object_classification__flag_name = tables.Column(name="object_classification")
-    class Meta:
-        """Meta.
-        """
-
-        model = AtlasDiffObjects
-
-class UserDefinedListDefinitionsTable(tables.ModelTable):
+#class UserDefinedListDefinitionsTable(tables.ModelTable):
+class UserDefinedListDefinitionsTable(tables2.Table):
     """UserDefinedListDefinitionsTable.
     """
 
-    id = tables.Column(name="id")
-    name = tables.Column(name="name", visible=False)
-    description = tables.Column(name="description")
+    # We want to render the id link as a drop down menu. Do is this way!
+    TEMPLATE = '''
+        <a class="dropdown-toggle" href="#" data-toggle="dropdown">{{ record.id }}</a>
+        <div class="dropdown-menu">
+        <a class="dropdown-item" href="{% url 'userdefinedlistsquickview' record.id %}">quick view</a>
+        <a class="dropdown-item" href="{% url 'userdefinedlists' record.id %}">table view</a>
+        </div>
+    '''
+
+    id = tables2.TemplateColumn(TEMPLATE)
+    name = tables2.Column(accessor="name", visible=False)
+    description = tables2.Column(accessor="description")
     class Meta:
         """Meta.
         """
 
         model = TcsObjectGroupDefinitions
+        template_name = "django_tables2/bootstrap4.html"
 
 @login_required
 def userDefinedListDefinitions(request):
@@ -366,6 +377,7 @@ def userDefinedListDefinitions(request):
     """
     userListDefinitionsQuery = TcsObjectGroupDefinitions.objects.all()
     table = UserDefinedListDefinitionsTable(userListDefinitionsQuery, order_by=request.GET.get('sort', 'id'))
+    RequestConfig(request, paginate={"per_page": 4}).configure(table)
     formSearchObject = SearchForObjectForm()
     return render(request, 'atlas/userdefinedlists_bs.html', {'table': table, 'form_searchobject': formSearchObject})
 
@@ -528,6 +540,7 @@ class WebViewUserDefinedTable(tables2.Table):
 
         model = WebViewAbstractUserDefined
         attrs = {'class': 'followuplists_standardview'}
+        template_name = "django_tables2/bootstrap4.html"
 
 @login_required
 def userDefinedLists(request, userDefinedListNumber):
@@ -1936,65 +1949,66 @@ def followupList3(request, listNumber):
     RequestConfig(request, paginate={"per_page": 100}).configure(table)
     return render(request, 'atlas/followup.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form' : form, 'public': public})
 
-def followupList2(request, listNumber):
-    """followupList2.
-
-    Args:
-        request:
-        listNumber:
-    """
-
-    detectionListRow = get_object_or_404(TcsDetectionLists, pk=listNumber)
-    listHeader = detectionListRow.description
-
-    public = False
-    dbName = settings.DATABASES['default']['NAME'].replace('_django', '')
-    if 'atlaspublic' in dbName or 'kws' in dbName:
-        public = True
-
-    objectName = None
-    page = request.GET.get('page')
-    if page is None:
-        page = 1
-    else:
-        page = int(page)
-
-
-    if request.method == 'POST':
-        form = SearchForObjectForm(request.POST)
-        if form.is_valid(): # All validation rules pass
-            # Do stuff here
-
-            objectName = form.cleaned_data['searchText']
-            if len(objectName) > 0 and objectName != '%%':
-                listHeader = 'Candidates for Followup'
-            else:
-                sql = FOLLOWUP_LIST_QUERY % listNumber
-                
-
-    else:
-        if objectName:
-            form = SearchForObjectForm(initial={'searchText': objectName})
-        else:
-            form = SearchForObjectForm()
-
-        sql = FOLLOWUP_LIST_QUERY % listNumber
-
-    order_by = request.GET.get('sort')
-    paginator = SqlPaginator(sql, FollowupRaw, page=page, order_by=order_by, per_page=100)
-    count = paginator.count
-
-    try:
-        table = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        table = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        table = paginator.page(paginator.num_pages)
-
-    return render(request, 'atlas/followup2.html', {'table': table, 'count': count, 'listHeader' : listHeader, 'form' : form, 'public': public})
-
+# def followupList2(request, listNumber):
+#     """followupList2.
+# 
+#     Args:
+#         request:
+#         listNumber:
+#     """
+# 
+#     detectionListRow = get_object_or_404(TcsDetectionLists, pk=listNumber)
+#     listHeader = detectionListRow.description
+# 
+#     public = False
+#     dbName = settings.DATABASES['default']['NAME'].replace('_django', '')
+#     if 'atlaspublic' in dbName or 'kws' in dbName:
+#         public = True
+# 
+#     objectName = None
+#     page = request.GET.get('page')
+#     if page is None:
+#         page = 1
+#     else:
+#         page = int(page)
+# 
+# 
+#     if request.method == 'POST':
+#         form = SearchForObjectForm(request.POST)
+#         if form.is_valid(): # All validation rules pass
+#             # Do stuff here
+# 
+#             objectName = form.cleaned_data['searchText']
+#             if len(objectName) > 0 and objectName != '%%':
+#                 listHeader = 'Candidates for Followup'
+#             else:
+#                 sql = FOLLOWUP_LIST_QUERY % listNumber
+#                 
+# 
+#     else:
+#         if objectName:
+#             form = SearchForObjectForm(initial={'searchText': objectName})
+#         else:
+#             form = SearchForObjectForm()
+# 
+#         sql = FOLLOWUP_LIST_QUERY % listNumber
+# 
+#     order_by = request.GET.get('sort')
+#     paginator = SqlPaginator(sql, FollowupRaw, page=page, order_by=order_by, per_page=100)
+#     count = paginator.count
+# 
+#     try:
+#         table = paginator.page(page)
+#     except PageNotAnInteger:
+#         # If page is not an integer, deliver first page.
+#         table = paginator.page(1)
+#     except EmptyPage:
+#         # If page is out of range (e.g. 9999), deliver last page of results.
+#         table = paginator.page(paginator.num_pages)
+# 
+#     return render(request, 'atlas/followup2.html', {'table': table, 'count': count, 'listHeader' : listHeader, 'form' : form, 'public': public})
+# 
+# 
 
 def followup_bypass_django_tables(request, listNumber):
     """followup_bypass_django_tables.
@@ -2147,6 +2161,7 @@ class WebViewFollowupTransientsTable(tables2.Table):
 
         model = WebViewAbstractFollowup
         attrs = {'class': 'followuplists_standardview'}
+        template_name = "django_tables2/bootstrap4.html"
 
 # This class is a generic template for all the prioritised followup transients.
 
@@ -2514,27 +2529,56 @@ def atelsDiscovery(request, userDefinedListNumber):
 
     return render(request, 'atlas/atelsdiscovery.txt',{'table': table, 'rows' : table.rows, 'listHeader' : listHeader}, content_type="text/plain")
 
-class TcsCrossMatchesExternalTable(tables.ModelTable):
+#class TcsCrossMatchesExternalTable(tables.ModelTable):
+class TcsCrossMatchesExternalTable(tables2.Table):
     """TcsCrossMatchesExternalTable.
     """
 
-    id = tables.Column(name="id", visible=False)
-    transient_object_id = tables.Column(name="transient_object_id", verbose_name="Internal ID")
-    external_designation = tables.Column(verbose_name="External Designation")
-    type = tables.Column(name='type')
-    host_galaxy = tables.Column(name="host_galaxy")
-    mag = tables.Column(name='mag')
-    discoverer = tables.Column(name='discoverer')
-    matched_list = tables.Column(name='matched_list')
-    other_info = tables.Column(name='other_info')
-    separation = tables.Column(verbose_name="Separation")
-    comments = tables.Column(name="comments")
-    url = tables.Column(name="url", visible=False)
-    #transient_object_id__local_designation = tables.Column(name="local_designation", verbose_name="QUB Name")
-    transient_object_id__atlas_designation = tables.Column(name="atlas_designation", verbose_name="ATLAS Name")
-    transient_object_id__detection_list_id = tables.Column(name="detection_list_id", verbose_name="QUB List")
-    transient_object_id__ra = tables.Column(name='ra', verbose_name="QUB RA")
-    transient_object_id__dec = tables.Column(name='dec', verbose_name="QUB DEC")
+    idtxt = tables2.Column(accessor="id", visible=False)
+    id = tables2.LinkColumn('candidate', args=[A('id')])
+    transient_object_id = tables2.Column(accessor="transient_object_id", verbose_name="Internal ID")
+    external_designation = tables2.Column(verbose_name="External Designation")
+    type = tables2.Column(accessor='type')
+    host_galaxy = tables2.Column(accessor="host_galaxy")
+    mag = tables2.Column(accessor='mag')
+    discoverer = tables2.Column(accessor='discoverer')
+    matched_list = tables2.Column(accessor='matched_list')
+    other_info = tables2.Column(accessor='other_info')
+    separation = tables2.Column(verbose_name="Separation")
+    comments = tables2.Column(accessor="comments")
+    url = tables2.Column(accessor="url", visible=False)
+    #transient_object_id__local_designation = tables2.Column(accessor="local_designation", verbose_name="QUB Name")
+    transient_object_id__atlas_designation = tables2.Column(accessor="atlas_designation", verbose_name="ATLAS Name")
+    transient_object_id__detection_list_id = tables2.Column(accessor="detection_list_id", verbose_name="QUB List")
+    transient_object_id__ra = tables2.Column(accessor='ra', verbose_name="QUB RA")
+    transient_object_id__dec = tables2.Column(accessor='dec', verbose_name="QUB DEC")
+
+    def render_ra(self, value, record):
+        """render_ra.
+
+        Args:
+            value:
+            record:
+        """
+        if record.ra_avg:
+            ra_in_sex = ra_to_sex (record.ra_avg)
+        else:
+            ra_in_sex = ra_to_sex (value)
+        return ra_in_sex
+
+    def render_dec(self, value, record):
+        """render_dec.
+
+        Args:
+            value:
+            record:
+        """
+        if record.dec_avg:
+            dec_in_sex = dec_to_sex (record.dec_avg)
+        else:
+            dec_in_sex = dec_to_sex (value)
+        return dec_in_sex
+
 
     class Meta:
         """Meta.
@@ -2559,29 +2603,30 @@ def displayExternalCrossmatches(request):
 #                django-tables.  We'll upgrade to django-tables2 when we have
 #                the code running properly.
 
-class AtlasDiffObjectsTable(tables.ModelTable):
+#class AtlasDiffObjectsTable(tables.ModelTable):
+class AtlasDiffObjectsTable(tables2.Table):
     """AtlasDiffObjectsTable.
     """
 
-    id = tables.Column(name="id", visible=False)
-    followup_id = tables.Column(data='followup_id', verbose_name="Rank")
-    ra = tables.Column(data='ra', verbose_name='ra')
-    dec = tables.Column(data='dec', verbose_name='dec')
-    object_classification = tables.Column(visible=False, data='object_classification', verbose_name='Type')
-    sherlockClassification = tables.Column(verbose_name='Context Classification')
-    observation_status = tables.Column(verbose_name="Spec Type")
-    atlas_designation = tables.Column(data='atlas_designation', verbose_name='ATLAS Name')
-    other_designation = tables.Column(data='other_designation', verbose_name='TNS Name')
-    current_trend = tables.Column(data='current_trend', verbose_name='Trend')
-    images_id = tables.Column(visible=False)
-    target = tables.Column(data='images_id__target')
-    ref = tables.Column(data='images_id__ref')
-    diff = tables.Column(data='images_id__diff')
-    realbogus_factor = tables.Column(data='realbogus_factor', verbose_name='RB Factor')
-    zooniverse_score = tables.Column(data="zooniverse_score", verbose_name='RB Factor2')
-    date_modified = tables.Column(data="date_modified", visible=False)
-    mjd_obs = tables.Column(data='images_id__mjd_obs', verbose_name='Recent Triplet MJD')
-    detection_list_id = tables.Column(name="detection_list_id", visible=False)
+    id = tables2.Column(accessor="id", visible=False)
+    followup_id = tables2.Column(accessor='followup_id', verbose_name="Rank")
+    ra = tables2.Column(accessor='ra', verbose_name='ra')
+    dec = tables2.Column(accessor='dec', verbose_name='dec')
+    object_classification = tables2.Column(visible=False, accessor='object_classification', verbose_name='Type')
+    sherlockClassification = tables2.Column(verbose_name='Context Classification')
+    observation_status = tables2.Column(verbose_name="Spec Type")
+    atlas_designation = tables2.Column(accessor='atlas_designation', verbose_name='ATLAS Name')
+    other_designation = tables2.Column(accessor='other_designation', verbose_name='TNS Name')
+    current_trend = tables2.Column(accessor='current_trend', verbose_name='Trend')
+    images_id = tables2.Column(visible=False)
+    target = tables2.Column(accessor='images_id__target')
+    ref = tables2.Column(accessor='images_id__ref')
+    diff = tables2.Column(accessor='images_id__diff')
+    realbogus_factor = tables2.Column(accessor='realbogus_factor', verbose_name='RB Factor')
+    zooniverse_score = tables2.Column(accessor="zooniverse_score", verbose_name='RB Factor2')
+    date_modified = tables2.Column(accessor="date_modified", visible=False)
+    mjd_obs = tables2.Column(accessor='images_id__mjd_obs', verbose_name='Recent Triplet MJD')
+    detection_list_id = tables2.Column(accessor="detection_list_id", visible=False)
 
     class Meta:
         """Meta.
@@ -2598,8 +2643,8 @@ class AtlasDiffObjectsTablePublic(AtlasDiffObjectsTable):
     """AtlasDiffObjectsTablePublic.
     """
 
-    current_trend = tables.Column(data='current_trend', verbose_name='Trend', visible=False)
-    realbogus_factor = tables.Column(data='realbogus_factor', verbose_name='RB Factor', visible=False)
+    current_trend = tables2.Column(accessor='current_trend', verbose_name='Trend', visible=False)
+    realbogus_factor = tables2.Column(accessor='realbogus_factor', verbose_name='RB Factor', visible=False)
 
 
 
@@ -2805,9 +2850,12 @@ def followupQuickView(request, listNumber):
 
     table = AtlasDiffObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
 
+
     # Hang on - override the table if the pages are public.
     if public and not fgss:
         table = AtlasDiffObjectsTablePublic(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+
+    RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
     return render(request, 'atlas/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'public': public, 'fgss': fgss, 'processingStatus': processingStatus, 'nobjects': nobjects})
 
