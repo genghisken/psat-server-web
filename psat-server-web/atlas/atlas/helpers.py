@@ -317,3 +317,8 @@ def filterGetParameters(request, queryFilter, prefix = ''):
         queryFilter[prefix + 'observation_status'] = specType
 
     return queryFilter
+
+def getDjangoTables2ImageTemplate(imageType):
+    IMAGE_TEMPLATE = """<img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ record.images_id.whole_mjd }}/{{ record.images_id.%s }}.jpeg" alt="triplet" title="{{ record.images_id.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" />""" % imageType
+    return IMAGE_TEMPLATE
+
