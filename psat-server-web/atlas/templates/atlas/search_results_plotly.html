@@ -391,13 +391,13 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
 
 {% if row.images_id %}
     <div class="col-lg-3 col-md-4 col-sm-12">
-    <img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.target }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
+    <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.target }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
     </div>
     <div class="col-lg-3 col-md-4 col-sm-12">
-    <img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.ref }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
+    <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.ref }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
     </div>
     <div class="col-lg-3 col-md-4 col-sm-12">
-    <img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.diff }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
+    <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.diff }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
     </div>
 {% endif %}
   {% if processingStatus != 1 %}

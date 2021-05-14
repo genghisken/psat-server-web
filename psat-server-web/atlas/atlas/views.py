@@ -357,7 +357,7 @@ class UserDefinedListDefinitionsTable(tables2.Table):
         """
 
         model = TcsObjectGroupDefinitions
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 @login_required
@@ -532,7 +532,7 @@ class WebViewUserDefinedTable(tables2.Table):
 
         model = WebViewAbstractUserDefined
         #attrs = {'class': 'followuplists_standardview'}
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 @login_required
 def userDefinedLists(request, userDefinedListNumber):
@@ -612,7 +612,7 @@ class AtlasDetectionsddcTable(tables2.Table):
 
         model = AtlasDetectionsddc
         exclude = ['id', 'atlas_metadata_id', 'atlas_object_id', 'htm16id', 'realbogus_factor', 'date_inserted', 'date_modified', 'quality_threshold_pass', 'deprecated']
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 # Experimental code - Use of forms
 @login_required
@@ -2154,7 +2154,7 @@ class WebViewFollowupTransientsTable(tables2.Table):
 
         model = WebViewAbstractFollowup
         #attrs = {'class': 'followuplists_standardview'}
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 # This class is a generic template for all the prioritised followup transients.
 
@@ -2613,9 +2613,9 @@ class AtlasDiffObjectsTable(tables2.Table):
     current_trend = tables2.Column(accessor='current_trend', verbose_name='Trend')
     images_id = tables2.Column(visible=False)
 
-    target = tables2.TemplateColumn(getDjangoTables2ImageTemplate('target'))
-    ref = tables2.TemplateColumn(getDjangoTables2ImageTemplate('ref'))
-    diff = tables2.TemplateColumn(getDjangoTables2ImageTemplate('diff'))
+    target = tables2.TemplateColumn(getDjangoTables2ImageTemplate('target'), orderable = False)
+    ref = tables2.TemplateColumn(getDjangoTables2ImageTemplate('ref'), orderable = False)
+    diff = tables2.TemplateColumn(getDjangoTables2ImageTemplate('diff'), orderable = False)
 
     realbogus_factor = tables2.Column(accessor='realbogus_factor', verbose_name='RB Factor')
     zooniverse_score = tables2.Column(accessor="zooniverse_score", verbose_name='RB Factor2')
@@ -2694,7 +2694,7 @@ class AtlasDiffObjectsTableAtticOptions(AtlasDiffObjectsTable):
         """Meta.
         """
 
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 class AtlasDiffObjectsTableEyeballOptions(AtlasDiffObjectsTable):
@@ -2711,7 +2711,7 @@ class AtlasDiffObjectsTableEyeballOptions(AtlasDiffObjectsTable):
         """Meta.
         """
 
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 class AtlasDiffObjectsTablePossibleOptions(AtlasDiffObjectsTable):
@@ -2727,7 +2727,7 @@ class AtlasDiffObjectsTablePossibleOptions(AtlasDiffObjectsTable):
         """Meta.
         """
 
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 class AtlasDiffObjectsTableGoodOptions(AtlasDiffObjectsTable):
@@ -2744,7 +2744,7 @@ class AtlasDiffObjectsTableGoodOptions(AtlasDiffObjectsTable):
         """Meta.
         """
 
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 class AtlasDiffObjectsTableConfirmedOptions(AtlasDiffObjectsTable):
@@ -2761,7 +2761,7 @@ class AtlasDiffObjectsTableConfirmedOptions(AtlasDiffObjectsTable):
         """Meta.
         """
 
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 class AtlasDiffObjectsTableGarbageOptions(AtlasDiffObjectsTable):
@@ -2776,7 +2776,7 @@ class AtlasDiffObjectsTableGarbageOptions(AtlasDiffObjectsTable):
         """Meta.
         """
 
-        template_name = "django_tables2/bootstrap4.html"
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 AtlasDiffObjectsTables = [AtlasDiffObjectsTableGarbageOptions,
