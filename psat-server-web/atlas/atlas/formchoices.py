@@ -156,3 +156,25 @@ LIGHTCURVE_REPLOTTING_CHOICES = (
     ('4', 'User Defined Date Limits'),
 )
 
+# 2021-05-12 KWS Added selector templates for Django Tables2 for quickview.
+
+choiceSelectors = {'T': '0', 'C': '1', 'G': '2', 'P': '3', 'E': '4', 'A': '5', 'U': '1000'}
+
+def getChoiceSelectorTemplate(choice, checked = ''):
+    templateParameters = {'template': None, 'attrs': None}
+    try:
+        CHOICE_SELECTOR = '''
+            <div class="radio-ugpt-%s">
+              <input class="%s" type="radio" id="{{record.id}}_promote_demote_%s" value="%s" name="{{record.id}}_promote_demote" %s />
+              <label for="{{record.id}}_promote_demote_%s">%s</label>
+            </div>
+        ''' % (choice.lower(), choice, choiceSelectors[choice], choice, checked, choiceSelectors[choice], choice)
+        attrs={"th":{"id":"select_all_%s" % (choice.lower()), "name":"select_all_%s" % (choice.lower()), "value":"all_%s" % (choice.lower())}}
+    except KeyError as e:
+        CHOICE_SELECTOR = None
+        attrs = None
+
+    templateParameters['template'] = CHOICE_SELECTOR
+    templateParameters['attrs'] = attrs
+    return templateParameters
+
