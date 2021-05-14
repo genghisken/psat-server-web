@@ -47,7 +47,7 @@ from django.template import RequestContext
 
 # base 26 numbers for candidate names
 from gkutils.commonutils import base26, ra_to_sex, dec_to_sex, ra_in_decimal_hours, coneSearchHTM, QUICK, FULL, COUNT, CAT_ID_RA_DEC_COLS, FLAGS, getFlagDefs, transform, J2000toGalactic, getDateFractionMJD, COORDS_SEX_REGEX_COMPILED, COORDS_DEC_REGEX_COMPILED, NAME_REGEX_COMPILED, calculateRMSScatter, dbConnect, Struct
-from atlas.helpers import processSearchForm, getNearbyObjectsFromAlternateDatabase, sendMessage, TNS_MESSAGES, getNearbyObjectsForScatterPlot, SHOW_LC_DATA_LIMIT, filterGetParameters
+from atlas.helpers import processSearchForm, getNearbyObjectsFromAlternateDatabase, sendMessage, TNS_MESSAGES, getNearbyObjectsForScatterPlot, SHOW_LC_DATA_LIMIT, filterGetParameters, getDjangoTables2ImageTemplate
 
 # *** FGSS CODE ***
 #from catalogueviews import *
@@ -332,25 +332,12 @@ class SearchForObjectForm(forms.Form):
 
 
 
-#class TcsTransientObjectTable(tables2.ModelTable):
-#    """TcsTransientObjectTable.
-#    """
-#
-#    id = tables.Column(name="id")
-#    object_classification__flag_name = tables.Column(name="object_classification")
-#    class Meta:
-#        """Meta.
-#        """
-#
-#        model = AtlasDiffObjects
-
-#class UserDefinedListDefinitionsTable(tables.ModelTable):
 class UserDefinedListDefinitionsTable(tables2.Table):
     """UserDefinedListDefinitionsTable.
     """
 
     # We want to render the id link as a drop down menu. Do is this way!
-    TEMPLATE = '''
+    MENU = '''
         <a class="dropdown-toggle" href="#" data-toggle="dropdown">{{ record.id }}</a>
         <div class="dropdown-menu">
         <a class="dropdown-item" href="{% url 'userdefinedlistsquickview' record.id %}">quick view</a>
@@ -358,15 +345,20 @@ class UserDefinedListDefinitionsTable(tables2.Table):
         </div>
     '''
 
-    id = tables2.TemplateColumn(TEMPLATE)
+    id = tables2.TemplateColumn(MENU)
     name = tables2.Column(accessor="name", visible=False)
     description = tables2.Column(accessor="description")
+
+    # OK - the way to add the buttons is to SUBCLASS this table I think
+    # adding the relevant buttons depending on the list ID.
+
     class Meta:
         """Meta.
         """
 
         model = TcsObjectGroupDefinitions
         template_name = "django_tables2/bootstrap4.html"
+
 
 @login_required
 def userDefinedListDefinitions(request):
@@ -377,7 +369,7 @@ def userDefinedListDefinitions(request):
     """
     userListDefinitionsQuery = TcsObjectGroupDefinitions.objects.all()
     table = UserDefinedListDefinitionsTable(userListDefinitionsQuery, order_by=request.GET.get('sort', 'id'))
-    RequestConfig(request, paginate={"per_page": 4}).configure(table)
+    RequestConfig(request, paginate={"per_page": 20}).configure(table)
     formSearchObject = SearchForObjectForm()
     return render(request, 'atlas/userdefinedlists_bs.html', {'table': table, 'form_searchobject': formSearchObject})
 
@@ -539,7 +531,7 @@ class WebViewUserDefinedTable(tables2.Table):
         """
 
         model = WebViewAbstractUserDefined
-        attrs = {'class': 'followuplists_standardview'}
+        #attrs = {'class': 'followuplists_standardview'}
         template_name = "django_tables2/bootstrap4.html"
 
 @login_required
@@ -620,6 +612,7 @@ class AtlasDetectionsddcTable(tables2.Table):
 
         model = AtlasDetectionsddc
         exclude = ['id', 'atlas_metadata_id', 'atlas_object_id', 'htm16id', 'realbogus_factor', 'date_inserted', 'date_modified', 'quality_threshold_pass', 'deprecated']
+        template_name = "django_tables2/bootstrap4.html"
 
 # Experimental code - Use of forms
 @login_required
@@ -2160,7 +2153,7 @@ class WebViewFollowupTransientsTable(tables2.Table):
         """
 
         model = WebViewAbstractFollowup
-        attrs = {'class': 'followuplists_standardview'}
+        #attrs = {'class': 'followuplists_standardview'}
         template_name = "django_tables2/bootstrap4.html"
 
 # This class is a generic template for all the prioritised followup transients.
@@ -2529,7 +2522,6 @@ def atelsDiscovery(request, userDefinedListNumber):
 
     return render(request, 'atlas/atelsdiscovery.txt',{'table': table, 'rows' : table.rows, 'listHeader' : listHeader}, content_type="text/plain")
 
-#class TcsCrossMatchesExternalTable(tables.ModelTable):
 class TcsCrossMatchesExternalTable(tables2.Table):
     """TcsCrossMatchesExternalTable.
     """
@@ -2603,13 +2595,14 @@ def displayExternalCrossmatches(request):
 #                django-tables.  We'll upgrade to django-tables2 when we have
 #                the code running properly.
 
-#class AtlasDiffObjectsTable(tables.ModelTable):
 class AtlasDiffObjectsTable(tables2.Table):
     """AtlasDiffObjectsTable.
     """
 
-    id = tables2.Column(accessor="id", visible=False)
-    followup_id = tables2.Column(accessor='followup_id', verbose_name="Rank")
+    IMAGE_TEMPLATE = """<img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ record.images_id.whole_mjd }}/{{ record.images_id.%s }}.jpeg" alt="triplet" title="{{ record.images_id.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" />""" % 'diff'
+
+    id = tables2.LinkColumn('candidate', args=[A('id')])
+    followup_id = tables2.Column(accessor='followup_id', verbose_name="Rank", visible=False)
     ra = tables2.Column(accessor='ra', verbose_name='ra')
     dec = tables2.Column(accessor='dec', verbose_name='dec')
     object_classification = tables2.Column(visible=False, accessor='object_classification', verbose_name='Type')
@@ -2619,14 +2612,66 @@ class AtlasDiffObjectsTable(tables2.Table):
     other_designation = tables2.Column(accessor='other_designation', verbose_name='TNS Name')
     current_trend = tables2.Column(accessor='current_trend', verbose_name='Trend')
     images_id = tables2.Column(visible=False)
-    target = tables2.Column(accessor='images_id__target')
-    ref = tables2.Column(accessor='images_id__ref')
-    diff = tables2.Column(accessor='images_id__diff')
+
+    target = tables2.TemplateColumn(getDjangoTables2ImageTemplate('target'))
+    ref = tables2.TemplateColumn(getDjangoTables2ImageTemplate('ref'))
+    diff = tables2.TemplateColumn(getDjangoTables2ImageTemplate('diff'))
+
     realbogus_factor = tables2.Column(accessor='realbogus_factor', verbose_name='RB Factor')
     zooniverse_score = tables2.Column(accessor="zooniverse_score", verbose_name='RB Factor2')
     date_modified = tables2.Column(accessor="date_modified", visible=False)
     mjd_obs = tables2.Column(accessor='images_id__mjd_obs', verbose_name='Recent Triplet MJD')
     detection_list_id = tables2.Column(accessor="detection_list_id", visible=False)
+
+    # Added these methods in place of using @property
+    def render_ra(self, value, record):
+        """render_ra.
+
+        Args:
+            value:
+            record:
+        """
+        ra_in_sex = ra_to_sex (value)
+        return ra_in_sex
+
+    def render_dec(self, value, record):
+        """render_dec.
+
+        Args:
+            value:
+            record:
+        """
+        dec_in_sex = dec_to_sex (value)
+        return dec_in_sex
+
+    def render_realbogus_factor(self, value):
+        """render_realbogus_factor.
+
+        Args:
+            value:
+        """
+        return '%.3f' % value
+
+    def render_zooniverse_score(self, value):
+        """render_zooniverse_score.
+
+        Args:
+            value:
+        """
+        return '%.3f' % value
+
+    def render_other_designation(self, value, record):
+        """render_other_designation.
+
+        Args:
+            value:
+            record:
+        """
+        prefix = 'AT'
+        if record.observation_status and ('SN' in record.observation_status or 'I' in record.observation_status):
+            prefix = 'SN'
+        return prefix + value
+
 
     class Meta:
         """Meta.
@@ -2634,6 +2679,113 @@ class AtlasDiffObjectsTable(tables2.Table):
 
         model = AtlasDiffObjects
         exclude = ['detection_id', 'htm16id', 'jtindex', 'date_inserted', 'date_modified', 'processing_flags', 'updated_by', 'followup_priority', 'external_reference_id',  'survey_field', 'followup_counter', 'ndetections', 'local_comments', 'realbogus_factor', 'zooniverse_score'] 
+
+
+class AtlasDiffObjectsTableAtticOptions(AtlasDiffObjectsTable):
+    """AtlasDiffObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
+    T = tables2.TemplateColumn(getChoiceSelectorTemplate("T")['template'], verbose_name="T", orderable=False, attrs=getChoiceSelectorTemplate("T")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "django_tables2/bootstrap4.html"
+
+
+class AtlasDiffObjectsTableEyeballOptions(AtlasDiffObjectsTable):
+    """AtlasDiffObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
+    A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
+    T = tables2.TemplateColumn(getChoiceSelectorTemplate("T")['template'], verbose_name="T", orderable=False, attrs=getChoiceSelectorTemplate("T")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "django_tables2/bootstrap4.html"
+
+
+class AtlasDiffObjectsTablePossibleOptions(AtlasDiffObjectsTable):
+    """AtlasDiffObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
+    T = tables2.TemplateColumn(getChoiceSelectorTemplate("T")['template'], verbose_name="T", orderable=False, attrs=getChoiceSelectorTemplate("T")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "django_tables2/bootstrap4.html"
+
+
+class AtlasDiffObjectsTableGoodOptions(AtlasDiffObjectsTable):
+    """AtlasDiffObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    C = tables2.TemplateColumn(getChoiceSelectorTemplate("C")['template'], verbose_name="C", orderable=False, attrs=getChoiceSelectorTemplate("C")['attrs'])
+    P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
+    A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "django_tables2/bootstrap4.html"
+
+
+class AtlasDiffObjectsTableConfirmedOptions(AtlasDiffObjectsTable):
+    """AtlasDiffObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    G = tables2.TemplateColumn(getChoiceSelectorTemplate("G")['template'], verbose_name="G", orderable=False, attrs=getChoiceSelectorTemplate("G")['attrs'])
+    P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
+    A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "django_tables2/bootstrap4.html"
+
+
+class AtlasDiffObjectsTableGarbageOptions(AtlasDiffObjectsTable):
+    """AtlasDiffObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    E = tables2.TemplateColumn(getChoiceSelectorTemplate("E")['template'], verbose_name="E", orderable=False, attrs=getChoiceSelectorTemplate("E")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "django_tables2/bootstrap4.html"
+
+
+AtlasDiffObjectsTables = [AtlasDiffObjectsTableGarbageOptions,
+                          AtlasDiffObjectsTableConfirmedOptions,
+                          AtlasDiffObjectsTableGoodOptions,
+                          AtlasDiffObjectsTablePossibleOptions,
+                          AtlasDiffObjectsTableEyeballOptions,
+                          AtlasDiffObjectsTableAtticOptions,
+                          AtlasDiffObjectsTableEyeballOptions]
 
 PROMOTE_DEMOTE = {'C': 1, 'G': 2, 'P': 3, 'E': 4, 'A': 5, 'T': 0}
 
@@ -2848,7 +3000,14 @@ def followupQuickView(request, listNumber):
     except ValueError as e:
         nobjects = 100
 
-    table = AtlasDiffObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+    try:
+        if int(list_id) in (0,1,2,3,4,5,6):
+            #table = AtlasDiffObjectsTables[list_id]
+            table = AtlasDiffObjectsTables[list_id](objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+        else:
+            table = AtlasDiffObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+    except ValueError as e:
+        table = AtlasDiffObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
 
 
     # Hang on - override the table if the pages are public.
