@@ -31,7 +31,6 @@ build
 
 # Settings files and compiled binaries
 settings.py
-wsgi.py
 config.yaml
 PS1TransientClassifier
 IngestDetectionsMain
