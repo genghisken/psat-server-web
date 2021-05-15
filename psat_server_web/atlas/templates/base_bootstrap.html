@@ -9,7 +9,6 @@
 
 <title>{% block title %}Main Base Title{% endblock %}</title>
 
-{% if nobjects <= showObjectLCThreshold %}
 {% block lightcurvedataglobal %}
 {% endblock %}
 
@@ -30,7 +29,6 @@
 
 {% block recurrenceplotdata %}
 {% endblock %}
-{% endif %}
 
 {% block celestial %}
 {% endblock %}
