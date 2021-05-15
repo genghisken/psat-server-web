@@ -1,0 +1,6 @@
+graft psat-server-web
+prune psat-server-web/atlas/media/images/data
+prune psat-server-web/atlas/static
+prune psat-server-web/ps1/static
+prune psat-server-web/ps1/media/images/data
+global-exclude .gitignore __pycache__ *.py[cod] settings.py
