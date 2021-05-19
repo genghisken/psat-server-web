@@ -2,9 +2,21 @@
 # Create a setup script and immediately start the apache instance.  Our URL prefix
 # is specified by the --mount-point setting.  We need to specify a PYTHONPATH before
 # starting the apache instance. Run this script from THIS directory.
-APACHEPATH="/tmp/atlas"
 
-if [ -f .env ]; then chmod 600 .env; fi
+if [ -f .env ]; then chmod 600 .env; source .env; fi
+
+export APACHEPATH="/tmp/atlas"
+
+if [ $DJANGO_MYSQL_DBNAME ]
+then
+    export APACHEPATH=/tmp/$DJANGO_MYSQL_DBNAME
+fi
+
+export PORT=8086
+if [ $WSGI_PORT ]
+then
+    export PORT=$WSGI_PORT
+fi
 
 if [ -f $APACHEPATH/apachectl ]; then
     echo "Stopping Apache if already running"
@@ -16,7 +28,7 @@ else
     mkdir -p APACHEPATH
 fi
 
-mod_wsgi-express setup-server --working-directory atlas --url-alias /static static --application-type module atlas.wsgi --server-root $APACHEPATH --port 8086 --mount-point /
+mod_wsgi-express setup-server --working-directory atlas --url-alias /static static --application-type module atlas.wsgi --server-root $APACHEPATH --port $PORT --mount-point /
 
 export PYTHONPATH=$(pwd)
 $APACHEPATH/apachectl start
