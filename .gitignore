@@ -30,7 +30,7 @@ build
 /*.egg
 
 # Settings files and compiled binaries
-settings.py
+.env
 config.yaml
 PS1TransientClassifier
 IngestDetectionsMain

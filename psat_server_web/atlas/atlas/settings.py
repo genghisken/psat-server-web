@@ -10,11 +10,17 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from dotenv import load_dotenv
+
+# import forcephot
+
+load_dotenv(override=True)
+
 #from pathlib import Path  # Python 3.6+ only
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 #BASE_DIR = Path(__file__).resolve().parent.parent
-#PATHPREFIX = '/sne/GENERIC_DATABASE'
+#PATHPREFIX = '/sne/atlas'
 PATHPREFIX = ''
 
 SITE_ID = 1
@@ -23,7 +29,7 @@ SITE_ID = 1
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,8 +43,8 @@ ROOT_URLCONF = 'atlas.urls'
 WSGI_APPLICATION = 'atlas.wsgi.application'
 
 # 2016-11-07 KWS Fixed the authentication issues by setting cookie names
-CSRF_COOKIE_NAME = 'csrf_GENERIC_DATABASE'
-SESSION_COOKIE_NAME = 'session_GENERIC_DATABASE'
+CSRF_COOKIE_NAME = 'csrf_' + os.environ.get('DJANGO_MYSQL_DBNAME')
+SESSION_COOKIE_NAME = 'session_' + os.environ.get('DJANGO_MYSQL_DBNAME')
 
 # 2017-10-03 KWS Had to add this setting because of SSL proxy.
 CSRF_TRUSTED_ORIGINS = ['star.pst.qub.ac.uk']
@@ -55,22 +61,24 @@ LOGOUT_URL = PATHPREFIX + '/accounts/logout/'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'GENERIC_DATABASE',
-        'USER': 'GENERIC_USER',
-        'PASSWORD': 'GENERIC_PASSWORD',
-        'HOST': 'GENERIC_HOST'
+        'NAME': os.environ.get('DJANGO_MYSQL_DBNAME'),
+        'USER': os.environ.get('DJANGO_MYSQL_DBUSER'),
+        'PASSWORD': os.environ.get('DJANGO_MYSQL_DBPASS'),
+        'HOST': os.environ.get('DJANGO_MYSQL_DBHOST'),
+        'PORT': int(os.environ.get('DJANGO_MYSQL_DBPORT')),
     }
 }
 
+
 DAEMONS = {
     'tns': {
-        'host': GENERIC_DAEMON_HOST_TNS,
-        'port': GENERIC_DAEMON_PORT_TNS,
+        'host': os.environ.get('DJANGO_TNS_DAEMON_SERVER'),
+        'port': int(os.environ.get('DJANGO_TNS_DAEMON_PORT')),
         'test': True
     },
     'mpc': {
-        'host': GENERIC_DAEMON_HOST_MPC,
-        'port': GENERIC_DAEMON_PORT_MPC,
+        'host': os.environ.get('DJANGO_MPC_DAEMON_SERVER'),
+        'port': int(os.environ.get('DJANGO_MPC_DAEMON_PORT')),
         'test': True
     }
 }

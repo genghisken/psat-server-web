@@ -1,10 +1,18 @@
-{% extends "base.html" %}
+{% extends "base_bootstrap_login.html" %}
 
 {% block title %}Logout{% endblock %}
 
 {% block content %}
 
-  <h2>Logged out!</h2>
-  <p>Click <a href="{% url "login" %}">here</a> to login again</p>
+<div class="container-fluid h-100">
+  <div class="row justify-content-center align-items-center h-100">
+    <div class="col-lg-4 col-md-6 col-sm-12">
+
+  <h2 class="text-center">Logged out!</h2>
+  <p class="text-center">Click <a href="{% url "login" %}">here</a> to login again</p>
+
+    </div>
+  </div>
+</div>
 
 {% endblock %}

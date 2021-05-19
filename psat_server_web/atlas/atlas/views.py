@@ -87,8 +87,8 @@ class LoginForm(forms.Form):
     """LoginForm.
     """
 
-    username = forms.CharField(required=False, widget=forms.TextInput(attrs={'size':'30'}))
-    password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'size':'30'}))
+    username = forms.CharField(required=False, widget=forms.TextInput(attrs={'size':'50', 'class':'form-control'}))
+    password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'size':'50', 'class':'form-control'}))
 
 def login(request):
     """login.
