@@ -18,6 +18,12 @@ then
     export PORT=$WSGI_PORT
 fi
 
+export PREFIX=/atlastransients
+if [ $WSGI_PREFIX ]
+then
+    export PREFIX=$WSGI_PREFIX
+fi
+
 if [ -f $APACHEPATH/apachectl ]; then
     echo "Stopping Apache if already running"
     $APACHEPATH/apachectl stop
@@ -28,7 +34,7 @@ else
     mkdir -p APACHEPATH
 fi
 
-mod_wsgi-express setup-server --working-directory atlas --url-alias /static static --url-alias /media media --application-type module atlas.wsgi --server-root $APACHEPATH --port $PORT --mount-point /
+mod_wsgi-express setup-server --working-directory atlas --url-alias /static static --url-alias /media media --application-type module atlas.wsgi --server-root $APACHEPATH --port $PORT --mount-point $PREFIX
 
 export PYTHONPATH=$(pwd)
 $APACHEPATH/apachectl start
