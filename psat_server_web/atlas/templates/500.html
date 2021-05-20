@@ -1,15 +1,18 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
-    "http://www.w3.org/TR/html4/strict.dtd">
-<html lang="en">
-<head>
-    <title>Page unavailable</title>
-</head>
-<body>
-    <h1>Page unavailable</h1>
+{% extends "base_bootstrap_login.html" %}
 
-    <p>Sorry, but the requested page is unavailable due to a
-    server hiccup.</p>
+{% block title %}Server Error{% endblock %}
 
-    <p>Our engineers have been notified, so check back later.</p>
-</body>
-</html>
+{% block content %}
+
+<div class="container-fluid h-100">
+  <div class="row justify-content-center align-items-center h-100">
+    <div class="col-lg-4 col-md-6 col-sm-12">
+
+    <h1 class="text-center">Error 500: Server Error</h1>
+
+    <p class="text-center">Apologies - something went wrong with the server. Try coming back later.</p>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
