@@ -16,17 +16,10 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-#from pathlib import Path  # Python 3.6+ only
-
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-#BASE_DIR = Path(__file__).resolve().parent.parent
-#PATHPREFIX = '/sne/atlas'
-PATHPREFIX = ''
+PATHPREFIX = os.environ.get('WSGI_PREFIX')
 
 SITE_ID = 1
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
@@ -74,17 +67,15 @@ DAEMONS = {
     'tns': {
         'host': os.environ.get('DJANGO_TNS_DAEMON_SERVER'),
         'port': int(os.environ.get('DJANGO_TNS_DAEMON_PORT')),
-        'test': True
+        'test': False
     },
     'mpc': {
         'host': os.environ.get('DJANGO_MPC_DAEMON_SERVER'),
         'port': int(os.environ.get('DJANGO_MPC_DAEMON_PORT')),
-        'test': True
+        'test': False
     }
 }
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.7/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -110,6 +101,8 @@ STATICFILES_DIRS = (
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+# MEDIA is DIFFERENT from static files.  It's serving up files from a mounted filesystem for example.
+# These files are NOT covered by collectstatic, but the webserver DOES need to know where they are!
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = PATHPREFIX + '/media/'
 
@@ -121,8 +114,6 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-# 2018-06-06 KWS Added new TEMPLATES settings in place of TEMPLATE_CONTEXT_PROCESSORS
-#                and TEMPLATE_DIRS
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -149,22 +140,18 @@ TEMPLATES = [
     },
 ]
 
-# KWS - Added pagination
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-#    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#    'pagination.middleware.PaginationMiddleware',
     'django.middleware.security.SecurityMiddleware',
 ]
 
 ROOT_URLCONF = 'atlas.urls'
 
-# 2015-11-30 KWS Added django-tables2
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -174,6 +161,5 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'atlas',
-    # 'pagination',
     'django_tables2',
 ]
