@@ -50,10 +50,10 @@ SESSION_COOKIE_NAME = 'session_' + os.environ.get('DJANGO_MYSQL_DBNAME')
 CSRF_TRUSTED_ORIGINS = ['star.pst.qub.ac.uk']
 
 CSRF_FAILURE_VIEW = 'atlas.views.csrf_failure'
-LOGIN_REDIRECT_URL = PATHPREFIX + '/'
 
-LOGIN_URL = PATHPREFIX + '/accounts/login/'
-LOGOUT_URL = PATHPREFIX + '/accounts/logout/'
+LOGIN_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases

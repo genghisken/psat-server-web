@@ -2,7 +2,7 @@
 
 #from django.conf.urls.defaults import *
 #from django.shortcuts import render_to_response, get_object_or_404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
 
 # 2016-02-26 KWS Required for authentication
@@ -122,13 +122,12 @@ def authView(request):
         request.session.set_expiry(30 * 86400)
         auth.login(request, user)
         if next == '':
-            #return HttpResponseRedirect('../../accounts/loggedin')
-            return HttpResponseRedirect('../../')
+            return redirect('home')
         else:
-            return HttpResponseRedirect(next)
+            return redirect(next)
 
     else:
-        return HttpResponseRedirect('../../accounts/invalid')
+        return redirect('invalid')
 
 def loggedin(request):
     """loggedin.
