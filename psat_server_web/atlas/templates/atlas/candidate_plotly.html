@@ -386,13 +386,13 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         </div>
         {% endif %}
 
-        {% if transient.confidence_factor or transient.zooniverse_score %}
+        {% if transient.realbogus_factor or transient.zooniverse_score %}
         <div class="col-lg-12 col-md-12 col-sm-12">
         <span class="parameter-label">Realbogus Factors</span>
         </div>
     
         <div class="col-lg-12 col-md-12 col-sm-12">
-        <span class="parameter-value">{{ transient.realbogus_factor|floatformat:"2" }} (DEW) {{ transient.zooniverse_score|floatformat:"2" }} (TF)</span>
+        <span class="parameter-value">{% if transient.realbogus_factor %}{{ transient.realbogus_factor|floatformat:"2" }} (DEW){% endif %} {% if transient.zooniverse_score %}{{ transient.zooniverse_score|floatformat:"2" }} (TF){% endif %}</span>
         </div>
         {% endif %}
 

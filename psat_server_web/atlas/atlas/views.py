@@ -2600,8 +2600,8 @@ class AtlasDiffObjectsTable(tables2.Table):
 
     IMAGE_TEMPLATE = """<img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ record.images_id.whole_mjd }}/{{ record.images_id.%s }}.jpeg" alt="triplet" title="{{ record.images_id.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" />""" % 'diff'
 
-    id = tables2.LinkColumn('candidate', args=[A('id')])
-    followup_id = tables2.Column(accessor='followup_id', verbose_name="Rank", visible=False)
+    id = tables2.Column(accessor='id', visible = False)
+    followup_id = tables2.LinkColumn('candidate', accessor='followup_id', verbose_name="Followup ID", args=[A('id')])
     ra = tables2.Column(accessor='ra', verbose_name='ra')
     dec = tables2.Column(accessor='dec', verbose_name='dec')
     object_classification = tables2.Column(visible=False, accessor='object_classification', verbose_name='Type')
@@ -2616,10 +2616,10 @@ class AtlasDiffObjectsTable(tables2.Table):
     ref = tables2.TemplateColumn(getDjangoTables2ImageTemplate('ref'), orderable = False)
     diff = tables2.TemplateColumn(getDjangoTables2ImageTemplate('diff'), orderable = False)
 
-    realbogus_factor = tables2.Column(accessor='realbogus_factor', verbose_name='RB Factor')
-    zooniverse_score = tables2.Column(accessor="zooniverse_score", verbose_name='RB Factor2')
     date_modified = tables2.Column(accessor="date_modified", visible=False)
-    mjd_obs = tables2.Column(accessor='images_id__mjd_obs', verbose_name='Recent Triplet MJD')
+    mjd_obs = tables2.Column(accessor='images_id__mjd_obs', verbose_name='Recent Triplet MJD', visible = False)
+    realbogus_factor = tables2.Column(accessor='realbogus_factor', verbose_name='RB (DEW)')
+    zooniverse_score = tables2.Column(accessor="zooniverse_score", verbose_name='RB (TF)')
     detection_list_id = tables2.Column(accessor="detection_list_id", visible=False)
 
     # Added these methods in place of using @property
@@ -2677,7 +2677,8 @@ class AtlasDiffObjectsTable(tables2.Table):
         """
 
         model = AtlasDiffObjects
-        exclude = ['detection_id', 'htm16id', 'jtindex', 'date_inserted', 'date_modified', 'processing_flags', 'updated_by', 'followup_priority', 'external_reference_id',  'survey_field', 'followup_counter', 'ndetections', 'local_comments', 'realbogus_factor', 'zooniverse_score'] 
+        exclude = ['detection_id', 'htm16id', 'jtindex', 'date_inserted', 'date_modified', 'processing_flags', 'updated_by', 'followup_priority', 'external_reference_id',  'survey_field', 'followup_counter', 'ndetections', 'local_comments'] 
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 class AtlasDiffObjectsTableAtticOptions(AtlasDiffObjectsTable):
@@ -3013,7 +3014,7 @@ def followupQuickView(request, listNumber):
     if public and not fgss:
         table = AtlasDiffObjectsTablePublic(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
 
-    RequestConfig(request, paginate={"per_page": 100}).configure(table)
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
     return render(request, 'atlas/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'public': public, 'fgss': fgss, 'processingStatus': processingStatus, 'nobjects': nobjects})
 
@@ -3074,6 +3075,8 @@ def followupAllQuickView(request):
     except ValueError as e:
         nobjects = 100
 
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
+
     return render(request, 'atlas/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects})
 
 
@@ -3127,6 +3130,8 @@ def followupAllPublicQuickView(request):
         nobjects = int(nobjects)
     except ValueError as e:
         nobjects = 100
+
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
     return render(request, 'atlas/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects})
 
@@ -3186,6 +3191,8 @@ def userDefinedListsQuickview(request, userDefinedListNumber):
         nobjects = int(nobjects)
     except ValueError as e:
         nobjects = 100
+
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
     return render(request, 'atlas/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects})
 
