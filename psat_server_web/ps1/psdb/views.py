@@ -26,7 +26,10 @@ from psdb.models import SherlockCrossmatches
 from psdb.models import TcsLatestObjectStats
 from psdb.models import TcsZooniverseScores
 from psdb.dbviews import *
-import django_tables as tables
+#import django_tables as tables
+from django_tables2 import RequestConfig
+from django_tables2.utils import A  # alias for Accessor
+import django_tables2 as tables2
 from math import log
 import datetime
 
@@ -325,12 +328,12 @@ class SearchForObjectForm(forms.Form):
         return searchString
 
 
-class TcsTransientObjectTable(tables.ModelTable):
+class TcsTransientObjectTable(tables2.Table):
     """TcsTransientObjectTable.
     """
 
-    id = tables.Column(name="id")
-    object_classification__flag_name = tables.Column(name="object_classification")
+    id = tables2.Column(accessor="id")
+    object_classification__flag_name = tables2.Column(accessor="object_classification")
     class Meta:
         """Meta.
         """
@@ -341,19 +344,19 @@ class TcsTransientObjectTable(tables.ModelTable):
 # to this.  This is actually a union of two tables and VERY slow because it's based
 # on a database view.
 
-class WebViewRecurrentObjectsPresentationTable(tables.ModelTable):
+class WebViewRecurrentObjectsPresentationTable(tables2.Table):
     """WebViewRecurrentObjectsPresentationTable.
     """
 
-    id = tables.Column(name="id", visible=False)
-    transient_object_id = tables.Column(name="transient_object_id", visible=False)
-    imageid = tables.Column(verbose_name="Diff ID")
-    psf_inst_mag = tables.Column(verbose_name="Instrument Mag")
-    ap_mag = tables.Column(verbose_name="Aperture Mag")
-    cal_psf_mag = tables.Column(verbose_name="Calibrated Mag")
-    mjd_obs = tables.Column(verbose_name="MJD")
-    cmf_file = tables.Column(verbose_name="CMF File")
-    flags = tables.Column(name="flags", visible=False)
+    id = tables2.Column(accessor="id", visible=False)
+    transient_object_id = tables2.Column(accessor="transient_object_id", visible=False)
+    imageid = tables2.Column(verbose_name="Diff ID")
+    psf_inst_mag = tables2.Column(verbose_name="Instrument Mag")
+    ap_mag = tables2.Column(verbose_name="Aperture Mag")
+    cal_psf_mag = tables2.Column(verbose_name="Calibrated Mag")
+    mjd_obs = tables2.Column(verbose_name="MJD")
+    cmf_file = tables2.Column(verbose_name="CMF File")
+    flags = tables2.Column(accessor="flags", visible=False)
     class Meta:
         """Meta.
         """
@@ -1044,19 +1047,19 @@ def gcnlatex(request, userDefinedListNumber):
 # Followup Transients
 
 # This class is a generic template for all the prioritised followup transients.
-class WebViewUniqueFollowupTransientsTable(tables.ModelTable):
+class WebViewUniqueFollowupTransientsTable(tables2.Table):
     """WebViewUniqueFollowupTransientsTable.
     """
 
-    ID = tables.Column(name="ID")
-    type = tables.Column(name="type", visible=True)
-    catalogue_object_id = tables.Column(verbose_name="Nearest Object")
-    mjd_obs = tables.Column(verbose_name="MJD")
-    cal_psf_mag = tables.Column(verbose_name="Calibrated Mag")
-    followup_flag_date = tables.Column(verbose_name="Flag Date")
-    separation = tables.Column(verbose_name="Separation (arcsec)")
-    SDSS = tables.Column(sortable=False, default="None")
-    ESO_DSS = tables.Column(sortable=False, default="None")
+    ID = tables2.Column(accessor="ID")
+    type = tables2.Column(accessor="type", visible=True)
+    catalogue_object_id = tables2.Column(verbose_name="Nearest Object")
+    mjd_obs = tables2.Column(verbose_name="MJD")
+    cal_psf_mag = tables2.Column(verbose_name="Calibrated Mag")
+    followup_flag_date = tables2.Column(verbose_name="Flag Date")
+    separation = tables2.Column(verbose_name="Separation (arcsec)")
+    SDSS = tables2.Column(sortable=False, default="None")
+    ESO_DSS = tables2.Column(sortable=False, default="None")
     class Meta:
         """Meta.
         """
@@ -1108,21 +1111,22 @@ def followupList(request, listNumber):
 
 
 # This class is a generic template for all the prioritised followup transients.
-class WebViewFollowupTransientsTable(tables.ModelTable):
+class WebViewFollowupTransientsTable(tables2.Table):
     """WebViewFollowupTransientsTable.
     """
 
-    ID = tables.Column(name="ID", visible=False)
-    observation_status = tables.Column(verbose_name="Spectral Type")
-    object_classification = tables.Column(verbose_name="Machine Classification", visible=False)
-    sherlockClassification = tables.Column(verbose_name='Context Classification')
-    catalogue = tables.Column(visible=False)
-    catalogue_object_id = tables.Column(verbose_name="Nearest Object", visible=False)
-    followup_flag_date = tables.Column(verbose_name="Flag Date")
-    separation = tables.Column(verbose_name="Separation (arcsec)", visible=False)
-    confidence_factor = tables.Column(verbose_name="RB Factor")
-    external_crossmatches = tables.Column(verbose_name="External Crossmatches")
-    discovery_target = tables.Column(visible=False)
+    ID = tables2.Column(accessor="ID", visible=False)
+    observation_status = tables2.Column(verbose_name="Spectral Type")
+    object_classification = tables2.Column(verbose_name="Machine Classification", visible=False)
+    sherlockClassification = tables2.Column(verbose_name='Context Classification')
+    catalogue = tables2.Column(visible=False)
+    catalogue_object_id = tables2.Column(verbose_name="Nearest Object", visible=False)
+    followup_flag_date = tables2.Column(verbose_name="Flag Date")
+    separation = tables2.Column(verbose_name="Separation (arcsec)", visible=False)
+    confidence_factor = tables2.Column(verbose_name="RB Factor")
+    external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
+    discovery_target = tables2.Column(visible=False)
+    xt = tables2.Column(accessor="xt", visible=False)
     class Meta:
         """Meta.
         """
@@ -1261,24 +1265,24 @@ def followupAllNew(request):
 
 # 2014-01-27 KWS Public followup table similar to followupAllNew
 
-class WebViewPublicTransientsTable(tables.ModelTable):
+class WebViewPublicTransientsTable(tables2.Table):
     """WebViewPublicTransientsTable.
     """
 
-    rank = tables.Column(name="rank", visible=False)
-    ID = tables.Column(name="ID", visible=False)
-    survey_field = tables.Column(name="survey_field", visible=False)
-    local_designation = tables.Column(name="local_designation", visible=False)
-    observation_status = tables.Column(verbose_name="Spectral Type")
-    object_classification = tables.Column(verbose_name="Machine Classification")
-    sherlockClassification = tables.Column(verbose_name='Context Classification')
-    catalogue_object_id = tables.Column(verbose_name="Nearest Object")
-    followup_flag_date = tables.Column(verbose_name="Flag Date")
-    current_trend = tables.Column(name="current_trend", visible=False)
-    separation = tables.Column(verbose_name="Separation (arcsec)")
-    confidence_factor = tables.Column(name="confidence_factor", verbose_name="RB Factor", visible=True)
-    external_crossmatches = tables.Column(verbose_name="External Crossmatches")
-    discovery_target = tables.Column(visible=False)
+    rank = tables2.Column(accessor="rank", visible=False)
+    ID = tables2.Column(accessor="ID", visible=False)
+    survey_field = tables2.Column(accessor="survey_field", visible=False)
+    local_designation = tables2.Column(accessor="local_designation", visible=False)
+    observation_status = tables2.Column(verbose_name="Spectral Type")
+    object_classification = tables2.Column(verbose_name="Machine Classification")
+    sherlockClassification = tables2.Column(verbose_name='Context Classification')
+    catalogue_object_id = tables2.Column(verbose_name="Nearest Object")
+    followup_flag_date = tables2.Column(verbose_name="Flag Date")
+    current_trend = tables2.Column(accessor="current_trend", visible=False)
+    separation = tables2.Column(verbose_name="Separation (arcsec)")
+    confidence_factor = tables2.Column(accessor="confidence_factor", verbose_name="RB Factor", visible=True)
+    external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
+    discovery_target = tables2.Column(visible=False)
     class Meta:
         """Meta.
         """
@@ -1315,26 +1319,27 @@ def followupAllPublic(request):
 # 2015-02-18 KWS Added current trend to the quickview list
 # 2015-02-35 KWS Added confidence factor (real/bogus) to the quickview list
 
-class TcsTransientObjectsTable(tables.ModelTable):
+class TcsTransientObjectsTable(tables2.Table):
     """TcsTransientObjectsTable.
     """
 
-    id = tables.Column(name="id", visible=False)
-    followup_id = tables.Column(data='followup_id', verbose_name="Rank")
-    ra_psf = tables.Column(data='ra_psf', verbose_name='RA')
-    dec_psf = tables.Column(data='dec_psf', verbose_name='DEC')
-    object_classification = tables.Column(data='object_classification', verbose_name='Type')
-    sherlockClassification = tables.Column(verbose_name='Context Classification')
-    observation_status = tables.Column(verbose_name="Spec Type")
-    local_designation = tables.Column(data='local_designation', verbose_name='Local Name')
-    ps1_designation = tables.Column(data='ps1_designation', verbose_name='PS1 Name')
-    current_trend = tables.Column(data='current_trend', verbose_name='Trend')
-    target = tables.Column(data='tcs_images_id__target')
-    ref = tables.Column(data='tcs_images_id__ref')
-    diff = tables.Column(data='tcs_images_id__diff')
-    confidence_factor = tables.Column(data='confidence_factor', verbose_name='RB Factor')
-    mjd_obs = tables.Column(data='tcs_images_id__mjd_obs', verbose_name='Recent Triplet MJD')
-    detection_list_id = tables.Column(name="detection_list_id", visible=False)
+    id = tables2.Column(accessor="id", visible=False)
+    followup_id = tables2.Column(accessor='followup_id', verbose_name="Rank")
+    ra_psf = tables2.Column(accessor='ra_psf', verbose_name='RA')
+    dec_psf = tables2.Column(accessor='dec_psf', verbose_name='DEC')
+    object_classification = tables2.Column(accessor='object_classification', verbose_name='Type')
+    sherlockClassification = tables2.Column(verbose_name='Context Classification')
+    observation_status = tables2.Column(verbose_name="Spec Type")
+    local_designation = tables2.Column(accessor='local_designation', verbose_name='Local Name')
+    ps1_designation = tables2.Column(accessor='ps1_designation', verbose_name='PS1 Name')
+    current_trend = tables2.Column(accessor='current_trend', verbose_name='Trend')
+    target = tables2.Column(accessor='tcs_images_id__target')
+    ref = tables2.Column(accessor='tcs_images_id__ref')
+    diff = tables2.Column(accessor='tcs_images_id__diff')
+    confidence_factor = tables2.Column(accessor='confidence_factor', verbose_name='RB Factor')
+    mjd_obs = tables2.Column(accessor='tcs_images_id__mjd_obs', verbose_name='Recent Triplet MJD')
+    detection_list_id = tables2.Column(accessor="detection_list_id", visible=False)
+    xt = tables2.Column(accessor="xt", visible=False)
 
     class Meta:
         """Meta.
@@ -1351,8 +1356,8 @@ class TcsTransientObjectsTableFGSS(TcsTransientObjectsTable):
     """TcsTransientObjectsTableFGSS.
     """
 
-    ref = tables.Column(data='tcs_images_id__ref', visible=False)
-    diff = tables.Column(data='tcs_images_id__diff', visible=False)
+    ref = tables2.Column(accessor='tcs_images_id__ref', visible=False)
+    diff = tables2.Column(accessor='tcs_images_id__diff', visible=False)
 
 # 2015-02-26 KWS Need to hide the current trend and RB Factor from
 #                the public pages
@@ -1360,8 +1365,8 @@ class TcsTransientObjectsTablePublic(TcsTransientObjectsTable):
     """TcsTransientObjectsTablePublic.
     """
 
-    current_trend = tables.Column(data='current_trend', verbose_name='Trend', visible=False)
-    confidence_factor = tables.Column(data='confidence_factor', verbose_name='RB Factor', visible=False)
+    current_trend = tables2.Column(accessor='current_trend', verbose_name='Trend', visible=False)
+    confidence_factor = tables2.Column(accessor='confidence_factor', verbose_name='RB Factor', visible=False)
 
 
 
@@ -1420,64 +1425,8 @@ def followupQuickView(request, listNumber):
     #                Initial implementation is extremely messy.
 
     queryFilter = {'detection_list_id': listNumber, 'tcs_images_id__isnull': False}
-    objectType = None
-    sherlockType = None
-    dateThreshold = None
-    objectType = request.GET.get('object_classification')
-    try:
-        objectType = int(objectType)
-    except ValueError as e:
-        objectType = None
-    except TypeError as e:
-        objectType = None
 
-    if objectType:
-        queryFilter['object_classification'] = objectType
-
-    sherlockType = request.GET.get('sherlockClassification')
-
-    if sherlockType:
-        queryFilter['sherlockClassification'] = sherlockType
-
-    # 2020-10-13 KWS Add ability to do greater than, greater than or equal to,
-    #                less than, less than or equal to.
-    flagDate = None
-    flagParameter = 'followup_flag_date'
-    for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
-        flagParameter = 'followup_flag_date' + suffix
-        flagDate = request.GET.get(flagParameter)
-        if flagDate is not None:
-            break
-
-    try:
-        flagDate = datetime.datetime.strptime(flagDate, "%Y-%m-%d").date()
-    except ValueError as e:
-        flagDate = None
-    except TypeError as e:
-        flagDate = None
-
-    if flagDate:
-        queryFilter[flagParameter] = flagDate
-
-    # 2020-10-13 KWS Added confidence_factor (i.e. RB factor)
-    confidenceFactor = None
-    confidenceFactorParameter = 'confidence_factor'
-    for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
-        confidenceFactorParameter = 'confidence_factor' + suffix
-        confidenceFactor = request.GET.get(confidenceFactorParameter)
-        if confidenceFactor is not None:
-            break
-
-    try:
-        confidenceFactor = float(confidenceFactor)
-    except ValueError as e:
-        confidenceFactor = None
-    except TypeError as e:
-        confidenceFactor = None
-
-    if confidenceFactor:
-        queryFilter[confidenceFactorParameter] = confidenceFactor
-
+    queryFilter = filterGetParameters(request, queryFilter)
 
     # 2019-07-31 KWS Add ability to filter on a GW event.
     gwEvent = None
@@ -1816,25 +1765,25 @@ def followupAllPublicTextOnly(request):
 # 2011-04-14 KWS User Defined Lists - Very Similar to Followup Transients and re-uses same template.
 # 2013-10-23 KWS Added confidence_factor.
 
-class WebViewUserDefinedTable(tables.ModelTable):
+class WebViewUserDefinedTable(tables2.Table):
     """WebViewUserDefinedTable.
     """
 
-    ID = tables.Column(name="ID", visible=False)
-    observation_status = tables.Column(verbose_name="Spectral Type")
-    object_classification = tables.Column(verbose_name="Machine Classification", visible=False)
-    sherlockClassification = tables.Column(verbose_name='Context Classification')
-    catalogue = tables.Column(visible=False)
-    catalogue_object_id = tables.Column(verbose_name="Nearest Object", visible=False)
-    followup_flag_date = tables.Column(verbose_name="Flag Date")
-    separation = tables.Column(verbose_name="Separation (arcsec)", visible=False)
-    object_group_id = tables.Column(visible=False)
-    detection_list_id = tables.Column(verbose_name="List")
-    object_id = tables.Column(visible=False)
-    confidence_factor = tables.Column(verbose_name="RB Factor")
-    external_crossmatches = tables.Column(verbose_name="External Crossmatches")
-    discovery_target = tables.Column(visible=False)
-    local_comments = tables.Column(visible=False)
+    ID = tables2.Column(accessor="ID", visible=False)
+    observation_status = tables2.Column(verbose_name="Spectral Type")
+    object_classification = tables2.Column(verbose_name="Machine Classification", visible=False)
+    sherlockClassification = tables2.Column(verbose_name='Context Classification')
+    catalogue = tables2.Column(visible=False)
+    catalogue_object_id = tables2.Column(verbose_name="Nearest Object", visible=False)
+    followup_flag_date = tables2.Column(verbose_name="Flag Date")
+    separation = tables2.Column(verbose_name="Separation (arcsec)", visible=False)
+    object_group_id = tables2.Column(visible=False)
+    detection_list_id = tables2.Column(verbose_name="List")
+    object_id = tables2.Column(visible=False)
+    confidence_factor = tables2.Column(verbose_name="RB Factor")
+    external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
+    discovery_target = tables2.Column(visible=False)
+    local_comments = tables2.Column(visible=False)
     class Meta:
         """Meta.
         """
@@ -2020,15 +1969,15 @@ def dss2(request, tcs_transient_objects_id):
 # based on the Abstract Class that defines the candidates, so any new attributes
 # added there are automatically included.
 
-class WebViewCandidatesTable(tables.ModelTable):
+class WebViewCandidatesTable(tables2.Table):
     """WebViewCandidatesTable.
     """
 
-    ID = tables.Column(name="ID")
-    catalogue_object_id = tables.Column(verbose_name="Nearest Object")
-    mjd_obs = tables.Column(verbose_name="MJD")
-    separation = tables.Column(verbose_name="Separation (arcsec)")
-    SDSS = tables.Column(sortable=False, default="None")
+    ID = tables2.Column(accessor="ID")
+    catalogue_object_id = tables2.Column(verbose_name="Nearest Object")
+    mjd_obs = tables2.Column(verbose_name="MJD")
+    separation = tables2.Column(verbose_name="Separation (arcsec)")
+    SDSS = tables2.Column(sortable=False, default="None")
     class Meta:
         """Meta.
         """
@@ -2073,18 +2022,32 @@ def renderObjectType(request, objectType):
  
 # --------------------------------------------------
 
-class UserDefinedListDefinitionsTable(tables.ModelTable):
+class UserDefinedListDefinitionsTable(tables2.Table):
     """UserDefinedListDefinitionsTable.
     """
 
-    id = tables.Column(name="id")
-    name = tables.Column(name="name", visible=False)
-    description = tables.Column(name="description")
+    # We want to render the id link as a drop down menu. Do is this way!
+    MENU = '''
+        <a class="dropdown-toggle" href="#" data-toggle="dropdown">{{ record.id }}</a>
+        <div class="dropdown-menu">
+        <a class="dropdown-item" href="{% url 'userdefinedlistsquickview' record.id %}">quick view</a>
+        <a class="dropdown-item" href="{% url 'userdefinedlists' record.id %}">table view</a>
+        </div>
+    '''
+
+    id = tables2.TemplateColumn(MENU)
+    name = tables2.Column(accessor="name", visible=False)
+    description = tables2.Column(accessor="description")
+
+    # OK - the way to add the buttons is to SUBCLASS this table I think
+    # adding the relevant buttons depending on the list ID.
+
     class Meta:
         """Meta.
         """
 
         model = TcsObjectGroupDefinitions
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 # 2011-04-18 KWS User Defined List Definitions
@@ -2103,26 +2066,26 @@ def userDefinedListDefinitions(request):
 
 # 2011-10-11 KWS CfA Crossmatching pages
 
-class WebViewCfAtoIPPCrossmatchTable(tables.ModelTable):
+class WebViewCfAtoIPPCrossmatchTable(tables2.Table):
     """WebViewCfAtoIPPCrossmatchTable.
     """
 
-    id = tables.Column(name="ID")
-    local_designation = tables.Column(verbose_name="QUB ID")
-    rank = tables.Column(verbose_name="Rank")
-    detection_list_id = tables.Column(verbose_name="QUB List")
-    followup_flag_date = tables.Column(verbose_name="Flag Date")
-    RA = tables.Column(verbose_name="QUB RA")
-    DEC = tables.Column(verbose_name="QUB DEC")
-    field = tables.Column(verbose_name="MD Field")
-    eventID = tables.Column(verbose_name="CfA Event ID")
-    cfa_designation = tables.Column(verbose_name="CfA Name")
-    alertstatus = tables.Column(verbose_name="CfA Alert List")
-    alertDate = tables.Column(verbose_name="CfA Detection Date")
-    raDeg = tables.Column(verbose_name="CfA RA")
-    decDeg = tables.Column(verbose_name="CfA DEC")
-    PS1name = tables.Column(verbose_name="PS1 Designation")
-    separation = tables.Column(verbose_name="Separation")
+    id = tables2.Column(accessor="ID")
+    local_designation = tables2.Column(verbose_name="QUB ID")
+    rank = tables2.Column(verbose_name="Rank")
+    detection_list_id = tables2.Column(verbose_name="QUB List")
+    followup_flag_date = tables2.Column(verbose_name="Flag Date")
+    RA = tables2.Column(verbose_name="QUB RA")
+    DEC = tables2.Column(verbose_name="QUB DEC")
+    field = tables2.Column(verbose_name="MD Field")
+    eventID = tables2.Column(verbose_name="CfA Event ID")
+    cfa_designation = tables2.Column(verbose_name="CfA Name")
+    alertstatus = tables2.Column(verbose_name="CfA Alert List")
+    alertDate = tables2.Column(verbose_name="CfA Detection Date")
+    raDeg = tables2.Column(verbose_name="CfA RA")
+    decDeg = tables2.Column(verbose_name="CfA DEC")
+    PS1name = tables2.Column(verbose_name="PS1 Designation")
+    separation = tables2.Column(verbose_name="Separation")
 
 
     class Meta:
@@ -2158,27 +2121,27 @@ def displayIPPtoCfACrossmatches(request):
     return render(request, 'psdb/crossmatch_cfa_with_ipp.html', {'table': table, 'rows' : table.rows, 'crossmatchTitle': crossmatchTitle})
 
 
-class TcsCrossMatchesExternalTable(tables.ModelTable):
+class TcsCrossMatchesExternalTable(tables2.Table):
     """TcsCrossMatchesExternalTable.
     """
 
-    id = tables.Column(name="id", visible=False)
-    transient_object_id = tables.Column(name="transient_object_id", verbose_name="Internal ID")
-    external_designation = tables.Column(verbose_name="External Designation")
-    type = tables.Column(name='type')
-    host_galaxy = tables.Column(name="host_galaxy")
-    mag = tables.Column(name='mag')
-    discoverer = tables.Column(name='discoverer')
-    matched_list = tables.Column(name='matched_list')
-    other_info = tables.Column(name='other_info')
-    separation = tables.Column(verbose_name="Separation")
-    comments = tables.Column(name="comments")
-    url = tables.Column(name="url", visible=False)
-    transient_object_id__local_designation = tables.Column(name="local_designation", verbose_name="QUB Name")
-    transient_object_id__ps1_designation = tables.Column(name="ps1_designation", verbose_name="PS1 Name")
-    transient_object_id__detection_list_id = tables.Column(name="detection_list_id", verbose_name="QUB List")
-    transient_object_id__ra_psf = tables.Column(name='ra', verbose_name="QUB RA")
-    transient_object_id__dec_psf = tables.Column(name='dec', verbose_name="QUB DEC")
+    id = tables2.Column(accessor="id", visible=False)
+    transient_object_id = tables2.Column(accessor="transient_object_id", verbose_name="Internal ID")
+    external_designation = tables2.Column(verbose_name="External Designation")
+    type = tables2.Column(accessor='type')
+    host_galaxy = tables2.Column(accessor="host_galaxy")
+    mag = tables2.Column(accessor='mag')
+    discoverer = tables2.Column(accessor='discoverer')
+    matched_list = tables2.Column(accessor='matched_list')
+    other_info = tables2.Column(accessor='other_info')
+    separation = tables2.Column(verbose_name="Separation")
+    comments = tables2.Column(accessor="comments")
+    url = tables2.Column(accessor="url", visible=False)
+    transient_object_id__local_designation = tables2.Column(accessor="local_designation", verbose_name="QUB Name")
+    transient_object_id__ps1_designation = tables2.Column(accessor="ps1_designation", verbose_name="PS1 Name")
+    transient_object_id__detection_list_id = tables2.Column(accessor="detection_list_id", verbose_name="QUB List")
+    transient_object_id__ra_psf = tables2.Column(accessor='ra', verbose_name="QUB RA")
+    transient_object_id__dec_psf = tables2.Column(accessor='dec', verbose_name="QUB DEC")
 
     class Meta:
         """Meta.
