@@ -59,6 +59,7 @@
 -- 2016-04-29 KWS Added unique key to tcs_cmf_metadata_id, id, ipp_idet to prevent multiple
 --                accidental ingests of the same data.
 -- 2016-07-01 KWS Added sherlockClassification and zooniverse_score.
+-- 2021-06-07 KWS Renamed classification_type (not used) to xt (crosstalk suspect) 1 = suspect.
 
 drop table if exists `tcs_transient_objects`;
 
@@ -153,7 +154,7 @@ create table `tcs_transient_objects` (
 `processing_flags` int unsigned,
 `updated_by` varchar(40),
 `classification_confidence` float,
-`classification_type` tinyint unsigned,
+`xt` tinyint unsigned,
 `zooniverse_score` float,
 `sherlockClassification` varchar(40),
 PRIMARY KEY `key_id` (`id`),
