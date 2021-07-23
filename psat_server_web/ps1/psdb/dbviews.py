@@ -189,6 +189,9 @@ class WebViewAbstractFollowup(models.Model):
     external_crossmatches = models.CharField(max_length=1500, db_column='external_crossmatches')
     discovery_target = models.CharField(max_length=90, db_column='discovery_target')
 
+    # 2021-06-09 KWS Added the 'xt' flag (suspected crosstalk)
+    xt = models.IntegerField(null=True, blank=True)
+
     class Meta:
         """Meta.
         """
@@ -382,6 +385,9 @@ class WebViewAbstractUserDefined(models.Model):
     zooniverse_score = models.FloatField(db_column='zooniverse_score')
     external_crossmatches = models.CharField(max_length=1500, db_column='external_crossmatches')
     discovery_target = models.CharField(max_length=90, db_column='discovery_target')
+
+    # 2021-06-09 KWS Added the 'xt' flag (suspected crosstalk)
+    xt = models.IntegerField(null=True, blank=True)
 
     class Meta:
         """Meta.

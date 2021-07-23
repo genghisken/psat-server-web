@@ -443,6 +443,9 @@ class TcsTransientObjects(models.Model):
     # 2013-12-05 KWS Added processing_status for processing flag defs
     processing_flags = models.IntegerField(null=True, blank=True)
 
+    # 2021-06-09 KWS Added the 'xt' flag (suspected crosstalk)
+    xt = models.IntegerField(null=True, blank=True)
+
 
     class Meta:
         """Meta.

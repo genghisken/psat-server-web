@@ -288,4 +288,23 @@ def filterGetParameters(request, queryFilter, prefix = ''):
     if specType:
         queryFilter[prefix + 'observation_status'] = specType
 
+    xt = None
+    xtParameter = 'xt'
+
+    for suffix in ['__isnull', '']:
+        xtParameter = 'xt' + suffix
+        xt = request.GET.get(xtParameter)
+        if xt is not None:
+            break
+
+    try:
+        xt = int(xt)
+    except ValueError, e:
+        xt = None
+    except TypeError, e:
+        xt = None
+
+    if xt:
+        queryFilter[prefix + xtParameter] = xt
+
     return queryFilter
