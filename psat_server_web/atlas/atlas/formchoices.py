@@ -98,6 +98,7 @@ OBSERVATION_STATUS_CHOICES = (
     ('TDE', 'TDE'),
     ('CV', 'CV'),
     ('LBV', 'LBV'),
+    ('LRN', 'LRN'),
     ('Varstar', 'Varstar'),
     ('M dwarf', 'M dwarf'),
     ('ILRT', 'ILRT'),
