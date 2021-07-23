@@ -291,6 +291,16 @@ def filterGetParameters(request, queryFilter, prefix = ''):
     if zooniverseScore:
         queryFilter[prefix + zooniverseScoreParameter] = zooniverseScore
 
+    otherDesignation = None
+    otherDesignationParameter = 'other_designation'
+    for suffix in ['__startswith', '__endswith', '']:
+        otherDesignationParameter = 'other_designation' + suffix
+        otherDesignation = request.GET.get(otherDesignationParameter)
+        if otherDesignation is not None:
+            break
+
+    if otherDesignation:
+        queryFilter[prefix + otherDesignationParameter] = otherDesignation
 
     objectType = None
     objectType = request.GET.get('object_classification')
