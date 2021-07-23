@@ -530,6 +530,7 @@ create or replace view psdb_web_v_followup_all_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -572,6 +573,7 @@ create or replace view psdb_web_v_followup_bad_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -612,6 +614,7 @@ create or replace view psdb_web_v_followup_conf_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -652,6 +655,7 @@ create or replace view psdb_web_v_followup_good_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -692,6 +696,7 @@ create or replace view psdb_web_v_followup_poss_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -732,6 +737,7 @@ create or replace view psdb_web_v_followup_pend_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -772,6 +778,7 @@ create or replace view psdb_web_v_followup_attic_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -812,6 +819,7 @@ create or replace view psdb_web_v_followup_zoo_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -853,6 +861,7 @@ create or replace view psdb_web_v_followup_tbd_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -893,6 +902,7 @@ create or replace view psdb_web_v_followup_fast_presentation as
            s.external_crossmatches,
            s.discovery_target,
            z.score zooniverse_score,
+           o.xt,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -937,7 +947,8 @@ create or replace view psdb_web_v_followup_userdefined as
            o.confidence_factor,
            s.external_crossmatches,
            s.discovery_target,
-           z.score zooniverse_score
+           z.score zooniverse_score,
+           o.xt
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
         on (o.tcs_cmf_metadata_id = m.id)
