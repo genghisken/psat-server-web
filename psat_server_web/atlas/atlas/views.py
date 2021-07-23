@@ -2602,6 +2602,7 @@ class AtlasDiffObjectsTable(tables2.Table):
 
     id = tables2.Column(accessor='id', visible = False)
     followup_id = tables2.LinkColumn('candidate', accessor='followup_id', verbose_name="Followup ID", args=[A('id')])
+    followup_flag_date = tables2.Column(accessor='followup_flag_date', verbose_name='Flag Date')
     ra = tables2.Column(accessor='ra', verbose_name='ra')
     dec = tables2.Column(accessor='dec', verbose_name='dec')
     object_classification = tables2.Column(visible=False, accessor='object_classification', verbose_name='Type')
