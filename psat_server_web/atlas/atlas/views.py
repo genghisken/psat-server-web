@@ -566,6 +566,13 @@ def userDefinedLists(request, userDefinedListNumber):
         initial_queryset = WebViewUserDefined.objects.filter(object_group_id = userDefinedListNumber)
         table = WebViewUserDefinedTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
 
+    nobjects = 100
+    nobjects = request.GET.get('nobjects', '100')
+    try:
+        nobjects = int(nobjects)
+    except ValueError as e:
+        nobjects = 100
+
     RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
     return render(request, 'atlas/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject': form})
@@ -2231,7 +2238,14 @@ def followupList(request, listNumber):
             initial_queryset = followupClassList[int(listNumber)].objects.all()
 
     table = WebViewFollowupTransientsTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
-    RequestConfig(request, paginate={"per_page": 100}).configure(table)
+    nobjects = 100
+    nobjects = request.GET.get('nobjects', '100')
+    try:
+        nobjects = int(nobjects)
+    except ValueError as e:
+        nobjects = 100
+
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
     return render(request, 'atlas/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject' : form, 'public': public})
 
 

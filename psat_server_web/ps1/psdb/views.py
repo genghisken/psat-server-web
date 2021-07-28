@@ -1239,7 +1239,14 @@ def followupListNew(request, listNumber):
         initial_queryset = followupClassList[int(listNumber)].objects.all().filter(**queryFilter)
 
     table = WebViewFollowupTransientsTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
-    RequestConfig(request, paginate={"per_page": 100}).configure(table)
+    nobjects = 100
+    nobjects = request.GET.get('nobjects', '100')
+    try:
+        nobjects = int(nobjects)
+    except ValueError as e:
+        nobjects = 100
+
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
     return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject' : form, 'public': public})
 
@@ -1288,7 +1295,14 @@ def followupAllNew(request):
     initial_queryset = WebViewFollowupTransients.objects.all()
 
     table = WebViewFollowupTransientsTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
-    RequestConfig(request, paginate={"per_page": 100}).configure(table)
+    nobjects = 100
+    nobjects = request.GET.get('nobjects', '100')
+    try:
+        nobjects = int(nobjects)
+    except ValueError as e:
+        nobjects = 100
+
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
     return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'form_searchobject': form, 'public': public})
 
@@ -1770,6 +1784,8 @@ def followupQuickView(request, listNumber):
     if public and not fgss:
         table = TcsTransientObjectsTablePublic(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
 
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
+
     return render(request, 'psdb/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'public': public, 'fgss': fgss, 'processingStatus': processingStatus, 'nobjects': nobjects})
 
 
@@ -1948,6 +1964,8 @@ def userDefinedListsQuickview(request, userDefinedListNumber):
     except ValueError as e:
         nobjects = 100
 
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
+
     return render(request, 'psdb/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects})
 
 
@@ -2123,7 +2141,14 @@ def userDefinedLists(request, userDefinedListNumber):
 
     initial_queryset = WebViewUserDefined.objects.filter(object_group_id = userDefinedListNumber)
     table = WebViewUserDefinedTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
-    RequestConfig(request, paginate={"per_page": 100}).configure(table)
+    nobjects = 100
+    nobjects = request.GET.get('nobjects', '100')
+    try:
+        nobjects = int(nobjects)
+    except ValueError as e:
+        nobjects = 100
+
+    RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
     return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject' : form})
 
