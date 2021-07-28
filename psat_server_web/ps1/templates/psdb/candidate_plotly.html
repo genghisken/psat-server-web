@@ -1,5 +1,7 @@
 {% extends "base_bootstrap.html" %}
 
+{% load render_table from django_tables2 %}
+
 {% block title %}Candidate {{transient.id}}{% endblock %}
 
 
@@ -742,7 +744,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
           <tr>
           <td>
           {% for row in finderImages %}
-            <a href="{{ STATIC_URL }}images/data/{{ dbName }}/{{ row.whole_mjd }}/{{ row.image_filename }}.jpeg"><img src="{{ STATIC_URL }}images/data/{{ dbName }}/{{ row.whole_mjd }}/{{ row.image_filename }}.jpeg" alt="{{ row.pss_filename }}" title="{{ row.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="250px" /></a>
+            <a href="{{ MEDIA_URL }}images/data/{{ dbName }}/{{ row.whole_mjd }}/{{ row.image_filename }}.jpeg"><img src="{{ MEDIA_URL }}images/data/{{ dbName }}/{{ row.whole_mjd }}/{{ row.image_filename }}.jpeg" alt="{{ row.pss_filename }}" title="{{ row.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="250px" /></a>
           {% endfor %}
           </td>
           </tr>
@@ -826,8 +828,8 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
          mjd: {{ image.mjd_obs|floatformat:5 }}<br />
          </span>
 
-         {% if not public %}<a href="{{ STATIC_URL }}images/data/{{ dbName }}/{{ image.whole_mjd }}/{{ image.image_filename }}.fits">{% endif %}
-         <img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbName }}/{{ image.whole_mjd }}/{{ image.image_filename }}.jpeg" alt="{{ image.pss_filename }}" title="{{ image.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150px" />
+         {% if not public %}<a href="{{ MEDIA_URL }}images/data/{{ dbName }}/{{ image.whole_mjd }}/{{ image.image_filename }}.fits">{% endif %}
+         <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbName }}/{{ image.whole_mjd }}/{{ image.image_filename }}.jpeg" alt="{{ image.pss_filename }}" title="{{ image.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150px" />
          {% if not public %}</a>{% endif %}
          </td>
       {% endfor %}
@@ -846,43 +848,9 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
   <div class="col-lg-12 col-md-12 col-sm-12">
 
     <div class="table-responsive table-body table-condensed">
-      <table>
-      <tr>
-        {% for column in table.columns %}
-        <th>
-          {% if column.sortable %}
-            <a href="?sort={{ column.name_toggled }}">
-              {{ column }}
-            </a>
-            {% if column.is_ordered_reverse %}
-              <!-- <img src="{{ STATIC_URL }}images/up.jpg" /> -->
-            {% else %}
-              <!-- <img src="{{ STATIC_URL }}images/down.jpg" /> -->
-            {% endif %}
-          {% else %}
-            {{ column }}
-          {% endif %}
-        </th>
-        {% endfor %}
-      </tr>
 
-      {% for row in table.rows %}
-        <tr>
-        <td>{{ row.data.imageid }}</td>
-        <td>{{ row.data.mjd_obs|floatformat:3 }}</td>
-        <td>{{ row.data.ra_sex }}</td>
-        <td>{{ row.data.dec_sex }}</td>
-        <td>{{ row.data.psf_inst_mag|floatformat:3 }}</td>
-        <td>{{ row.data.ap_mag|floatformat:3 }}</td>
-        <td>{{ row.data.cal_psf_mag|floatformat:3}}</td>
-        <td>{{ row.data.filter }}</td>
-        <td>{{ row.data.cmf_file }}</td>
-        <td>{{ row.data.image }}</td>
-        </tr>
+    {% render_table table %}
 
-      {% endfor %}
-
-      </table>
     </div>
 
   </div>

@@ -1,6 +1,7 @@
 from django.db import models
-from gkutils.commonutils import *
+from gkutils.commonutils import FLAGS, PROCESSING_FLAGS, getFlagDefs, ra_to_sex, dec_to_sex, getDateFractionMJD
 from math import log10
+import sys
 
 # Create your models here.
 # This is an auto-generated Django model module.
@@ -33,6 +34,7 @@ class TcsImageGroups(models.Model):
         """
 
         db_table = 'tcs_image_groups'
+        managed = False
 
 # 2014-03-12 KWS Added whole MJD property so we don't have to rely on
 #                the django template language to truncate the MJD. Note
@@ -57,11 +59,12 @@ class TcsPostageStampImages(models.Model):
         """
 
         db_table = 'tcs_postage_stamp_images'
+        managed = False
 
     @property
     def whole_mjd(self):
-        """whole_mjd.
-        """
+       """whole_mjd.
+       """
        # The second field is always the target MJD
        fields = self.image_filename.split('_')
        m = int(float(fields[1]))
@@ -69,8 +72,8 @@ class TcsPostageStampImages(models.Model):
 
     @property
     def f(self):
-        """f.
-        """
+       """f.
+       """
        filterNoZeros = None
        if self.filter:
            filterNoZeros = self.filter[0]
@@ -88,6 +91,7 @@ class TcsPostageStampStatusCodes(models.Model):
         """
 
         db_table = 'tcs_postage_stamp_status_codes'
+        managed = False
 
 class TcsDetectionLists(models.Model):
     """TcsDetectionLists.
@@ -101,6 +105,7 @@ class TcsDetectionLists(models.Model):
         """
 
         db_table = 'tcs_detection_lists'
+        managed = False
 
 class TcsPostageStampRequests(models.Model):
     """TcsPostageStampRequests.
@@ -118,6 +123,7 @@ class TcsPostageStampRequests(models.Model):
         """
 
         db_table = 'tcs_postage_stamp_requests'
+        managed = False
 
 class TcsZooRequests(models.Model):
     """TcsZooRequests.
@@ -136,6 +142,7 @@ class TcsZooRequests(models.Model):
         """
 
         db_table = 'tcs_zoo_requests'
+        managed = False
 
 class TcsCatalogueTables(models.Model):
     """TcsCatalogueTables.
@@ -150,6 +157,7 @@ class TcsCatalogueTables(models.Model):
         """
 
         db_table = 'tcs_catalogue_tables'
+        managed = False
 
     def __unicode__(self):
         """__unicode__.
@@ -168,6 +176,7 @@ class TcsClassificationFlags(models.Model):
         """
 
         db_table = 'tcs_classification_flags'
+        managed = False
 
 # 2013-05-29 KWS Repurposed the tcs_images table to refer to a triplet set
 #                Also added property to return whole MJD, since there is
@@ -187,11 +196,12 @@ class TcsImages(models.Model):
         """
 
         db_table = 'tcs_images'
+        managed = False
 
     @property
     def whole_mjd(self):
-        """whole_mjd.
-        """
+       """whole_mjd.
+       """
        m = int(self.mjd_obs)
        return m
 
@@ -210,6 +220,7 @@ class TcsObjectGroupDefinitions(models.Model):
         """
 
         db_table = 'tcs_object_group_definitions'
+        managed = False
 
 
 # 2014-01-08 KWS Added tessellation and skycell columns
@@ -326,6 +337,7 @@ class TcsCmfMetadata(models.Model):
         """
 
         db_table = 'tcs_cmf_metadata'
+        managed = False
 
 class TcsCrossMatches(models.Model):
     """TcsCrossMatches.
@@ -347,6 +359,7 @@ class TcsCrossMatches(models.Model):
         """
 
         db_table = 'tcs_cross_matches'
+        managed = False
 
 # 2013-06-05 KWS Swapped the order of the columns so that Django-Tables
 #                can display the columns in the required order.
@@ -422,9 +435,9 @@ class TcsTransientObjects(models.Model):
     # 2010-02-25 KWS Eight new columns added
     followup_counter = models.IntegerField(null=True, blank=True)
     other_designation = models.CharField(max_length=40, blank=True)
-    confidence_factor = models.FloatField(null=True, blank=True)
-    classification_confidence = models.FloatField(null=True, blank=True)
-    quality_threshold_pass = models.NullBooleanField(null=True, blank=True)
+    rb_cat = models.FloatField(null=True, blank=True, db_column='classification_confidence')
+    rb_pix = models.FloatField(null=True, blank=True, db_column='confidence_factor')
+    quality_threshold_pass = models.BooleanField(null=True, blank=True)
 
     # 2010-06-11 KWS New columns added for diff stats, local magnitude calculations and zoo requests
     locally_calculated_mag = models.FloatField(null=True, blank=True)
@@ -452,18 +465,19 @@ class TcsTransientObjects(models.Model):
         """
 
         db_table = 'tcs_transient_objects'
+        managed = False
 
     @property
     def flags_bin(self):
-        """flags_bin.
-        """
+       """flags_bin.
+       """
        a = bin(int(str(self.flags)),32)
        return a
 
     @property
     def instrument_mag(self):
-        """instrument_mag.
-        """
+       """instrument_mag.
+       """
        zero_pt = self.tcs_cmf_metadata_id.zero_pt
        exptime = self.tcs_cmf_metadata_id.exptime
        if zero_pt == None or self.psf_inst_mag == None or exptime == None:
@@ -474,8 +488,8 @@ class TcsTransientObjects(models.Model):
 
     @property
     def aperture_mag(self):
-        """aperture_mag.
-        """
+       """aperture_mag.
+       """
        zero_pt = self.tcs_cmf_metadata_id.zero_pt
        exptime = self.tcs_cmf_metadata_id.exptime
        if zero_pt == None or self.ap_mag == None or exptime == None:
@@ -486,8 +500,8 @@ class TcsTransientObjects(models.Model):
 
     @property
     def calibrated_mag(self):
-        """calibrated_mag.
-        """
+       """calibrated_mag.
+       """
        zero_pt = self.tcs_cmf_metadata_id.zero_pt
        exptime = self.tcs_cmf_metadata_id.exptime
        if zero_pt == None or self.cal_psf_mag == None or exptime == None:
@@ -589,7 +603,7 @@ class TcsTransientReobservations(models.Model):
     image_group_id = models.ForeignKey(TcsImageGroups, null=True, to_field='id', db_column='image_group_id', on_delete=models.CASCADE)
 
     # 2010-02-25 KWS New column added
-    quality_threshold_pass = models.NullBooleanField(null=True, blank=True)
+    quality_threshold_pass = models.BooleanField(null=True, blank=True)
 
     # 2010-06-11 KWS New columns added for diff stats and local magnitude calculations
     locally_calculated_mag = models.FloatField(null=True, blank=True)
@@ -606,18 +620,19 @@ class TcsTransientReobservations(models.Model):
         """
 
         db_table = 'tcs_transient_reobservations'
+        managed = False
 
     @property
     def flags_bin(self):
-        """flags_bin.
-        """
+       """flags_bin.
+       """
        a = bin(int(str(self.flags)),32)
        return a
 
     @property
     def instrument_mag(self):
-        """instrument_mag.
-        """
+       """instrument_mag.
+       """
        zero_pt = self.tcs_cmf_metadata_id.zero_pt
        exptime = self.tcs_cmf_metadata_id.exptime
        if zero_pt == None or self.psf_inst_mag == None or exptime == None:
@@ -628,8 +643,8 @@ class TcsTransientReobservations(models.Model):
 
     @property
     def aperture_mag(self):
-        """aperture_mag.
-        """
+       """aperture_mag.
+       """
        zero_pt = self.tcs_cmf_metadata_id.zero_pt
        exptime = self.tcs_cmf_metadata_id.exptime
        if zero_pt == None or self.ap_mag == None or exptime == None:
@@ -640,8 +655,8 @@ class TcsTransientReobservations(models.Model):
 
     @property
     def calibrated_mag(self):
-        """calibrated_mag.
-        """
+       """calibrated_mag.
+       """
        zero_pt = self.tcs_cmf_metadata_id.zero_pt
        exptime = self.tcs_cmf_metadata_id.exptime
        if zero_pt == None or self.cal_psf_mag == None or exptime == None:
@@ -686,6 +701,7 @@ class TcsIppToCfaLookup(models.Model):
         """
 
         db_table = 'tcs_ipp_to_cfa_lookup'
+        managed = False
 
 
 # 2013-10-21 KWS Added new model for tcs_cross_matches_external
@@ -715,6 +731,7 @@ class TcsCrossMatchesExternal(models.Model):
         """
 
         db_table = 'tcs_cross_matches_external'
+        managed = False
 
     @property
     def ra_sex(self):
@@ -744,6 +761,7 @@ class TcsObjectGroups(models.Model):
         """
 
         db_table = 'tcs_object_groups'
+        managed = False
 
 # 2015-11-17 KWS Added tcs_processing_status. We'll use the contents of this table to
 #                stop users making updates when the database is locked.
@@ -779,6 +797,7 @@ class TcsObjectComments(models.Model):
         """
 
         db_table = 'tcs_object_comments'
+        managed = False
 
 # 2017-03-21 KWS Four new database tables for Sherlock and Gravitational Waves.
 # 2017-06-20 KWS Dave has updated the definition of sherlock_classifications.
@@ -786,7 +805,7 @@ class SherlockClassifications(models.Model):
     """SherlockClassifications.
     """
 
-    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', primary_key=True, on_delete=models.CASCADE)
+    transient_object_id = models.OneToOneField(TcsTransientObjects, to_field='id', db_column='transient_object_id', primary_key=True, on_delete=models.CASCADE)
     classification = models.CharField(max_length=45, blank=True, null=True)
     annotation = models.TextField(blank=True, null=True)
     summary = models.CharField(max_length=50, blank=True, null=True)
@@ -901,6 +920,7 @@ class TcsGravityEvents(models.Model):
         """
 
         db_table = 'tcs_gravity_events'
+        managed = False
 
 
 class TcsGravityEventAnnotations(models.Model):
@@ -921,6 +941,7 @@ class TcsGravityEventAnnotations(models.Model):
         """
 
         db_table = 'tcs_gravity_event_annotations'
+        managed = False
         unique_together = (('transient_object_id', 'gracedb_id'),)
 
 
@@ -979,3 +1000,4 @@ class TcsZooniverseScores(models.Model):
         """
 
         db_table = 'tcs_zooniverse_scores'
+        managed = False

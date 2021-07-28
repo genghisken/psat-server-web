@@ -1,9 +1,9 @@
 # Create your views here.
 
 #from django.conf.urls.defaults import *
-from django.shortcuts import render_to_response, get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Avg, Max, Min, Count
 from django.db import IntegrityError
 from psdb.models import TcsTransientObjects
@@ -53,7 +53,7 @@ from django.db.models import Q    # Need Q objects for OR query
 from django.core.exceptions import ObjectDoesNotExist
 
 # Lightcurve plotting code
-from plotLightCurve import plotLightCurveFromWeb
+#from plotLightCurve import plotLightCurveFromWeb
 
 # We need to know which database we are talking to for the lightcurves.
 from django.conf import settings
@@ -71,7 +71,7 @@ from django.contrib import auth
 from django.template.context_processors import csrf
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from psdb.helpers import processSearchForm, sendMessage, filterGetParameters
+from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, getDjangoTables2ImageTemplate
 
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.
@@ -328,18 +328,6 @@ class SearchForObjectForm(forms.Form):
         return searchString
 
 
-class TcsTransientObjectTable(tables2.Table):
-    """TcsTransientObjectTable.
-    """
-
-    id = tables2.Column(accessor="id")
-    object_classification__flag_name = tables2.Column(accessor="object_classification")
-    class Meta:
-        """Meta.
-        """
-
-        model = TcsTransientObjects
-
 # Table to render all table data for an individual candidate.  We need to come back
 # to this.  This is actually a union of two tables and VERY slow because it's based
 # on a database view.
@@ -362,6 +350,7 @@ class WebViewRecurrentObjectsPresentationTable(tables2.Table):
         """
 
         model = WebViewRecurrentObjectsPresentation
+        template_name = "bootstrap4_django_tables2_atlas.html"
 
 
 # Experimental code - Use of forms
@@ -716,6 +705,7 @@ def candidateflot(request, tcs_transient_objects_id):
 
     initial_queryset = WebViewRecurrentObjectsPresentation.objects.filter(transient_object_id = transient.id)
     table = WebViewRecurrentObjectsPresentationTable(initial_queryset, order_by=request.GET.get('sort', '-mjd_obs'))
+    RequestConfig(request, paginate=False).configure(table)
 
     # 2012-05-03 KWS Calculate the average RA and Dec.  Use python rather than the database.
 
@@ -905,7 +895,7 @@ def lightcurves(request, tcs_transient_objects_id):
                 # 2012-03-26 KWS Note that we can't re-use the existing DB connection because the cursors are of the wrong type.
                 #                (i.e. not DictCursor).  Changing this would require if/else blocks in all SQL code, which is
                 #                far too much effort for very little gain.  Note that cone searching (above) is a special case.
-                plotLightCurveFromWeb(dbHost, 'kws', '', dbName, transient.id, plotLimits=choice, userDefinedMJDLimits = userDefinedMJDLimits)
+                #plotLightCurveFromWeb(dbHost, 'kws', '', dbName, transient.id, plotLimits=choice, userDefinedMJDLimits = userDefinedMJDLimits)
 
                 redirect_to = '../%d/' % transient.id # redirect back to the lightcurve page
                 return HttpResponseRedirect(redirect_to)  
@@ -1044,68 +1034,6 @@ def gcnlatex(request, userDefinedListNumber):
     return render(request, 'psdb/gcn_latex.txt',{'table': table, 'rows' : table.rows, 'listHeader' : listHeader}, content_type="text/plain")
 
 
-# Followup Transients
-
-# This class is a generic template for all the prioritised followup transients.
-class WebViewUniqueFollowupTransientsTable(tables2.Table):
-    """WebViewUniqueFollowupTransientsTable.
-    """
-
-    ID = tables2.Column(accessor="ID")
-    type = tables2.Column(accessor="type", visible=True)
-    catalogue_object_id = tables2.Column(verbose_name="Nearest Object")
-    mjd_obs = tables2.Column(verbose_name="MJD")
-    cal_psf_mag = tables2.Column(verbose_name="Calibrated Mag")
-    followup_flag_date = tables2.Column(verbose_name="Flag Date")
-    separation = tables2.Column(verbose_name="Separation (arcsec)")
-    SDSS = tables2.Column(sortable=False, default="None")
-    ESO_DSS = tables2.Column(sortable=False, default="None")
-    class Meta:
-        """Meta.
-        """
-
-        model = WebViewUniqueFollowupTransients
-
-def followup(request):
-    """followup.
-
-    Args:
-        request:
-    """
-    # Get all the flag definitions. There are only a few.
-    flag_defs = TcsClassificationFlags.objects.all()
-    initial_queryset = WebViewUniqueFollowupTransients.objects.all()
-    table = WebViewUniqueFollowupTransientsTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
-    return render(request, 'psdb/followup_old.html', {'table': table, 'rows' : table.rows})
-
-
-def followupList(request, listNumber):
-    """followupList.
-
-    Args:
-        request:
-        listNumber:
-    """
-    detectionListRow = get_object_or_404(TcsDetectionLists, pk=listNumber)
-    listHeader = detectionListRow.description
-    followupClassList = [WebViewUniqueFollowupTransientsBad,
-                         WebViewUniqueFollowupTransientsConf,
-                         WebViewUniqueFollowupTransientsGood,
-                         WebViewUniqueFollowupTransientsPoss,
-                         WebViewUniqueFollowupTransientsPend,
-                         WebViewUniqueFollowupTransientsAttic,
-                         WebViewUniqueFollowupTransientsZoo]
-    # Get all the flag definitions. There are only a few.
-    flag_defs = TcsClassificationFlags.objects.all()
-
-    initial_queryset = followupClassList[int(listNumber)].objects.all()
-
-    table = WebViewUniqueFollowupTransientsTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
-    return render(request, 'psdb/followup_old.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader})
-
-
-
-
 # 2011-01-21 KWS Completely Revamped the Followup List presentation
 # 2013-10-23 KWS Added confidence_factor to the table below
 
@@ -1115,23 +1043,123 @@ class WebViewFollowupTransientsTable(tables2.Table):
     """WebViewFollowupTransientsTable.
     """
 
-    ID = tables2.Column(accessor="ID", visible=False)
+    id = tables2.LinkColumn('candidate', args=[A('id')])
     observation_status = tables2.Column(verbose_name="Spectral Type")
+    ps1_designation = tables2.Column(default='', verbose_name="PS1 Name")
+    other_designation = tables2.Column(default='', verbose_name="TNS Name")
+    local_designation = tables2.Column(default='', verbose_name="Internal Name")
+
     object_classification = tables2.Column(verbose_name="Machine Classification", visible=False)
     sherlockClassification = tables2.Column(verbose_name='Context Classification')
     catalogue = tables2.Column(visible=False)
     catalogue_object_id = tables2.Column(verbose_name="Nearest Object", visible=False)
     followup_flag_date = tables2.Column(verbose_name="Flag Date")
     separation = tables2.Column(verbose_name="Separation (arcsec)", visible=False)
-    confidence_factor = tables2.Column(verbose_name="RB Factor")
+
+    rb_cat = tables2.Column(verbose_name="RB Factor (catalogue)")
+    rb_pix = tables2.Column(verbose_name="RB Factor (pixels)")
     external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
     discovery_target = tables2.Column(visible=False)
+    local_comments = tables2.Column(visible=False)
     xt = tables2.Column(accessor="xt", visible=False)
+
     class Meta:
         """Meta.
         """
 
-        model = WebViewFollowupTransients
+        model = WebViewAbstractFollowup
+        template_name = "bootstrap4_django_tables2_atlas.html"
+
+
+    def render_ra(self, value, record):
+        """render_ra.
+
+        Args:
+            value:
+            record:
+        """
+        ra_in_sex = ra_to_sex (value)
+        return ra_in_sex
+
+    def render_dec(self, value, record):
+        """render_dec.
+
+        Args:
+            value:
+            record:
+        """
+        dec_in_sex = dec_to_sex (value)
+        return dec_in_sex
+
+    def render_rb_cat(self, value):
+        """render_rb_cat.
+
+        Args:
+            value:
+        """
+        return '%.3f' % value
+
+    def render_rb_pix(self, value):
+        """render_rb_pix.
+
+        Args:
+            value:
+        """
+        return '%.3f' % value
+
+    def render_zooniverse_score(self, value):
+        """render_zooniverse_score.
+
+        Args:
+            value:
+        """
+        return '%.2f' % value
+
+    def render_other_designation(self, value, record):
+        """render_other_designation.
+
+        Args:
+            value:
+            record:
+        """
+        prefix = 'AT'
+        if record.observation_status and ('SN' in record.observation_status or 'I' in record.observation_status):
+            prefix = 'SN'
+        return prefix + value
+
+    def render_earliest_mjd(self, value):
+        """render_zooniverse_score.
+
+        Args:
+            value:
+        """
+        return '%.6f' % value
+
+    def render_latest_mjd(self, value):
+        """render_zooniverse_score.
+
+        Args:
+            value:
+        """
+        return '%.6f' % value
+
+    def render_earliest_mag(self, value):
+        """render_zooniverse_score.
+
+        Args:
+            value:
+        """
+        return '%.2f' % value
+
+    def render_latest_mag(self, value):
+        """render_zooniverse_score.
+
+        Args:
+            value:
+        """
+        return '%.2f' % value
+
+
 
 followupClassList = [WebViewFollowupTransientsBad,
                      WebViewFollowupTransientsConf,
@@ -1211,6 +1239,8 @@ def followupListNew(request, listNumber):
         initial_queryset = followupClassList[int(listNumber)].objects.all().filter(**queryFilter)
 
     table = WebViewFollowupTransientsTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
+    RequestConfig(request, paginate={"per_page": 100}).configure(table)
+
     return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject' : form, 'public': public})
 
 
@@ -1258,8 +1288,9 @@ def followupAllNew(request):
     initial_queryset = WebViewFollowupTransients.objects.all()
 
     table = WebViewFollowupTransientsTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
+    RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
-    return render(request, 'psdb/followup.html', {'table': table, 'rows' : table.rows, 'form_searchobject': form, 'public': public})
+    return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'form_searchobject': form, 'public': public})
 
 
 
@@ -1270,7 +1301,7 @@ class WebViewPublicTransientsTable(tables2.Table):
     """
 
     rank = tables2.Column(accessor="rank", visible=False)
-    ID = tables2.Column(accessor="ID", visible=False)
+    id = tables2.Column(accessor="ID", visible=False)
     survey_field = tables2.Column(accessor="survey_field", visible=False)
     local_designation = tables2.Column(accessor="local_designation", visible=False)
     observation_status = tables2.Column(verbose_name="Spectral Type")
@@ -1323,30 +1354,204 @@ class TcsTransientObjectsTable(tables2.Table):
     """TcsTransientObjectsTable.
     """
 
+    IMAGE_TEMPLATE = """<img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ record.images_id.whole_mjd }}/{{ record.images_id.%s }}.jpeg" alt="triplet" title="{{ record.images_id.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="300" />""" % 'diff'
+
     id = tables2.Column(accessor="id", visible=False)
-    followup_id = tables2.Column(accessor='followup_id', verbose_name="Rank")
+    followup_id = tables2.LinkColumn('candidate', accessor='followup_id', verbose_name="Followup ID", args=[A('id')])
+    followup_flag_date = tables2.Column(accessor='followup_flag_date', verbose_name='Flag Date')
     ra_psf = tables2.Column(accessor='ra_psf', verbose_name='RA')
     dec_psf = tables2.Column(accessor='dec_psf', verbose_name='DEC')
-    object_classification = tables2.Column(accessor='object_classification', verbose_name='Type')
+    object_classification = tables2.Column(visible=False, accessor='object_classification', verbose_name='Type')
     sherlockClassification = tables2.Column(verbose_name='Context Classification')
     observation_status = tables2.Column(verbose_name="Spec Type")
-    local_designation = tables2.Column(accessor='local_designation', verbose_name='Local Name')
+    other_designation = tables2.Column(accessor='other_designation', verbose_name='TNS Name')
     ps1_designation = tables2.Column(accessor='ps1_designation', verbose_name='PS1 Name')
+    local_designation = tables2.Column(accessor='local_designation', verbose_name='Local Name')
     current_trend = tables2.Column(accessor='current_trend', verbose_name='Trend')
-    target = tables2.Column(accessor='tcs_images_id__target')
-    ref = tables2.Column(accessor='tcs_images_id__ref')
-    diff = tables2.Column(accessor='tcs_images_id__diff')
-    confidence_factor = tables2.Column(accessor='confidence_factor', verbose_name='RB Factor')
-    mjd_obs = tables2.Column(accessor='tcs_images_id__mjd_obs', verbose_name='Recent Triplet MJD')
+
+    target = tables2.TemplateColumn(getDjangoTables2ImageTemplate('target'), orderable = False)
+    ref = tables2.TemplateColumn(getDjangoTables2ImageTemplate('ref'), orderable = False)
+    diff = tables2.TemplateColumn(getDjangoTables2ImageTemplate('diff'), orderable = False)
+
+    rb_cat = tables2.Column(accessor='rb_cat', verbose_name='RB Factor (Catalogue)')
+    rb_pix = tables2.Column(accessor='rb_pix', verbose_name='RB Factor (Pixel)')
+    mjd_obs = tables2.Column(accessor='tcs_images_id__mjd_obs', verbose_name='Recent Triplet MJD', visible = False)
     detection_list_id = tables2.Column(accessor="detection_list_id", visible=False)
     xt = tables2.Column(accessor="xt", visible=False)
+
+
+    def render_ra_psf(self, value, record):
+        """render_ra.
+
+        Args:
+            value:
+            record:
+        """
+        ra_in_sex = ra_to_sex (value)
+        return ra_in_sex
+
+    def render_dec_psf(self, value, record):
+        """render_dec.
+
+        Args:
+            value:
+            record:
+        """
+        dec_in_sex = dec_to_sex (value)
+        return dec_in_sex
+
+    def render_rb_pix(self, value):
+        """render_confidence_factor.
+
+        Args:
+            value:
+        """
+        return '%.3f' % value
+
+    def render_rb_cat(self, value):
+        """render_classification_confidence.
+
+        Args:
+            value:
+        """
+        return '%.3f' % value
+
+    def render_other_designation(self, value, record):
+        """render_other_designation.
+
+        Args:
+            value:
+            record:
+        """
+        prefix = 'AT'
+        if record.observation_status and ('SN' in record.observation_status or 'I' in record.observation_status):
+            prefix = 'SN'
+        return prefix + value
+
+
+
+
 
     class Meta:
         """Meta.
         """
 
         model = TcsTransientObjects
-        exclude = ['ipp_idet', 'x_psf', 'y_psf', 'x_psf_sig', 'y_psf_sig', 'posangle', 'pltscale', 'psf_inst_mag', 'psf_inst_mag_sig', 'ap_mag', 'ap_mag_radius', 'peak_flux_as_mag', 'cal_psf_mag', 'cal_psf_mag_sig', 'sky', 'sky_sigma', 'psf_chisq', 'cr_nsigma', 'ext_nsigma', 'psf_major', 'psf_minor', 'psf_theta', 'psf_qf', 'psf_ndof', 'psf_npix', 'moments_xx', 'moments_xy', 'moments_yy', 'flags', 'n_frames', 'padding', 'local_comments', 'htm20id', 'htm16id', 'cx', 'cy', 'cz', 'tcs_cmf_metadata_id', 'tcs_images_id', 'date_inserted', 'date_modified', 'followup_priority', 'external_reference_id', 'postage_stamp_request_id', 'image_group_id', 'survey_field', 'followup_counter', 'other_designation', 'confidence_factor', 'quality_threshold_pass', 'locally_calculated_mag', 'zoo_request_id', 'psf_inst_flux', 'psf_inst_flux_sig', 'diff_npos', 'diff_fratio', 'diff_nratio_bad', 'diff_nratio_mask', 'diff_nratio_all', 'current_trend', 'processing_flags']
+        exclude = ['ipp_idet', 'x_psf', 'y_psf', 'x_psf_sig', 'y_psf_sig', 'posangle', 'pltscale', 'psf_inst_mag', 'psf_inst_mag_sig', 'ap_mag', 'ap_mag_radius', 'peak_flux_as_mag', 'cal_psf_mag', 'cal_psf_mag_sig', 'sky', 'sky_sigma', 'psf_chisq', 'cr_nsigma', 'ext_nsigma', 'psf_major', 'psf_minor', 'psf_theta', 'psf_qf', 'psf_ndof', 'psf_npix', 'moments_xx', 'moments_xy', 'moments_yy', 'flags', 'n_frames', 'padding', 'local_comments', 'htm20id', 'htm16id', 'cx', 'cy', 'cz', 'tcs_cmf_metadata_id', 'tcs_images_id', 'date_inserted', 'date_modified', 'followup_priority', 'external_reference_id', 'postage_stamp_request_id', 'image_group_id', 'survey_field', 'followup_counter', 'quality_threshold_pass', 'locally_calculated_mag', 'zoo_request_id', 'psf_inst_flux', 'psf_inst_flux_sig', 'diff_npos', 'diff_fratio', 'diff_nratio_bad', 'diff_nratio_mask', 'diff_nratio_all', 'current_trend', 'processing_flags']
+        template_name = "bootstrap4_django_tables2_atlas.html"
+
+
+
+class TcsTransientObjectsTableAtticOptions(TcsTransientObjectsTable):
+    """TcsTransientObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
+    T = tables2.TemplateColumn(getChoiceSelectorTemplate("T")['template'], verbose_name="T", orderable=False, attrs=getChoiceSelectorTemplate("T")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "bootstrap4_django_tables2_atlas.html"
+
+
+class TcsTransientObjectsTableEyeballOptions(TcsTransientObjectsTable):
+    """TcsTransientObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
+    A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
+    T = tables2.TemplateColumn(getChoiceSelectorTemplate("T")['template'], verbose_name="T", orderable=False, attrs=getChoiceSelectorTemplate("T")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "bootstrap4_django_tables2_atlas.html"
+
+
+class TcsTransientObjectsTablePossibleOptions(TcsTransientObjectsTable):
+    """TcsTransientObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
+    T = tables2.TemplateColumn(getChoiceSelectorTemplate("T")['template'], verbose_name="T", orderable=False, attrs=getChoiceSelectorTemplate("T")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "bootstrap4_django_tables2_atlas.html"
+
+
+class TcsTransientObjectsTableGoodOptions(TcsTransientObjectsTable):
+    """TcsTransientObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    C = tables2.TemplateColumn(getChoiceSelectorTemplate("C")['template'], verbose_name="C", orderable=False, attrs=getChoiceSelectorTemplate("C")['attrs'])
+    P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
+    A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "bootstrap4_django_tables2_atlas.html"
+
+
+class TcsTransientObjectsTableConfirmedOptions(TcsTransientObjectsTable):
+    """TcsTransientObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    G = tables2.TemplateColumn(getChoiceSelectorTemplate("G")['template'], verbose_name="G", orderable=False, attrs=getChoiceSelectorTemplate("G")['attrs'])
+    P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
+    A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "bootstrap4_django_tables2_atlas.html"
+
+
+class TcsTransientObjectsTableGarbageOptions(TcsTransientObjectsTable):
+    """TcsTransientObjectsTable with buttons (templates in formchoices).
+    """
+
+    # We want to render the id link as a drop down menu. Do is this way!
+    U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    E = tables2.TemplateColumn(getChoiceSelectorTemplate("E")['template'], verbose_name="E", orderable=False, attrs=getChoiceSelectorTemplate("E")['attrs'])
+
+    class Meta:
+        """Meta.
+        """
+
+        template_name = "bootstrap4_django_tables2_atlas.html"
+
+
+TcsTransientObjectsTables = [TcsTransientObjectsTableGarbageOptions,
+                             TcsTransientObjectsTableConfirmedOptions,
+                             TcsTransientObjectsTableGoodOptions,
+                             TcsTransientObjectsTablePossibleOptions,
+                             TcsTransientObjectsTableEyeballOptions,
+                             TcsTransientObjectsTableAtticOptions,
+                             TcsTransientObjectsTableEyeballOptions]
+
+
+
+
+
 
 PROMOTE_DEMOTE = {'C': 1, 'G': 2, 'P': 3, 'E': 4, 'A': 5, 'T': 0}
 
@@ -1542,9 +1747,16 @@ def followupQuickView(request, listNumber):
             fgss = True
             table = TcsTransientObjectsTableFGSS(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
         else:
-            table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+            try:
+                if int(list_id) in (0,1,2,3,4,5,6):
+                    table = TcsTransientObjectsTables[list_id](objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+                else:
+                    table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+            except ValueError as e:
+                table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
     else:
         table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+
 
     # 2017-10-17 KWS Give the user control over the number of pages they want to see.
     nobjects = 100
@@ -1769,8 +1981,12 @@ class WebViewUserDefinedTable(tables2.Table):
     """WebViewUserDefinedTable.
     """
 
-    ID = tables2.Column(accessor="ID", visible=False)
+    id = tables2.LinkColumn('candidate', args=[A('id')])
     observation_status = tables2.Column(verbose_name="Spectral Type")
+    ps1_designation = tables2.Column(default='', verbose_name="PS1 Name")
+    other_designation = tables2.Column(default='', verbose_name="TNS Name")
+    local_designation = tables2.Column(default='', verbose_name="Internal Name")
+
     object_classification = tables2.Column(verbose_name="Machine Classification", visible=False)
     sherlockClassification = tables2.Column(verbose_name='Context Classification')
     catalogue = tables2.Column(visible=False)
@@ -1778,17 +1994,112 @@ class WebViewUserDefinedTable(tables2.Table):
     followup_flag_date = tables2.Column(verbose_name="Flag Date")
     separation = tables2.Column(verbose_name="Separation (arcsec)", visible=False)
     object_group_id = tables2.Column(visible=False)
-    detection_list_id = tables2.Column(verbose_name="List")
+    #detection_list_id = tables2.Column(verbose_name="List")
+    detection_list_id = tables2.Column(accessor='detection_list_id.name', verbose_name="List")
+
     object_id = tables2.Column(visible=False)
-    confidence_factor = tables2.Column(verbose_name="RB Factor")
+    rb_cat = tables2.Column(verbose_name="RB Factor (catalogue)")
+    rb_pix = tables2.Column(verbose_name="RB Factor (pixels)")
     external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
     discovery_target = tables2.Column(visible=False)
     local_comments = tables2.Column(visible=False)
+    xt = tables2.Column(visible=False)
+
     class Meta:
         """Meta.
         """
 
         model = WebViewUserDefined
+        template_name = "bootstrap4_django_tables2_atlas.html"
+
+    def render_ra(self, value, record):
+        """render_ra.
+
+        Args:
+            value:
+            record:
+        """
+        ra_in_sex = ra_to_sex (value)
+        return ra_in_sex
+
+    def render_dec(self, value, record):
+        """render_dec.
+
+        Args:
+            value:
+            record:
+        """
+        dec_in_sex = dec_to_sex (value)
+        return dec_in_sex
+
+    def render_rb_cat(self, value):
+        """render_rb_cat.
+
+        Args:
+            value:
+        """
+        return '%.3f' % value
+
+    def render_rb_pix(self, value):
+        """render_rb_pix.
+
+        Args:
+            value:
+        """
+        return '%.3f' % value
+
+    def render_zooniverse_score(self, value):
+        """render_zooniverse_score.
+
+        Args:
+            value:
+        """
+        return '%.2f' % value
+
+    def render_other_designation(self, value, record):
+        """render_other_designation.
+
+        Args:
+            value:
+            record:
+        """
+        prefix = 'AT'
+        if record.observation_status and ('SN' in record.observation_status or 'I' in record.observation_status):
+            prefix = 'SN'
+        return prefix + value
+
+    def render_earliest_mjd(self, value):
+        """render_zooniverse_score.
+
+        Args:
+            value:
+        """
+        return '%.6f' % value
+
+    def render_latest_mjd(self, value):
+        """render_zooniverse_score.
+
+        Args:        
+            value:   
+        """          
+        return '%.6f' % value
+                     
+    def render_earliest_mag(self, value):
+        """render_zooniverse_score.
+
+        Args:
+            value:
+        """
+        return '%.2f' % value
+
+    def render_latest_mag(self, value):
+        """render_zooniverse_score.
+
+        Args:        
+            value:   
+        """
+        return '%.2f' % value
+
 
 
 @login_required
@@ -1812,6 +2123,7 @@ def userDefinedLists(request, userDefinedListNumber):
 
     initial_queryset = WebViewUserDefined.objects.filter(object_group_id = userDefinedListNumber)
     table = WebViewUserDefinedTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
+    RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
     return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject' : form})
 
@@ -1965,62 +2277,6 @@ def dss2(request, tcs_transient_objects_id):
     page = getDSS2Image(ra_sex, dec_sex, x, y)
     return render(request, 'psdb/dss2.html', {'page': page})
 
-# This class is a generic table template for all the presentation types. It's
-# based on the Abstract Class that defines the candidates, so any new attributes
-# added there are automatically included.
-
-class WebViewCandidatesTable(tables2.Table):
-    """WebViewCandidatesTable.
-    """
-
-    ID = tables2.Column(accessor="ID")
-    catalogue_object_id = tables2.Column(verbose_name="Nearest Object")
-    mjd_obs = tables2.Column(verbose_name="MJD")
-    separation = tables2.Column(verbose_name="Separation (arcsec)")
-    SDSS = tables2.Column(sortable=False, default="None")
-    class Meta:
-        """Meta.
-        """
-
-        model = WebViewUniqueAbstractPresentation
-
-# --------------------------------------------------
-# The following method relates to the classification
-# flag bits rather than hard-wiring methods to specific
-# object type names. Only a single method is
-# required.  The downside is that the URLs are
-# slightly less human readable (see urls.py).
-
-def renderObjectType(request, objectType):
-    """renderObjectType.
-
-    Args:
-        request:
-        objectType:
-    """
-    classificationFlagRow = get_object_or_404(TcsClassificationFlags, pk=objectType)
-    viewname = classificationFlagRow.description
-    objectTypeClassList = [WebViewUnique1Presentation,
-                           WebViewUnique2Presentation,
-                           WebViewUnique4Presentation,
-                           WebViewUnique8Presentation,
-                           WebViewUnique16Presentation,
-                           WebViewUnique32Presentation,
-                           WebViewUnique64Presentation]
-    # The classes are in the list in order of their bit value.  Take the log2 of the
-    # flag id to gain the index.  This is not an ideal way of doing things, but I'll
-    # improve it later.
-
-    objectTypeClassOffset = 0
-    print("this is a test")
-    if classificationFlagRow.flag_id != 0:
-       objectTypeClassOffset = int(log(classificationFlagRow.flag_id,2))
-
-    initial_queryset = objectTypeClassList[objectTypeClassOffset].objects.all()
-    table = WebViewCandidatesTable(initial_queryset, order_by=request.GET.get('sort', 'ID'))
-    return render(request, 'psdb/candidates.html', {'table': table, 'rows' : table.rows, 'viewname' : viewname})
- 
-# --------------------------------------------------
 
 class UserDefinedListDefinitionsTable(tables2.Table):
     """UserDefinedListDefinitionsTable.
@@ -2061,8 +2317,10 @@ def userDefinedListDefinitions(request):
     """
     userListDefinitionsQuery = TcsObjectGroupDefinitions.objects.all()
     table = UserDefinedListDefinitionsTable(userListDefinitionsQuery, order_by=request.GET.get('sort', 'id'))
-    return render(request, 'psdb/userdefinedlists_bs.html', {'table': table})
-    
+    RequestConfig(request, paginate={"per_page": 20}).configure(table)
+    formSearchObject = SearchForObjectForm()
+    return render(request, 'psdb/userdefinedlists_bs.html', {'table': table, 'form_searchobject': formSearchObject})
+
 
 # 2011-10-11 KWS CfA Crossmatching pages
 

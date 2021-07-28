@@ -114,7 +114,7 @@ def filterGetParameters(request, queryFilter, prefix = ''):
     if flagDate:
         queryFilter[prefix + flagParameter] = flagDate
 
-    # 2020-10-13 KWS Added confidence_factor (i.e. RB factor)
+    # 2020-10-13 KWS Added rb_pix (i.e. RB factor)
     zooniverseScore = None
     zooniverseScoreParameter = 'zooniverse_score'
     for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
@@ -133,43 +133,43 @@ def filterGetParameters(request, queryFilter, prefix = ''):
     if zooniverseScore:
         queryFilter[prefix + zooniverseScoreParameter] = zooniverseScore
 
-    # 2020-10-13 KWS Added confidence_factor (i.e. RB factor)
-    confidenceFactor = None
-    confidenceFactorParameter = 'confidence_factor'
+    # 2020-10-13 KWS Added rb_pix (i.e. RB factor)
+    rbPix = None
+    rbPixParameter = 'rb_pix'
     for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
-        confidenceFactorParameter = 'confidence_factor' + suffix
-        confidenceFactor = request.GET.get(confidenceFactorParameter)
-        if confidenceFactor is not None:
+        rbPixParameter = 'rb_pix' + suffix
+        rbPix = request.GET.get(rbPixParameter)
+        if rbPix is not None:
             break
 
     try:
-        confidenceFactor = float(confidenceFactor)
+        rbPix = float(rbPix)
     except ValueError as e:
-        confidenceFactor = None
+        rbPix = None
     except TypeError as e:
-        confidenceFactor = None
+        rbPix = None
 
-    if confidenceFactor:
-        queryFilter[confidenceFactorParameter] = confidenceFactor
+    if rbPix:
+        queryFilter[rbPixParameter] = rbPix
 
-    # 2020-12-11 KWS Added classification_confidence (i.e. catalogue RB factor)
-    classificationConfidence = None
-    classificationConfidenceParameter = 'classification_confidence'
+    # 2020-12-11 KWS Added rb_cat (i.e. catalogue RB factor)
+    rbCat = None
+    rbCatParameter = 'rb_cat'
     for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
-        classificationConfidenceParameter = 'classification_confidence' + suffix
-        classificationConfidence = request.GET.get(classificationConfidenceParameter)
-        if classificationConfidence is not None:
+        rbCatParameter = 'rb_cat' + suffix
+        rbCat = request.GET.get(rbCatParameter)
+        if rbCat is not None:
             break
 
     try:
-        classificationConfidence = float(classificationConfidence)
+        rbCat = float(rbCat)
     except ValueError as e:
-        classificationConfidence = None
+        rbCat = None
     except TypeError as e:
-        classificationConfidence = None
+        rbCat = None
 
-    if classificationConfidence:
-        queryFilter[classificationConfidenceParameter] = classificationConfidence
+    if rbCat:
+        queryFilter[rbCatParameter] = rbCat
 
     # 2020-12-11 KWS Added earliest mag & latest mag
     latestMag = None
@@ -299,12 +299,17 @@ def filterGetParameters(request, queryFilter, prefix = ''):
 
     try:
         xt = int(xt)
-    except ValueError, e:
+    except ValueError as e:
         xt = None
-    except TypeError, e:
+    except TypeError as e:
         xt = None
 
     if xt:
         queryFilter[prefix + xtParameter] = xt
 
     return queryFilter
+
+def getDjangoTables2ImageTemplate(imageType):
+    IMAGE_TEMPLATE = """<img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ record.tcs_images_id.whole_mjd }}/{{ record.tcs_images_id.%s }}.jpeg" alt="triplet" title="{{ record.tcs_images_id.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" />""" % imageType
+    return IMAGE_TEMPLATE
+

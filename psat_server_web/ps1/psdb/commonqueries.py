@@ -338,13 +338,13 @@ FORCED_PHOTOMETRY_QUERY = """\
 
 # In this query, we'll extract each plotting series and their labels in one go.
 def followupPhotometryQuery(candidate, djangoRawObject = None, conn = None):
-    """followupPhotometryQuery.
+   """followupPhotometryQuery.
 
-    Args:
-        candidate:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       candidate:
+       djangoRawObject:
+       conn:
+   """
    from gkutils.commonutils import Struct
 
    resultset = []
@@ -483,14 +483,14 @@ def getForcedPhotometry(candidate, djangoRawObject = None, conn = None, limits =
 
 
 def lightcurvePlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = None, conn = None):
-    """lightcurvePlainQuery.
+   """lightcurvePlainQuery.
 
-    Args:
-        candidate:
-        mjdLimit:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       candidate:
+       mjdLimit:
+       djangoRawObject:
+       conn:
+   """
    from gkutils.commonutils import Struct
 
    recurrences = []
@@ -521,14 +521,14 @@ def lightcurvePlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = None, 
 
 # 2015-10-13 KWS Plain text forced photometry query
 def lightcurveForcedPlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = None, conn = None):
-    """lightcurveForcedPlainQuery.
+   """lightcurveForcedPlainQuery.
 
-    Args:
-        candidate:
-        mjdLimit:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       candidate:
+       mjdLimit:
+       djangoRawObject:
+       conn:
+   """
    from gkutils.commonutils import Struct
 
    recurrences = []
@@ -560,11 +560,11 @@ def lightcurveForcedPlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = 
 # 2011-08-15 KWS Added the fudge factor to be applied to old data because of cal_psf_mag issues.
 # 2014-07-03 KWS Added other filters.
 def applyFudgeFactor(row):
-    """applyFudgeFactor.
+   """applyFudgeFactor.
 
-    Args:
-        row:
-    """
+   Args:
+       row:
+   """
 
    from math import log10
 
@@ -599,15 +599,15 @@ def applyFudgeFactor(row):
 # 2013-02-03 KWS Make the query code generic. Pass in the Django object if Django, or the
 #                connection object if a standard MySQL query.
 def getLightcurvePoints(candidate, filters="grizywxBV", applyFudge = False, djangoRawObject = None, conn = None):
-    """getLightcurvePoints.
+   """getLightcurvePoints.
 
-    Args:
-        candidate:
-        filters:
-        applyFudge:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       candidate:
+       filters:
+       applyFudge:
+       djangoRawObject:
+       conn:
+   """
 
    from gkutils.commonutils import Struct
 
@@ -661,15 +661,15 @@ def getLightcurvePoints(candidate, filters="grizywxBV", applyFudge = False, djan
 
 # 2014-11-05 KWS Flux query
 def getLightcurvePointsFlux(candidate, filters="grizywxBV", applyFudge = False, djangoRawObject = None, conn = None):
-    """getLightcurvePointsFlux.
+   """getLightcurvePointsFlux.
 
-    Args:
-        candidate:
-        filters:
-        applyFudge:
-        djangoRawObject:
-        conn:
-    """
+   Args:
+       candidate:
+       filters:
+       applyFudge:
+       djangoRawObject:
+       conn:
+   """
 
    from gkutils.commonutils import Struct
 
@@ -724,15 +724,15 @@ def getLightcurvePointsFlux(candidate, filters="grizywxBV", applyFudge = False, 
 
 
 def getLightcurveBlanks(candidate, filters="grizywxBV", djangoRawObject = None, conn = None, limits = LIMITS):
-    """getLightcurveBlanks.
+   """getLightcurveBlanks.
 
-    Args:
-        candidate:
-        filters:
-        djangoRawObject:
-        conn:
-        limits:
-    """
+   Args:
+       candidate:
+       filters:
+       djangoRawObject:
+       conn:
+       limits:
+   """
 
    from gkutils.commonutils import Struct
    from math import log10
@@ -785,15 +785,15 @@ def getLightcurveBlanks(candidate, filters="grizywxBV", djangoRawObject = None, 
    return [g, r, i, z, y, w, x, B, V, fullList]
 
 def getLightcurveNonDetections(candidate, filters="grizywxBV", djangoRawObject = None, conn = None, limits = LIMITS):
-    """getLightcurveNonDetections.
+   """getLightcurveNonDetections.
 
-    Args:
-        candidate:
-        filters:
-        djangoRawObject:
-        conn:
-        limits:
-    """
+   Args:
+       candidate:
+       filters:
+       djangoRawObject:
+       conn:
+       limits:
+   """
 
    from gkutils.commonutils import Struct
    from math import log10

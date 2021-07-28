@@ -1,11 +1,14 @@
-# 2016-07-07 KWS New format for Django 1.10
-from django.conf.urls import url, include
+from django.conf.urls import url
+from django.urls import path, include
 from django.contrib import admin
 from psdb import views
+from django.conf import settings
+from django.conf.urls.static import static
+
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    path('admin/', admin.site.urls),
 
     # 2016-07-07 KWS Add the authentication URLs
     url(r'^accounts/login/', views.login, name="login"),
@@ -23,10 +26,7 @@ urlpatterns = [
 #    url(r'^psdb/test/$', views.homepage2, name='home2'),
 
     url(r'^psdb/temporary/$', views.temporaryHomepage),
-    url(r'^psdb/followup_old/$', views.followup),
     url(r'^psdb/dss2/(?P<tcs_transient_objects_id>\d+)/$', views.dss2),
-    url(r'^psdb/type/(?P<objectType>\d+)/$', views.renderObjectType),
-    url(r'^psdb/followup_old/(?P<listNumber>\d+)/$', views.followupList),
     url(r'^psdb/lightcurves/(?P<tcs_transient_objects_id>\d+)/$', views.lightcurves),
 # 2011-07-06 KWS Add TEXT version of the light curve
     url(r'^psdb/lightcurve/(?P<tcs_transient_objects_id>\d+)/$', views.lightcurveplain),
@@ -53,10 +53,10 @@ urlpatterns = [
     url(r'^psdb/public_textonly/$', views.followupAllPublicTextOnly),
 
 # 2011-04-14 KWS Add new User Defined Lists URL
-    url(r'^psdb/userlist/$', views.userDefinedListDefinitions, name="userlists"),
+    url(r'^psdb/userlist/$', views.userDefinedListDefinitions, name='userdefinedlistdefs'),
     url(r'^psdb/userlist/(?P<userDefinedListNumber>\d+)/$', views.userDefinedLists, name='userdefinedlists'),
+    url(r'^psdb/userlist_quickview/(?P<userDefinedListNumber>\d+)/$', views.userDefinedListsQuickview, name='userdefinedlistsquickview'),
 
-    url(r'^psdb/userlist_quickview/(?P<userDefinedListNumber>\d+)/$', views.userDefinedListsQuickview),
     url(r'^psdb/userlistcat/(?P<userDefinedListNumber>\d+)/$', views.obsCatalogue),
     url(r'^psdb/userlistwiki/(?P<userDefinedListNumber>\d+)/$', views.obsMediaWiki),
     url(r'^psdb/userlist_atel_discovery/(?P<userDefinedListNumber>\d+)/$', views.atelsDiscovery),
@@ -79,3 +79,6 @@ urlpatterns = [
     url(r'^searchresults/$', views.searchResults, name='searchresults'),
 ]
 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

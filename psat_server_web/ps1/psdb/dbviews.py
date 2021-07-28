@@ -24,136 +24,6 @@ QUBLists = {
 }
 
 
-class WebViewUniqueAbstractFollowup(models.Model):
-    """WebViewUniqueAbstractFollowup.
-    """
-
-    rank = models.IntegerField(db_column='rank')
-    ID = models.BigIntegerField(primary_key=True, db_column='id')
-    local_designation = models.CharField(max_length=60, db_column='local_designation')
-    ps1_designation = models.CharField(max_length=60, db_column='ps1_designation')
-    RA = models.FloatField(db_column='ra_psf')
-    DEC = models.FloatField(db_column='dec_psf')
-    mjd_obs = models.FloatField(db_column='mjd_obs')
-    type = models.CharField(max_length=30, db_column='flag_name')
-    cal_psf_mag = models.FloatField(db_column='cal_psf_mag')
-    filter = models.CharField(max_length=80, db_column='filter')
-    survey_field = models.CharField(max_length=255, db_column='survey_field')
-    followup_flag_date = models.DateField(db_column='followup_flag_date')
-    catalogue = models.CharField(max_length=60, db_column='catalogue')
-    catalogue_object_id = models.CharField(max_length=30, db_column='catalogue_object_id')
-    separation = models.FloatField(db_column='separation')
-
-    class Meta:
-        """Meta.
-        """
-
-        abstract = True
-
-    @property
-    def ra_sex(self):
-        """ra_sex.
-        """
-        ra_in_sex = ra_to_sex (self.RA)
-        return ra_in_sex
-
-    @property
-    def dec_sex(self):
-        """dec_sex.
-        """
-        dec_in_sex = dec_to_sex (self.DEC)
-        return dec_in_sex
-
-
-class WebViewUniqueFollowupTransients(WebViewUniqueAbstractFollowup):
-    """WebViewUniqueFollowupTransients.
-    """
-
-
-    class Meta(WebViewUniqueAbstractFollowup.Meta):
-        """Meta.
-        """
-
-        db_table = 'psdb_web_v_uniq_followup_transients_presentation'
-
-class WebViewUniqueFollowupTransientsConf(WebViewUniqueAbstractFollowup):
-    """WebViewUniqueFollowupTransientsConf.
-    """
-
-
-    class Meta(WebViewUniqueAbstractFollowup.Meta):
-        """Meta.
-        """
-
-        db_table = 'psdb_web_v_uniq_followup_transients_conf_presentation'
-
-class WebViewUniqueFollowupTransientsGood(WebViewUniqueAbstractFollowup):
-    """WebViewUniqueFollowupTransientsGood.
-    """
-
-
-    class Meta(WebViewUniqueAbstractFollowup.Meta):
-        """Meta.
-        """
-
-        db_table = 'psdb_web_v_uniq_followup_transients_good_presentation'
-
-class WebViewUniqueFollowupTransientsPoss(WebViewUniqueAbstractFollowup):
-    """WebViewUniqueFollowupTransientsPoss.
-    """
-
-
-    class Meta(WebViewUniqueAbstractFollowup.Meta):
-        """Meta.
-        """
-
-        db_table = 'psdb_web_v_uniq_followup_transients_poss_presentation'
-
-class WebViewUniqueFollowupTransientsBad(WebViewUniqueAbstractFollowup):
-    """WebViewUniqueFollowupTransientsBad.
-    """
-
-
-    class Meta(WebViewUniqueAbstractFollowup.Meta):
-        """Meta.
-        """
-
-        db_table = 'psdb_web_v_uniq_followup_transients_bad_presentation'
-
-class WebViewUniqueFollowupTransientsPend(WebViewUniqueAbstractFollowup):
-    """WebViewUniqueFollowupTransientsPend.
-    """
-
-
-    class Meta(WebViewUniqueAbstractFollowup.Meta):
-        """Meta.
-        """
-
-        db_table = 'psdb_web_v_uniq_followup_transients_pend_presentation'
-
-class WebViewUniqueFollowupTransientsAttic(WebViewUniqueAbstractFollowup):
-    """WebViewUniqueFollowupTransientsAttic.
-    """
-
-
-    class Meta(WebViewUniqueAbstractFollowup.Meta):
-        """Meta.
-        """
-
-        db_table = 'psdb_web_v_uniq_followup_transients_attic_presentation'
-
-class WebViewUniqueFollowupTransientsZoo(WebViewUniqueAbstractFollowup):
-    """WebViewUniqueFollowupTransientsZoo.
-    """
-
-
-    class Meta(WebViewUniqueAbstractFollowup.Meta):
-        """Meta.
-        """
-
-        db_table = 'psdb_web_v_uniq_followup_transients_zoo_presentation'
-
-
 # 2011-01-21 KWS Completely revamped the followup list contents.
 # 2013-10-23 KWS Added confidence_factor.
 # 2014-02-20 KWS Added external_crossmatches and discovery_target.
@@ -163,13 +33,13 @@ class WebViewAbstractFollowup(models.Model):
     """
 
     rank = models.IntegerField(db_column='rank')
-    ID = models.BigIntegerField(primary_key=True, db_column='id')
+    id = models.BigIntegerField(primary_key=True, db_column='id')
     survey_field = models.CharField(max_length=255, db_column='survey_field')
     local_designation = models.CharField(max_length=60, db_column='local_designation')
     ps1_designation = models.CharField(max_length=60, db_column='ps1_designation')
     other_designation = models.CharField(max_length=60, db_column='other_designation')
-    RA = models.FloatField(db_column='ra_psf')
-    DEC = models.FloatField(db_column='dec_psf')
+    ra = models.FloatField(db_column='ra_psf')
+    dec = models.FloatField(db_column='dec_psf')
     object_classification = models.IntegerField(db_column='object_classification')
     sherlockClassification = models.CharField(max_length=120, db_column='sherlockClassification')
     followup_flag_date = models.DateField(db_column='followup_flag_date')
@@ -184,7 +54,8 @@ class WebViewAbstractFollowup(models.Model):
     catalogue = models.CharField(max_length=60, db_column='catalogue')
     catalogue_object_id = models.CharField(max_length=30, db_column='catalogue_object_id')
     separation = models.FloatField(db_column='separation')
-    confidence_factor = models.FloatField(db_column='confidence_factor')
+    rb_cat = models.FloatField(db_column='classification_confidence')
+    rb_pix = models.FloatField(db_column='confidence_factor')
     zooniverse_score = models.FloatField(db_column='zooniverse_score')
     external_crossmatches = models.CharField(max_length=1500, db_column='external_crossmatches')
     discovery_target = models.CharField(max_length=90, db_column='discovery_target')
@@ -242,6 +113,7 @@ class WebViewFollowupTransients(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_all_presentation'
+        managed = False
 
 class WebViewFollowupTransientsConf(WebViewAbstractFollowup):
     """WebViewFollowupTransientsConf.
@@ -253,6 +125,7 @@ class WebViewFollowupTransientsConf(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_conf_presentation'
+        managed = False
 
 class WebViewFollowupTransientsGood(WebViewAbstractFollowup):
     """WebViewFollowupTransientsGood.
@@ -264,6 +137,7 @@ class WebViewFollowupTransientsGood(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_good_presentation'
+        managed = False
 
 class WebViewFollowupTransientsPoss(WebViewAbstractFollowup):
     """WebViewFollowupTransientsPoss.
@@ -275,6 +149,7 @@ class WebViewFollowupTransientsPoss(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_poss_presentation'
+        managed = False
 
 class WebViewFollowupTransientsBad(WebViewAbstractFollowup):
     """WebViewFollowupTransientsBad.
@@ -286,6 +161,7 @@ class WebViewFollowupTransientsBad(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_bad_presentation'
+        managed = False
 
 class WebViewFollowupTransientsPend(WebViewAbstractFollowup):
     """WebViewFollowupTransientsPend.
@@ -297,6 +173,7 @@ class WebViewFollowupTransientsPend(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_pend_presentation'
+        managed = False
 
 class WebViewFollowupTransientsAttic(WebViewAbstractFollowup):
     """WebViewFollowupTransientsAttic.
@@ -308,6 +185,7 @@ class WebViewFollowupTransientsAttic(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_attic_presentation'
+        managed = False
 
 class WebViewFollowupTransientsZoo(WebViewAbstractFollowup):
     """WebViewFollowupTransientsZoo.
@@ -319,6 +197,7 @@ class WebViewFollowupTransientsZoo(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_zoo_presentation'
+        managed = False
 
 # 2019-07-16 KWS Created two new views - TBD and Fast Track objects. (TBD because
 #                I want to keep the Fast Track list = 8 on both ATLAS and Pan-STARRS.
@@ -333,6 +212,7 @@ class WebViewFollowupTransientsTbd(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_tbd_presentation'
+        managed = False
 
 class WebViewFollowupTransientsFast(WebViewAbstractFollowup):
     """WebViewFollowupTransientsFast.
@@ -344,6 +224,7 @@ class WebViewFollowupTransientsFast(WebViewAbstractFollowup):
         """
 
         db_table = 'psdb_web_v_followup_fast_presentation'
+        managed = False
 
 
 # 2011-04-14 KWS New model for User Defined Lists.
@@ -355,14 +236,14 @@ class WebViewAbstractUserDefined(models.Model):
     """
 
     rank = models.IntegerField(db_column='rank')
-    ID = models.BigIntegerField(db_column='id')
+    id = models.BigIntegerField(db_column='id')
     survey_field = models.CharField(max_length=255, db_column='survey_field')
     local_designation = models.CharField(max_length=60, db_column='local_designation')
     ps1_designation = models.CharField(max_length=60, db_column='ps1_designation')
     other_designation = models.CharField(max_length=60, db_column='other_designation')
     local_comments = models.CharField(max_length=768, db_column='local_comments')
-    RA = models.FloatField(db_column='ra_psf')
-    DEC = models.FloatField(db_column='dec_psf')
+    ra = models.FloatField(db_column='ra_psf')
+    dec = models.FloatField(db_column='dec_psf')
     object_classification = models.IntegerField(db_column='object_classification')
     sherlockClassification = models.CharField(max_length=120, db_column='sherlockClassification')
     followup_flag_date = models.DateField(db_column='followup_flag_date')
@@ -381,7 +262,8 @@ class WebViewAbstractUserDefined(models.Model):
     object_group_id = models.IntegerField(db_column='object_group_id')
     detection_list_id = models.ForeignKey(TcsDetectionLists, null=True, to_field='id', db_column='detection_list_id', on_delete=models.CASCADE)
     object_id = models.BigIntegerField(primary_key=True, db_column='object_id')
-    confidence_factor = models.FloatField(db_column='confidence_factor')
+    rb_cat = models.FloatField(db_column='classification_confidence')
+    rb_pix = models.FloatField(db_column='confidence_factor')
     zooniverse_score = models.FloatField(db_column='zooniverse_score')
     external_crossmatches = models.CharField(max_length=1500, db_column='external_crossmatches')
     discovery_target = models.CharField(max_length=90, db_column='discovery_target')
@@ -469,6 +351,7 @@ class WebViewUserDefined(WebViewAbstractUserDefined):
         """
 
         db_table = 'psdb_web_v_followup_userdefined'
+        managed = False
 
 
 
@@ -495,11 +378,12 @@ class WebViewRecurrentObjectsPresentation(models.Model):
         """
 
         db_table = 'psdb_web_v_recurrent_objects_presentation'
+        managed = False
 
     @property
     def flags_bin(self):
-        """flags_bin.
-        """
+       """flags_bin.
+       """
        a = bin(int(str(self.flags)),32)
        return a
 
@@ -537,6 +421,7 @@ class WebViewPostageStampServerImagesPresentation(models.Model):
         """
 
         db_table = 'psdb_web_v_postage_stamp_server_images_presentation'
+        managed = False
 
 # New version of the Postage Stamp Images presentation
 # No object_id, diff_id or object_mjd in this version.
@@ -560,6 +445,7 @@ class WebViewPostageStampServerImagesPresentationV2(models.Model):
         """
 
         db_table = 'psdb_web_v_postage_stamp_server_images_presentation_v2'
+        managed = False
 
 # 2010-01-28 KWS Added new category views that don't commit to a naming scheme.
 #                We're just going to have a series of classes that refer to
@@ -595,8 +481,8 @@ class WebViewUniqueAbstractPresentation(models.Model):
 
     @property
     def flags_bin(self):
-        """flags_bin.
-        """
+       """flags_bin.
+       """
        a = bin(int(str(self.flags)),32)
        return a
 
@@ -614,36 +500,6 @@ class WebViewUniqueAbstractPresentation(models.Model):
         dec_in_sex = dec_to_sex (self.DEC)
         return dec_in_sex
 
-# THIS CODE WILL NOT WORK UNTIL ZERO POINT EXTRACTED IN QUERY.
-#    @property
-#    def instrument_mag(self):
-#       zero_pt = self.tcs_cmf_metadata_id.zero_pt
-#       exptime = self.tcs_cmf_metadata_id.exptime
-#       if zero_pt == None or self.psf_inst_mag == None or exptime == None:
-#           imag = None
-#       else:
-#           imag = self.psf_inst_mag + 2.5 * log10(exptime) + zero_pt
-#       return imag
-#
-#    @property
-#    def aperture_mag(self):
-#       zero_pt = self.tcs_cmf_metadata_id.zero_pt
-#       exptime = self.tcs_cmf_metadata_id.exptime
-#       if zero_pt == None or self.ap_mag == None or exptime == None:
-#           amag = None
-#       else:
-#           amag = self.ap_mag + 2.5 * log10(exptime) + zero_pt
-#       return amag
-#
-#    @property
-#    def calibrated_mag(self):
-#       zero_pt = self.tcs_cmf_metadata_id.zero_pt
-#       exptime = self.tcs_cmf_metadata_id.exptime
-#       if zero_pt == None or self.cal_psf_mag == None or exptime == None:
-#           cmag = None
-#       else:
-#           cmag = self.cal_psf_mag + 2.5 * log10(exptime) + zero_pt
-#       return cmag
 
 class WebViewUnique1Presentation(WebViewUniqueAbstractPresentation):
     """WebViewUnique1Presentation.
@@ -655,6 +511,7 @@ class WebViewUnique1Presentation(WebViewUniqueAbstractPresentation):
         """
 
         db_table = 'psdb_web_v_uniq_1_presentation'
+        managed = False
 
 class WebViewUnique2Presentation(WebViewUniqueAbstractPresentation):
     """WebViewUnique2Presentation.
@@ -666,6 +523,7 @@ class WebViewUnique2Presentation(WebViewUniqueAbstractPresentation):
         """
 
         db_table = 'psdb_web_v_uniq_2_presentation'
+        managed = False
 
 class WebViewUnique4Presentation(WebViewUniqueAbstractPresentation):
     """WebViewUnique4Presentation.
@@ -677,6 +535,7 @@ class WebViewUnique4Presentation(WebViewUniqueAbstractPresentation):
         """
 
         db_table = 'psdb_web_v_uniq_4_presentation'
+        managed = False
 
 class WebViewUnique8Presentation(WebViewUniqueAbstractPresentation):
     """WebViewUnique8Presentation.
@@ -688,6 +547,7 @@ class WebViewUnique8Presentation(WebViewUniqueAbstractPresentation):
         """
 
         db_table = 'psdb_web_v_uniq_8_presentation'
+        managed = False
 
 class WebViewUnique16Presentation(WebViewUniqueAbstractPresentation):
     """WebViewUnique16Presentation.
@@ -699,6 +559,7 @@ class WebViewUnique16Presentation(WebViewUniqueAbstractPresentation):
         """
 
         db_table = 'psdb_web_v_uniq_16_presentation'
+        managed = False
 
 class WebViewUnique32Presentation(WebViewUniqueAbstractPresentation):
     """WebViewUnique32Presentation.
@@ -710,6 +571,7 @@ class WebViewUnique32Presentation(WebViewUniqueAbstractPresentation):
         """
 
         db_table = 'psdb_web_v_uniq_32_presentation'
+        managed = False
 
 class WebViewUnique64Presentation(WebViewUniqueAbstractPresentation):
     """WebViewUnique64Presentation.
@@ -721,6 +583,7 @@ class WebViewUnique64Presentation(WebViewUniqueAbstractPresentation):
         """
 
         db_table = 'psdb_web_v_uniq_64_presentation'
+        managed = False
 
 # Add more descendents as more bits (i.e. categories) are used.
 
@@ -755,8 +618,8 @@ class CustomAllObjectOcurrencesPresentation(models.Model):
 
     @property
     def flags_bin(self):
-        """flags_bin.
-        """
+       """flags_bin.
+       """
        a = bin(int(str(self.flags)),32)
        return a
 
@@ -804,6 +667,7 @@ class WebViewCfAToIPPCrossmatch(models.Model):
         """
 
         db_table = 'psdb_web_v_cfa_to_ipp_crossmatch'
+        managed = False
  
     @property
     def ra_sex(self):
@@ -882,6 +746,7 @@ class WebViewIPPToCfACrossmatch(models.Model):
         """
 
         db_table = 'psdb_web_v_ipp_to_cfa_crossmatch'
+        managed = False
 
     @property
     def ra_sex(self):
