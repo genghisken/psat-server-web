@@ -388,13 +388,13 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         </div>
         {% endif %}
 
-        {% if transient.confidence_factor or transient.zooniverse_score %}
+        {% if transient.rb_pix or transient.rb_cat %}
         <div class="col-lg-12 col-md-12 col-sm-12">
         <span class="parameter-label">Realbogus Factors</span>
         </div>
     
         <div class="col-lg-12 col-md-12 col-sm-12">
-        <span class="parameter-value">{{ transient.classification_confidence|floatformat:"2" }} (DEW catalog) {{ transient.confidence_factor|floatformat:"2" }} (TF image)</span>
+        <span class="parameter-value">{{ transient.rb_cat|floatformat:"2" }} (DEW catalog) {{ transient.rb_pix|floatformat:"2" }} (TF image)</span>
         </div>
         {% endif %}
 
@@ -403,7 +403,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
           <span class="parameter-label">Citizen Scientist Score:</span>
         </div>
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <span class="parameter-value">{{ citizens.score|floatformat:"2" }} ({% if citizens.user1 %}{{ citizens.user1|default_if_none:"" }}{% endif %}{% if citizens.user2 and citizens.user2 != citizens.user1 and citizens.user2 != citizens.user3 %}, {{ citizens.user2|default_if_none:"" }}{% endif %}{% if citizens.user3 and citizens.user3 != citizens.user1 and citizens.user3 != citizens.user2 %}, {{ citizens.user3|default_if_none:"" }}{% endif %})</span>
+          <span class="parameter-value">{{ citizens.score|floatformat:"2" }} {% if citizens.user1 %}{{ citizens.user1|default_if_none:"" }}{% endif %}{% if citizens.user2 and citizens.user2 != citizens.user1 and citizens.user2 != citizens.user3 %}, {{ citizens.user2|default_if_none:"" }}{% endif %}{% if citizens.user3 and citizens.user3 != citizens.user1 and citizens.user3 != citizens.user2 %}, {{ citizens.user3|default_if_none:"" }}{% endif %}</span>
         </div>
         {% endif %}
 
