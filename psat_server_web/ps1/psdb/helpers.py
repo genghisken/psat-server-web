@@ -70,15 +70,14 @@ def sendMessage(host, port, message):
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((host, port))
-        s.sendall(message)
-        response = s.recv(1024)
+        s.sendall(message.encode('utf-8'))
+        response = s.recv(1024).decode('utf-8')
         s.close()
     except socket.error as e:
         sys.stderr.write("Cannot connect. Maybe the service has not been started or is listening on a different port.\n")
         sys.stderr.write("%s" % str(e))
 
     return response
-
 
 def filterGetParameters(request, queryFilter, prefix = ''):
     """filterGetParameters.
