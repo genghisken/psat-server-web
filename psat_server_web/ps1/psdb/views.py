@@ -71,7 +71,7 @@ from django.contrib import auth
 from django.template.context_processors import csrf
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, getDjangoTables2ImageTemplate
+from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, getDjangoTables2ImageTemplate, SHOW_LC_DATA_LIMIT
 
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.
@@ -1560,6 +1560,8 @@ TcsTransientObjectsTables = [TcsTransientObjectsTableGarbageOptions,
                              TcsTransientObjectsTablePossibleOptions,
                              TcsTransientObjectsTableEyeballOptions,
                              TcsTransientObjectsTableAtticOptions,
+                             TcsTransientObjectsTableEyeballOptions,
+                             TcsTransientObjectsTableEyeballOptions,
                              TcsTransientObjectsTableEyeballOptions]
 
 
@@ -1762,7 +1764,7 @@ def followupQuickView(request, listNumber):
             table = TcsTransientObjectsTableFGSS(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
         else:
             try:
-                if int(list_id) in (0,1,2,3,4,5,6):
+                if int(list_id) in (0,1,2,3,4,5,6,7,8):
                     table = TcsTransientObjectsTables[list_id](objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
                 else:
                     table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
@@ -2446,6 +2448,7 @@ def displayExternalCrossmatches(request):
     return render(request, 'psdb/crossmatch_external.html', {'table': table, 'rows' : table.rows, 'crossmatchTitle': crossmatchTitle})
 
 
+
 @login_required
 def searchResults(request):
     """searchResults.
@@ -2455,6 +2458,7 @@ def searchResults(request):
     """
 
     from django.db import connection
+    import sys
 
     listHeader = "Search Results"
 
@@ -2462,24 +2466,70 @@ def searchResults(request):
 
     public = False
     dbName = settings.DATABASES['default']['NAME'].replace('_django', '')
-    if 'public' in dbName or 'kxws' in dbName:
+    if 'atlaspublic' in dbName or 'kws' in dbName:
         public = True
 
     searchText = None
+    try:
+        searchText = request.session['searchText']
+    except KeyError as e:
+        searchText = None
+
+    getNonDets = False
+    try:
+        getNonDets = bool(int(request.GET.get('nondets')))
+        request.session['getNonDets'] = getNonDets
+    except ValueError as e:
+        getNonDets = False
+    except TypeError as e:
+        getNonDets = False
+
+    getNearbyDets = False
+    try:
+        getNearbyDets = bool(int(request.GET.get('nearbydets')))
+        request.session['getNearbyDets'] = getNearbyDets
+    except ValueError as e:
+        getNearbyDets = False
+    except TypeError as e:
+        getNearbyDets = False
+
+    # 2017-10-17 default Pages
+    nobjects = 50
+    nobjects = request.GET.get('nobjects', '50')
+    try:
+        nobjects = int(nobjects)
+    except ValueError as e:
+        nobjects = 50
 
     if request.method == 'POST':
         form = SearchForObjectForm(request.POST)
         if form.is_valid(): # All validation rules pass
 
             searchText = form.cleaned_data['searchText']
+            request.session['searchText'] = searchText
+            #results = processSearchForm(searchText, getAssociatedData = True, ddc = ddc, getNonDets = getNonDets, getNearbyObjects = getNearbyDets)
             results = processSearchForm(searchText, getAssociatedData = True)
     else:
         if searchText:
             form = SearchForObjectForm(initial={'searchText': searchText})
+            try:
+                # Pick up the non dets variable from the session
+                getNonDets = bool(int(request.session['getNonDets']))
+            except KeyError as e:
+                getNonDets = False
+
+            try:
+                # Pick up the nearby dets variable from the session
+                getNearbyDets = bool(int(request.session['getNearbyDets']))
+            except KeyError as e:
+                getNearbyDets = False
+
+            #results = processSearchForm(searchText, getAssociatedData = True, ddc = ddc, getNonDets = getNonDets, getNearbyObjects = getNearbyDets)
+            results = processSearchForm(searchText, getAssociatedData = True)
         else:
             form = SearchForObjectForm()
 
-    paginator = Paginator(results, 100)
+    paginator = Paginator(results, nobjects)
     page = request.GET.get('page')
     try:
         subdata = paginator.page(page)
@@ -2491,7 +2541,46 @@ def searchResults(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         subdata = paginator.page(paginator.num_pages)
 
-    return render(request, 'psdb/search_results.html', {'subdata': subdata, 'connection': connection, 'form_searchobject' : form, 'dbname': dbName, 'public': public})
+    # 2018-08-07 KWS Added this code so that we ONLY get lightcurves if
+    #                the number of objects is less than SHOW_LC_DATA_LIMIT
+    if nobjects <= SHOW_LC_DATA_LIMIT:
+        for row in subdata:
+            # 2018-06-22 KWS Go and get lightcurves of all the objects in the list. This could take a while
+            #                NOTE: We should cache the lightcurves in a table, and update them every time
+            #                      someone clicks on the candidate page as well as during post ingest cutting.
+            #lcPoints, lcBlanks, plotLabels, lcLimits = getLCData(row.id, conn = connection, ddc = ddc, getNonDetections = getNonDets)
+            try:
+                detectionLimits = LC_LIMITS[dbName]
+            except KeyError as e:
+                # Default detections limits for medium deep
+                detectionLimits = LC_LIMITS_MD
+
+            lcPoints, lcBlanks, lcNonDetections, followupDetectionData, followupDetectionDataBlanks, plotLabels, lcLimits, colourPlotData, colourPlotLimits, colourPlotLabels = getAllLCData(row.id, getFollowupData = True, limits = detectionLimits)
+            row.lc = [lcPoints, lcBlanks, plotLabels]
+            row.lcLimits = lcLimits
+
+            #recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter = getRecurrenceDataForPlotting(recurrences, row.ra, row.dec, objectColour = 20)
+            recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter = getRecurrenceDataForPlotting(row.id, row.ra_psf, row.dec_psf, objectColour = 20)
+            if getNearbyDets:
+                xmRecs = getNearbyObjectsForScatterPlot(row.id, row.ra_psf, row.dec_psf)
+                recurrencePlotData += xmRecs[0]
+                recurrencePlotLabels += xmRecs[1]
+                averageObjectCoords += xmRecs[2]
+                rmsScatter += xmRecs[3]
+            row.recurrenceData = [recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter]
+
+            # 2018-08-16 KWS Pick up the Sherlock Crossmatches.
+            sxm = SherlockCrossmatches.objects.filter(transient_object_id = row.id).order_by('rank')
+            row.sxm = sxm
+
+            # 2021-08-01 KWS Get user comments. We can display these on the quickview page as well.
+            comments = TcsObjectComments.objects.filter(transient_object_id = row.id).order_by('date_inserted')
+            row.comments = comments
+
+
+    return render(request, 'psdb/search_results_plotly.html', {'subdata': subdata, 'connection': connection, 'form_searchobject' : form, 'dbname': dbName, 'public': public, 'searchText': searchText, 'nobjects': nobjects, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT})
+
+
 
 
 @login_required

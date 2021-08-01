@@ -1,11 +1,19 @@
-{% extends "base_new.html" %}
+{% extends "base_bootstrap_login.html" %}
 
 {% block title %}Invalid Login{% endblock %}
 
 {% block content %}
 
-  <h2>Your login details are invalid!</h2>
-  <p> Click <a href="{% url "login" %}">here</a> to login again.</p>
+<div class="container-fluid h-100">
+  <div class="row justify-content-center align-items-center h-100">
+    <div class="col-lg-4 col-md-6 col-sm-12">
 
-  <p> {{ message }}</p>
+  <h2 class="text-center">Your login details are invalid!</h2>
+  <p class="text-center"> Click <a href="{% url "login" %}">here</a> to login again.</p>
+
+  <p class="text-center"> {{ message }}</p>
+
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="{{ STATIC_URL }}css/main_bootstrap.css" type="text/css"/>
+<link rel="stylesheet" href="{{ STATIC_URL }}css/aladin.css" />
+
+<title>{% block title %}Main Base Title{% endblock %}</title>
+</head>
+
+<body>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<!-- Basic nav bar for the login bootstrap pages -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="{% url 'home2' %}"><img src="{{ STATIC_URL }}images/panstarrs_logo.jpg" height="50" class="d-inline-block align-top" alt=""></a>
+
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">dashboard</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="http://kopiko.ifa.hawaii.edu/cams/ps1.shtml" target="_blank">Pan-STARRS all sky cam</a>
+          <a class="dropdown-item" href="https://ps1wiki.ifa.hawaii.edu/data/metrics/index.html" target="_blank">PS1 Metrics</a>
+          <a class="dropdown-item" href="https://ps1wiki.ifa.hawaii.edu/data/ps2metrics/index.html" target="_blank">PS2 Metrics</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+{% block content %}
+Unset Content
+{% endblock %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>

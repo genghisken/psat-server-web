@@ -3,17 +3,22 @@
 # PS1 version of the Django Search Form Helper Function.
 
 from psdb.models import TcsTransientObjects
-from psdb.models import TcsImages
-from gkutils.commonutils import getObjectNamePortion, getCoordsAndSearchRadius, coneSearchHTM, FULL
+from psdb.models import TcsImages, TcsLatestObjectStats
+from gkutils.commonutils import getObjectNamePortion, getCoordsAndSearchRadius, coneSearchHTM, FULL, Struct, ra_to_sex, dec_to_sex
 from django.db.models import Q    # Need Q objects for OR query
 import sys
 
-def processSearchForm(searchText, getAssociatedData = False):
+SHOW_LC_DATA_LIMIT = 50
+
+
+def processSearchForm(searchText, getAssociatedData = False, getNonDets = False, getNearbyObjects = False):
     """processSearchForm.
 
     Args:
         searchText:
         getAssociatedData:
+        getNonDets:
+        getNearbyObjects:
     """
     from django.db import connection
 
@@ -21,38 +26,143 @@ def processSearchForm(searchText, getAssociatedData = False):
     # Is it a name?
     name = getObjectNamePortion(searchText)
     if name:
-         # Do a name search
+        #name = name.replace(' ','')
+        # Do a name search
         if name.startswith('20'):
             results = TcsTransientObjects.objects.filter(Q(other_designation__isnull = False) & Q(other_designation__startswith = name))
+            # No results? Try the external crossmatches table.
+            if len(results) == 0:
+                q = TcsLatestObjectStats.objects.filter(external_crossmatches__isnull = False).filter(external_crossmatches__contains=name)
+                results = list(set([x.id for x in q]))
         elif name.startswith('PS'):
             results = TcsTransientObjects.objects.filter(Q(ps1_designation__isnull = False) & Q(ps1_designation__startswith = name))
-        else:
-            results = TcsTransientObjects.objects.filter(Q(ps1_designation__isnull = False) & (Q(ps1_designation__startswith = 'PS' + name) | Q(ps1_designation__startswith = 'PS1-' + name) | Q(other_designation__startswith = '20' + name)))
+            # No results? Try the external crossmatches table.
+            if len(results) == 0:
+                q = TcsLatestObjectStats.objects.filter(external_crossmatches__isnull = False).filter(external_crossmatches__contains=name)
+                results = list(set([x.id for x in q]))
+        elif name.startswith('AT'):
+            results = TcsTransientObjects.objects.filter(Q(other_designation__isnull = False) & Q(other_designation__startswith = name.replace('AT','')))
+            # No results? Try the external crossmatches table.
+            if len(results) == 0:
+                q = TcsLatestObjectStats.objects.filter(external_crossmatches__isnull = False).filter(external_crossmatches__contains=name)
+                results = list(set([x.id for x in q]))
+        elif name.startswith('SN'):
+            results = TcsTransientObjects.objects.filter(Q(other_designation__isnull = False) & Q(other_designation__startswith = name.replace('SN','')))
+            # No results? Try the external crossmatches table.
+            if len(results) == 0:
+                q = TcsLatestObjectStats.objects.filter(external_crossmatches__isnull = False).filter(external_crossmatches__contains=name)
+                results = list(set([x.id for x in q]))
+        else: # name.startswith('ZTF'):
+            # Check for external crossmatches.
+            q = TcsLatestObjectStats.objects.filter(external_crossmatches__isnull = False).filter(external_crossmatches__contains=name)
+            results = list(set([x.id for x in q]))
     else:
-         # It must be a coordinate
+         # It must be a coordinate or a match failure
          coords = getCoordsAndSearchRadius(searchText)
-         searchRadius = 4.0
-         if coords['radius']:
-             searchRadius = float(coords['radius'])
-             if searchRadius > 99.0:
-                  searchRadius = 99.0
-         
-         message, xmObjects = coneSearchHTM(coords['ra'], coords['dec'], searchRadius, 'tcs_transient_objects', queryType = FULL, conn = connection, django = True)
-         for xm in xmObjects:
-             dictRow = xm[1]
-             dictRow.update({'separation': xm[0]})
-             # 2016-08-29 KWS Higly inefficient database usage, but because we are bypassing Django model
-             #                we need to manually collect the foreign key data.  E.g. images and latest
-             #                object stats.
-             if getAssociatedData:
+         if coords:
+             searchRadius = 4.0
+             if coords['radius']:
+                 searchRadius = float(coords['radius'])
+                 if searchRadius > 99.0:
+                      searchRadius = 99.0
+
+             message, xmObjects = coneSearchHTM(coords['ra'], coords['dec'], searchRadius, 'tcs_transient_objects', queryType = FULL, conn = connection, django = True)
+             for xm in xmObjects:
+                 dictRow = xm[1]
+                 dictRow.update({'xmseparation': xm[0]})
+                 # Add sexagesimal RA and Dec
+                 dictRow.update({'ra_sex': ra_to_sex(dictRow['ra_psf'])})
+                 dictRow.update({'dec_sex': dec_to_sex(dictRow['dec_psf'])})
                  if dictRow['tcs_images_id']:
                      # Get images
                      images = TcsImages.objects.get(pk=dictRow['tcs_images_id'])
                      if images:
                          dictRow.update({'tcs_images_id': images})
-             results.append(dictRow)
+                 # 2018-08-07 KWS Convert the class into a dict so we can use common code elsewhere.
+                 results.append(Struct(**dictRow))
 
     return results
+
+
+def getNearbyObjectsForScatterPlot(candidate, ra, dec, coneSearchRadius = 8.0):
+    """getNearbyObjectsForScatterPlot.
+
+    Args:
+        candidate:
+        ra:
+        dec:
+        coneSearchRadius:
+    """
+    from django.db import connection
+
+    recurrencePlotData = []
+    recurrencePlotLabels = []
+    averageObjectCoords = []
+    rmsScatter = []
+
+    xmObjects = None
+
+    # Grab all objects within 3 arcsec of this one.
+    xmList = []
+    catalogueName = 'tcs_transient_objects'
+    message, xmObjects = coneSearchHTM(ra, dec, coneSearchRadius, catalogueName, queryType = FULL, conn = connection, django = True)
+
+    # The crossmatch Objects xmObjects are a list of two entry lists. The first entry in each row is the separaion.
+    # The second entry is the catalogue row dictionary listing the relevant crossmatch.
+
+    if xmObjects:
+        numberOfMatches = len(xmObjects)
+        # Add the objects into a list of dicts that have consistent names for all catalogues
+
+        for xm in xmObjects:
+            sys.stderr.write("\n%s\n" % str(xm))
+            # Add to the list all object ids except the current one (which will have
+            # a separation of zero).
+            if xm[1][CAT_ID_RA_DEC_COLS[catalogueName][0][0]] != candidate:
+                xmList.append({'xmseparation': xm[0], 'xmid': xm[1][CAT_ID_RA_DEC_COLS[catalogueName][0][0]]})
+                xmid = xm[1][CAT_ID_RA_DEC_COLS[catalogueName][0][0]]
+                xmra = xm[1][CAT_ID_RA_DEC_COLS[catalogueName][0][1]]
+                xmdec = xm[1][CAT_ID_RA_DEC_COLS[catalogueName][0][2]]
+                xmName = xm[1]["ps1_designation"]
+                if not xmName:
+                    xmName = xm[1]["local_designation"]
+                if not xmName:
+                    xmName = xmid
+
+                xmRecurrences = []
+                xmDetections = TcsTransientReobservations.objects.filter(transient_object_id = xmid)
+                for xmDet in xmDetections:
+                    xmRecurrences.append({"RA": xmDet.ra_psf, "DEC": xmDet.dec_psf})
+                # Add the recurrence from the objects table!
+                xmRecurrences.append({"RA": xmra, "DEC": xmdec})
+
+
+                xmrecurrencePlotData, xmrecurrencePlotLabels, xmaverageObjectCoords, xmrmsScatter = getRecurrenceDataForPlotting(xmRecurrences, ra, dec, secRA = xmra, secDEC = xmdec, secId = xmid, secName = xmName, objectColour = 23)
+                recurrencePlotData += xmrecurrencePlotData
+                recurrencePlotLabels += xmrecurrencePlotLabels
+                averageObjectCoords += xmaverageObjectCoords
+                rmsScatter += xmrmsScatter
+
+    recurrenceData = [recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter]
+    return recurrenceData
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import socket
 # 2019-08-07 KWS added sendMessage to send a message to a listening daemon. This might be for:

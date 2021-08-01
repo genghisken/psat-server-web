@@ -2800,6 +2800,8 @@ AtlasDiffObjectsTables = [AtlasDiffObjectsTableGarbageOptions,
                           AtlasDiffObjectsTablePossibleOptions,
                           AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableAtticOptions,
+                          AtlasDiffObjectsTableEyeballOptions,
+                          AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableEyeballOptions]
 
 PROMOTE_DEMOTE = {'C': 1, 'G': 2, 'P': 3, 'E': 4, 'A': 5, 'T': 0}
@@ -3016,7 +3018,7 @@ def followupQuickView(request, listNumber):
         nobjects = 100
 
     try:
-        if int(list_id) in (0,1,2,3,4,5,6):
+        if int(list_id) in (0,1,2,3,4,5,6,7,8):
             #table = AtlasDiffObjectsTables[list_id]
             table = AtlasDiffObjectsTables[list_id](objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
         else:
@@ -3340,6 +3342,10 @@ def searchResults(request):
             # 2018-08-16 KWS Pick up the Sherlock Crossmatches.
             sxm = SherlockCrossmatches.objects.filter(transient_object_id = row.id).order_by('rank')
             row.sxm = sxm
+
+            # 2021-08-01 KWS Get user comments. We can display these on the quickview page as well.
+            comments = TcsObjectComments.objects.filter(transient_object_id = row.id).order_by('date_inserted')
+            row.comments = comments
 
 
     return render(request, 'atlas/search_results_plotly.html', {'subdata': subdata, 'connection': connection, 'form_searchobject' : form, 'dbname': dbName, 'public': public, 'searchText': searchText, 'nobjects': nobjects, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT})

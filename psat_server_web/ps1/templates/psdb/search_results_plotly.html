@@ -152,7 +152,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
 <div class="col-lg-2 col-md-6 col-sm-12">
     <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12">
-    <a href="{% url "candidate" row.id %}">{% if row.atlas_designation %}{{ row.atlas_designation }}{% else %}{{ row.id }}{% endif %}</a>{% if row.other_designation %} (<a href="https://wis-tns.org/object/{{row.other_designation}}">{{ row.other_designation }}</a>){% endif %} {% if row.xmseparation %}({{ row.xmseparation|floatformat:2 }}&quot;){% endif %}<br />
+    <a href="{% url "candidate" row.id %}">{% if row.ps1_designation %}{{ row.ps1_designation }}{% elif row.local_designation %}{{ row.local_designation }}{% else %}{{ row.id }}{% endif %}</a>{% if row.other_designation %} (<a href="https://wis-tns.org/object/{{row.other_designation}}">{{ row.other_designation }}</a>){% endif %} {% if row.xmseparation %}({{ row.xmseparation|floatformat:2 }}&quot;){% endif %}<br />
     </div>
     </div>
     <div class="row parameter-label">
@@ -176,7 +176,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
     {% else %}
     <div class="row parameter-value">
     <div class="col-lg-12 col-md-12 col-sm-12">
-    <span class="parameter-value">({{ row.ra|floatformat:"5" }} {{ row.dec|floatformat:"5" }})</span>
+    <span class="parameter-value">({{ row.ra_psf|floatformat:"5" }} {{ row.dec_psf|floatformat:"5" }})</span>
     </div>
     </div>
     {% endif %}
@@ -243,7 +243,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
     </div>
     </div>
     {% endif %}
-    {% if row.realbogus_factor or row.zooniverse_score %}
+    {% if row.rb_cat or row.rb_pix %}
     <div class="row parameter-label">
     <div class="col-lg-12 col-md-12 col-sm-12">
     <span class="parameter-label">Realbogus Factors</span>
@@ -252,7 +252,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
 
     <div class="row parameter-value">
     <div class="col-lg-12 col-md-12 col-sm-12">
-    <span class="parameter-value">{{ row.realbogus_factor|floatformat:"2" }} (DEW) {{ row.zooniverse_score|floatformat:"2" }} (TF)</span>
+    <span class="parameter-value">{{ row.rb_cat|floatformat:"2" }} (catalogue) {{ row.rb_pix|floatformat:"2" }} (TF pixel)</span>
     </div>
     </div>
     {% endif %}
@@ -389,17 +389,25 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
       </script>
     </div>
 
-{% if row.images_id %}
+{% if row.tcs_images_id %}
     <div class="col-lg-3 col-md-4 col-sm-12">
-    <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.target }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
+    <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ row.tcs_images_id.whole_mjd }}/{{ row.tcs_images_id.target }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
     </div>
     <div class="col-lg-3 col-md-4 col-sm-12">
-    <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.ref }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
+    <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ row.tcs_images_id.whole_mjd }}/{{ row.tcs_images_id.ref }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
     </div>
     <div class="col-lg-3 col-md-4 col-sm-12">
-    <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ row.images_id.whole_mjd }}/{{ row.images_id.diff }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
+    <img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ row.tcs_images_id.whole_mjd }}/{{ row.tcs_images_id.diff }}.jpeg" alt="triplet" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="150" />
     </div>
 {% endif %}
+
+
+
+
+
+
+
+
   {% if processingStatus != 1 %}
     {% if row.detection_list_id %}
       {% if classifyform and subdata.paginator.count %}

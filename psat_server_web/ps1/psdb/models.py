@@ -957,9 +957,12 @@ class TcsLatestObjectStats(models.Model):
     earliest_mjd = models.FloatField(blank=True, null=True)
     earliest_mag = models.FloatField(blank=True, null=True)
     earliest_filter = models.CharField(max_length=80, blank=True)
+    ra_avg = models.FloatField(blank=True, null=True)
+    dec_avg = models.FloatField(blank=True, null=True)
     catalogue = models.CharField(max_length=60, blank=True)
     catalogue_object_id = models.CharField(max_length=30, blank=True)
     separation = models.FloatField(blank=True, null=True)
+    external_crossmatches = models.CharField(max_length=330, blank=True)
 
     class Meta:
         """Meta.
@@ -967,6 +970,20 @@ class TcsLatestObjectStats(models.Model):
 
         managed = False
         db_table = 'tcs_latest_object_stats'
+
+    @property
+    def ra_sex(self):
+        """ra_sex.
+        """
+        ra_in_sex = ra_to_sex (self.ra_avg)
+        return ra_in_sex
+
+    @property
+    def dec_sex(self):
+        """dec_sex.
+        """
+        dec_in_sex = dec_to_sex (self.dec_avg)
+        return dec_in_sex
 
     @property
     def earliest_mjd_date(self):
