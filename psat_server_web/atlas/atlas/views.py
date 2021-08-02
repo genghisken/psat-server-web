@@ -3646,9 +3646,11 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
 
             # 2018-08-16 KWS Pick up the Sherlock Crossmatches.
             sxm = SherlockCrossmatches.objects.filter(transient_object_id = row.id).order_by('rank')
-            for bile in sxm:
-                sys.stderr.write("\n%s\n" % str(sxm))
-
             row.sxm = sxm
 
+            # 2021-08-01 KWS Get user comments. We can display these on the quickview page as well.
+            comments = TcsObjectComments.objects.filter(transient_object_id = row.id).order_by('date_inserted')
+            row.comments = comments
+
     return render(request, 'atlas/search_results_plotly.html', {'subdata': subdata, 'listHeader': listHeader, 'form_searchobject' : formSearchObject, 'dbname': dbName, 'list_id': list_id, 'processingStatus': processingStatus, 'nobjects': nobjects, 'public': public, 'searchText': searchText, 'urlsuffix': urlsuffix, 'classifyform': True, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT })
+
