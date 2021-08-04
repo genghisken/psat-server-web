@@ -13,10 +13,10 @@ class SloanCrossMatch(models.Model):
     description = models.CharField(max_length=60)
     Objid = models.BigIntegerField() # Field name made lowercase.
     type = models.IntegerField(null=True, blank=True)
-    g_ = models.FloatField(null=True, blank=True)
-    r_ = models.FloatField(null=True, blank=True)
-    i_ = models.FloatField(null=True, blank=True)
-    z_ = models.FloatField(null=True, blank=True)
+    gfilt = models.FloatField(null=True, blank=True)
+    rfilt = models.FloatField(null=True, blank=True)
+    ifilt = models.FloatField(null=True, blank=True)
+    zfilt = models.FloatField(null=True, blank=True)
     separation = models.FloatField(null=True, blank=True)
     z = models.FloatField(null=True, blank=True)
     scale = models.FloatField(null=True, blank=True)
@@ -42,7 +42,7 @@ def getSloanCrossmatchData(transientObjectId):
                   t.description,
                   cat.Objid,
                   cat.type,
-                  cat.g g_, cat.r r_, cat.i i_, cat.z z_,
+                  cat.g gfilt, cat.r rfilt, cat.i ifilt, cat.z zfilt,
                   c.separation,
                   c.z,
                   c.scale,
@@ -91,7 +91,7 @@ class PsdbWebVCatSdssStarsGalaxies(models.Model):
     petromagerr_r = models.FloatField(null=True, db_column='petroMagErr_r', blank=True) # Field name made lowercase.
     petromagerr_i = models.FloatField(null=True, db_column='petroMagErr_i', blank=True) # Field name made lowercase.
     petromagerr_z = models.FloatField(null=True, db_column='petroMagErr_z', blank=True) # Field name made lowercase.
-    z_ = models.FloatField(null=True, blank=True)
+    z_redshift = models.FloatField(null=True, blank=True)
     zerr = models.FloatField(null=True, db_column='zErr', blank=True) # Field name made lowercase.
     dmod = models.FloatField(null=True, blank=True)
     rest_ug = models.FloatField(null=True, blank=True)
