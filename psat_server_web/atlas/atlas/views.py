@@ -1454,13 +1454,13 @@ def lightcurveplainddc(request, tcs_transient_objects_id):
     """
     import sys
     transient = get_object_or_404(AtlasDiffObjects, pk=tcs_transient_objects_id)
-    detections = AtlasDetectionsddc.objects.filter(atlas_object_id = transient.id)
-    t = AtlasDetectionsddcTable(detections)
-    RequestConfig(request, paginate=False).configure(t)
+    detections = AtlasDetectionsddc.objects.filter(atlas_object_id = transient.id).order_by('atlas_metadata_id__mjd')
+    #t = AtlasDetectionsddcTable(detections)
+    #RequestConfig(request, paginate=False).configure(t)
     #for row in t.rows:
     #    #sys.stderr.write('%s\n' % row.det_id)
     #    sys.stderr.write('%s\n' % row.get_cell('det_id'))
-    return render(request, 'atlas/lightcurveddc.txt',{'t' : t, 'rawdata': detections }, content_type="text/plain")
+    return render(request, 'atlas/lightcurveddc.txt',{ 'table': detections }, content_type="text/plain")
 
 def lightcurveforcedplain(request, tcs_transient_objects_id):
     """lightcurveforcedplain.
