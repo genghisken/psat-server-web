@@ -29,6 +29,9 @@ DEBUG = False
 
 TEMPLATE_DEBUG = False
 
+# 2021-08-21 KWS Need to set this to None, otherwise default is 1000.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
 ALLOWED_HOSTS = ['*']
 
 ROOT_URLCONF = 'atlas.urls'
