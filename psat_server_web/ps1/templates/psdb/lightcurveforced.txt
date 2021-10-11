@@ -1,4 +1,4 @@
 #mjd cal_psf_mag psf_inst_mag_sig psf_inst_flux psf_inst_flux_sig filter exptime zero_pt fpa_id ujy dujy
-{% for row in table %}{{ row.mjd_obs }} {{ row.cal_psf_mag }} {{ row.psf_inst_mag_sig }} {{ row.psf_inst_flux }} {{ row.psf_inst_flux_sig }} {{ row.filter }} {{ row.exptime }} {{ row.zero_pt }} {{ row.fpa_id }} {{ row.ujy }} {{ row.dujy }}
+{% for row in table %}{{ row.mjd_obs }} {{ row.cal_psf_mag }} {{ row.psf_inst_mag_sig }} {{ row.psf_inst_flux }} {{ row.psf_inst_flux_sig }} {{ row.filter }} {{ row.exptime }} {{ row.zero_pt }} {{ row.fpa_id }} {{ row.ujy|floatformat:"5" }} {{ row.dujy|floatformat:"5" }}
 {% endfor %}
 
