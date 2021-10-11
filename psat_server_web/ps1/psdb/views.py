@@ -39,7 +39,7 @@ from django import forms
 from django.template import RequestContext
 
 # base 26 numbers for candidate names
-from gkutils.commonutils import base26, transform, J2000toGalactic, COORDS_SEX_REGEX_COMPILED, COORDS_DEC_REGEX_COMPILED, NAME_REGEX_COMPILED, coneSearchHTM
+from gkutils.commonutils import base26, transform, J2000toGalactic, COORDS_SEX_REGEX_COMPILED, COORDS_DEC_REGEX_COMPILED, NAME_REGEX_COMPILED, coneSearchHTM, fluxToMicroJansky
 
 # *** FGSS CODE ***
 from .catalogueviews import *
@@ -965,6 +965,14 @@ def lightcurveforcedplain(request, tcs_transient_objects_id):
     # 2012-07-18 KWS Changed this code to call the custom query from a
     #                dedicated file full of custom queries for lightcurves.
     recurrences = lightcurveForcedPlainQuery(transient.id, mjdLimit = mjdLimit, djangoRawObject = CustomAllObjectOcurrencesPresentation)
+    for row in recurrences:
+        if row.exptime is not None and row.zero_pt is not None and row.psf_inst_flux is not None and row.psf_inst_flux_sig is not None:
+            row.ujy = fluxToMicroJansky(row.psf_inst_flux, row.exptime, row.zero_pt)
+            row.dujy = fluxToMicroJansky(row.psf_inst_flux_sig, row.exptime, row.zero_pt)
+        else:
+            row.ujy = None
+            row.dujy = None
+
     return render(request, 'psdb/lightcurveforced.txt',{'transient' : transient, 'table' : recurrences }, content_type="text/plain")
 
 
