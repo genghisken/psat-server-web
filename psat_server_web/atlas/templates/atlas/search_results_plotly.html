@@ -243,7 +243,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
     </div>
     </div>
     {% endif %}
-    {% if row.realbogus_factor or row.zooniverse_score %}
+    {% if row.realbogus_factor or row.rb_pix %}
     <div class="row parameter-label">
     <div class="col-lg-12 col-md-12 col-sm-12">
     <span class="parameter-label">Realbogus Factors</span>
@@ -252,7 +252,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
 
     <div class="row parameter-value">
     <div class="col-lg-12 col-md-12 col-sm-12">
-    <span class="parameter-value">{{ row.realbogus_factor|floatformat:"2" }} (DEW) {{ row.zooniverse_score|floatformat:"2" }} (TF)</span>
+    <span class="parameter-value">{{ row.realbogus_factor|floatformat:"2" }} (DEW) {{ row.rb_pix|floatformat:"2" }} (TF)</span>
     </div>
     </div>
     {% endif %}

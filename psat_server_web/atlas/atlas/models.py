@@ -204,7 +204,7 @@ class AtlasDiffObjects(models.Model):
     local_comments = models.CharField(max_length=765, blank=True)
     ndetections = models.IntegerField(blank=True, null=True)
     realbogus_factor = models.FloatField(blank=True, null=True)
-    zooniverse_score = models.FloatField(blank=True, null=True)
+    rb_pix = models.FloatField(blank=True, null=True, db_column='zooniverse_score')
 
     class Meta:
         """Meta.

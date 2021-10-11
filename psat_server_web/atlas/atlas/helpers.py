@@ -273,23 +273,23 @@ def filterGetParameters(request, queryFilter, prefix = ''):
         queryFilter[prefix + flagParameter] = flagDate
 
     # 2020-10-13 KWS Added confidence_factor (i.e. RB factor)
-    zooniverseScore = None
-    zooniverseScoreParameter = 'zooniverse_score'
+    rbPix = None
+    rbPixParameter = 'rb_pix'
     for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
-        zooniverseScoreParameter = 'zooniverse_score' + suffix
-        zooniverseScore = request.GET.get(zooniverseScoreParameter)
-        if zooniverseScore is not None:
+        rbPixParameter = 'rb_pix' + suffix
+        rbPix = request.GET.get(rbPixParameter)
+        if rbPix is not None:
             break
 
     try:
-        zooniverseScore = float(zooniverseScore)
+        rbPix = float(rbPix)
     except ValueError as e:
-        zooniverseScore = None
+        rbPix = None
     except TypeError as e:
-        zooniverseScore = None
+        rbPix = None
 
-    if zooniverseScore:
-        queryFilter[prefix + zooniverseScoreParameter] = zooniverseScore
+    if rbPix:
+        queryFilter[prefix + rbPixParameter] = rbPix
 
     otherDesignation = None
     otherDesignationParameter = 'other_designation'

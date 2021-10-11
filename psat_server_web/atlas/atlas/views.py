@@ -395,7 +395,7 @@ class WebViewUserDefinedTable(tables2.Table):
     object_group_id = tables2.Column(visible=False)
     detection_list_id = tables2.Column(accessor='detection_list_id.name', verbose_name="List")
     realbogus_factor = tables2.Column(verbose_name="RB Factor")
-    zooniverse_score = tables2.Column(verbose_name="RB Factor 2")
+    rb_pix = tables2.Column(verbose_name="RB Factor 2")
     date_modified = tables2.Column(visible=False)
     external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
     discovery_target = tables2.Column(visible=False)
@@ -463,8 +463,8 @@ class WebViewUserDefinedTable(tables2.Table):
         """
         return '%.3f' % value
 
-    def render_zooniverse_score(self, value):
-        """render_zooniverse_score.
+    def render_rb_pix(self, value):
+        """render_rb_pix.
 
         Args:
             value:
@@ -1849,7 +1849,7 @@ class FollowupRawTable(tables2.Table):
     followup_flag_date = tables2.Column(verbose_name="Flag Date")
     separation = tables2.Column(visible=False, verbose_name="Separation (arcsec)")
     realbogus_factor = tables2.Column(verbose_name="RB Factor")
-    zooniverse_score = tables2.Column(verbose_name="RB Factor 2")
+    rb_pix = tables2.Column(verbose_name="RB Factor 2")
 #    external_crossmatches = tables2.Column(verbose_name="External Crossmatches", sortable=False)
     external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
     discovery_target = tables2.Column(visible=False)
@@ -2058,7 +2058,7 @@ class WebViewFollowupTransientsTable(tables2.Table):
     followup_flag_date = tables2.Column(verbose_name="Flag Date")
     separation = tables2.Column(visible=False, verbose_name="Separation (arcsec)")
     realbogus_factor = tables2.Column(verbose_name="RB Factor")
-    zooniverse_score = tables2.Column(verbose_name="RB Factor 2")
+    rb_pix = tables2.Column(verbose_name="RB Factor 2")
     date_modified = tables2.Column(visible=False)
     external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
     discovery_target = tables2.Column(visible=False)
@@ -2110,8 +2110,8 @@ class WebViewFollowupTransientsTable(tables2.Table):
         """
         return '%.3f' % value
 
-    def render_zooniverse_score(self, value):
-        """render_zooniverse_score.
+    def render_rb_pix(self, value):
+        """render_rb_pix.
 
         Args:
             value:
@@ -2305,7 +2305,7 @@ class TcsLatestObjectStatsTable(tables2.Table):
     object_classification = tables2.Column(visible=False, accessor="id.object_classification", verbose_name="Machine Classification")
     followup_flag_date = tables2.Column(accessor="id.followup_flag_date", verbose_name="Flag Date")
     realbogus_factor = tables2.Column(accessor="id.realbogus_factor", verbose_name="RB Factor")
-    zooniverse_score = tables2.Column(accessor="id.zooniverse_score", verbose_name="RB Factor 2")
+    rb_pix = tables2.Column(accessor="id.rb_pix", verbose_name="RB Factor 2")
     date_modified = tables2.Column(accessor="id.date_modified", verbose_name="Date Modified")
     target = tables2.Column(accessor="id.images_id.target", default='')
     ref = tables2.Column(accessor="id.images_id.ref", default='')
@@ -2351,8 +2351,8 @@ class TcsLatestObjectStatsTable(tables2.Table):
         """
         return '%.3f' % value
 
-    def render_zooniverse_score(self, value):
-        """render_zooniverse_score.
+    def render_rb_pix(self, value):
+        """render_rb_pix.
 
         Args:
             value:
@@ -2634,7 +2634,7 @@ class AtlasDiffObjectsTable(tables2.Table):
     date_modified = tables2.Column(accessor="date_modified", visible=False)
     mjd_obs = tables2.Column(accessor='images_id__mjd_obs', verbose_name='Recent Triplet MJD', visible = False)
     realbogus_factor = tables2.Column(accessor='realbogus_factor', verbose_name='RB (DEW)')
-    zooniverse_score = tables2.Column(accessor="zooniverse_score", verbose_name='RB (TF)')
+    rb_pix = tables2.Column(accessor="rb_pix", verbose_name='RB (TF)')
     detection_list_id = tables2.Column(accessor="detection_list_id", visible=False)
 
     # Added these methods in place of using @property
@@ -2666,8 +2666,8 @@ class AtlasDiffObjectsTable(tables2.Table):
         """
         return '%.3f' % value
 
-    def render_zooniverse_score(self, value):
-        """render_zooniverse_score.
+    def render_rb_pix(self, value):
+        """render_rb_pix.
 
         Args:
             value:
