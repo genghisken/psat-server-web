@@ -2219,7 +2219,9 @@ def followupList(request, listNumber):
                         gwTaggedObjects = [1]
                     initial_queryset = followupClassList[int(listNumber)].objects.filter(id__in=gwTaggedObjects)
                 else:
-                    initial_queryset = followupClassList[int(listNumber)].objects.all()
+                    queryFilter = filterGetParameters(request, {})
+                    initial_queryset = followupClassList[int(listNumber)].objects.all().filter(**queryFilter)
+                    #initial_queryset = followupClassList[int(listNumber)].objects.all()
 
     else:
         if objectName:
@@ -2235,7 +2237,9 @@ def followupList(request, listNumber):
                 gwTaggedObjects = [1]
             initial_queryset = followupClassList[int(listNumber)].objects.filter(id__in=gwTaggedObjects)
         else:
-            initial_queryset = followupClassList[int(listNumber)].objects.all()
+            queryFilter = filterGetParameters(request, {})
+            initial_queryset = followupClassList[int(listNumber)].objects.all().filter(**queryFilter)
+            #initial_queryset = followupClassList[int(listNumber)].objects.all()
 
     table = WebViewFollowupTransientsTable(initial_queryset, order_by=request.GET.get('sort', '-rank'))
     nobjects = 100
