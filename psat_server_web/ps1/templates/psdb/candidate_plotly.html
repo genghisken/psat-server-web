@@ -455,6 +455,25 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         {% endfor %}        
         {% endif %}
 
+        {% if lasairZTFCrossmatches %}
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <span class="parameter-label">Lasair ZTF Crossmatches: </span>
+        </div>
+
+        {% for row in lasairZTFCrossmatches %}
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <h3><a href="https://lasair-iris.roe.ac.uk/object/{{ row.object }}/">{{ row.object }}</a></h3>
+        </div>
+
+        {% if row.separation %}
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <span class="parameter-value">Offset = {{ row.separation|floatformat:"2" }}"</span>
+        </div>
+        {% endif %}
+
+        {% endfor %}
+        {% endif %}
+
         {% if tnsXMs %}
         <div class="col-lg-12 col-md-12 col-sm-12">
           <span class="parameter-label">TNS Crossmatch: </span>

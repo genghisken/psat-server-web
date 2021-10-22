@@ -371,7 +371,19 @@ def candidateflot(request, tcs_transient_objects_id):
     #                the short term.  May consider doing it longer term.
     from django.db import connection
 
+    # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
+    from lasair import LasairError, lasair_client as lasair
+
     transient = get_object_or_404(TcsTransientObjects, pk=tcs_transient_objects_id)
+
+    token = settings.LASAIR_TOKEN
+    L = lasair(token)
+
+    lasairZTFCrossmatches = None
+    try:
+        lasairZTFCrossmatches = L.cone(transient.ra_psf, transient.dec_psf, 2.0, requestType='all')
+    except LasairError as e:
+        sys.stderr.write('%s\n' % str(e))
 
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
@@ -834,7 +846,7 @@ def candidateflot(request, tcs_transient_objects_id):
     # 2011-04-04 KWS Add the user defined list to the objects passed to the web page.
     # 2013-10-24 KWS Added context_instance=RequestContext(request) to the render_to_response call.
     #                If not included, the specified template won't understand STATIC_URL.
-    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx})
+    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches})
 
 
 
