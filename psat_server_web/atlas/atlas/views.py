@@ -1001,7 +1001,19 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     from django.db import connection
     import sys
 
+    # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
+    from lasair import LasairError, lasair_client as lasair
+
     transient = get_object_or_404(AtlasDiffObjects, pk=atlas_diff_objects_id)
+
+    token = settings.LASAIR_TOKEN
+    L = lasair(token)
+
+    lasairZTFCrossmatches = None
+    try:
+        lasairZTFCrossmatches = L.cone(transient.ra, transient.dec, 2.0, requestType='all')
+    except LasairError as e:
+        sys.stderr.write('%s\n' % str(e))
 
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
@@ -1429,7 +1441,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
 
     recurrenceData = [recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter]
 
-    return render(request, 'atlas/' + template_name,{'transient' : transient, 'table': table, 'images': transient_images, 'form' : form, 'avg_coords': avgCoords, 'lcdata': lcData, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedstackflux': lcDataForcedStackFlux, 'lclimits': lcLimits, 'recurrencedata': recurrenceData, 'conesearchold': xmresults['oldDBXmList'], 'olddburl': xmresults['oldDBURL'], 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'fpData': fpData, 'sc': sc, 'gw': gw, 'comments': existingComments, 'sx': sx})
+    return render(request, 'atlas/' + template_name,{'transient' : transient, 'table': table, 'images': transient_images, 'form' : form, 'avg_coords': avgCoords, 'lcdata': lcData, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedstackflux': lcDataForcedStackFlux, 'lclimits': lcLimits, 'recurrencedata': recurrenceData, 'conesearchold': xmresults['oldDBXmList'], 'olddburl': xmresults['oldDBURL'], 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'fpData': fpData, 'sc': sc, 'gw': gw, 'comments': existingComments, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches})
 
 
 def lightcurveplain(request, tcs_transient_objects_id):
