@@ -50,7 +50,7 @@
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
       {% if not public %}
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-check-double" title="Confirmed Objects"></i><span class="d-none d-xl-inline"> confirmed</span></a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-check-double" title="Confirmed Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> confirmed</span></a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=1 %}">quick view</a>
           <a class="dropdown-item" href="{% url 'followupquickview' listNumber=1 %}">old quick view</a>
@@ -58,7 +58,7 @@
         </div>
       </li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-check" title="Good Objects"></i><span class="d-none d-xl-inline"> good</span></a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-check" title="Good Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> good</span></a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=2 %}">quick view</a>
           <a class="dropdown-item" href="{% url 'followupquickview' listNumber=2 %}">old quick view</a>
@@ -66,7 +66,7 @@
         </div>
       </li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-question" title="Possible Objects"></i><span class="d-none d-xl-inline"> possible</span></a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-question" title="Possible Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> possible</span></a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=3 %}">quick view</a>
           <a class="dropdown-item" href="{% url 'followupquickview' listNumber=3 %}">old quick view</a>
@@ -74,7 +74,7 @@
         </div>
       </li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-warehouse" title="Attic Objects"></i><span class="d-none d-xl-inline"> attic</span></a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-warehouse" title="Attic Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> attic</span></a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=5 %}">quick view</a>
           <a class="dropdown-item" href="{% url 'followupquickview' listNumber=5 %}">old quick view</a>
@@ -82,7 +82,7 @@
         </div>
       </li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-eye" title="New Objects to Eyeball"></i><span class="d-none d-xl-inline"> eyeball</span></a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-eye" title="New Objects to Eyeball"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> eyeball</span></a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=4 %}">quick view</a>
           <a class="dropdown-item" href="{% url 'followupquickview' listNumber=4 %}">old quick view</a>
@@ -90,16 +90,16 @@
         </div>
       </li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-bell" title="New Fast Track Objects"></i><span class="d-none d-xl-inline"> eyeball-fast-track</span></a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-bell" title="New Fast Track Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> eyeball-fast-track</span></a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=8 %}">quick view</a>
           <a class="dropdown-item" href="{% url 'followupquickview' listNumber=8 %}">old quick view</a>
           <a class="dropdown-item" href="{% url 'followup' listNumber=8 %}">table view</a>
         </div>
       </li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'userdefinedlistdefs' %}"><i class="fas fa-list" title="Custom object lists"></i><span class="d-none d-xl-inline"> custom</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'userdefinedlistdefs' %}"><i class="fas fa-list" title="Custom object lists"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> custom</span></a></li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-tachometer-alt" title="Useful Status/Dashboard Links"></i><span class="d-none d-xl-inline"> dashboard</span></a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-tachometer-alt" title="Useful Status/Dashboard Links"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> dashboard</span></a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="http://minidash.fallingstar.com/" target="_blank">MiniDash</a>
           <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/mlo.html" target="_blank">Mauna Loa</a>
@@ -117,14 +117,20 @@
       <form class="form-inline my-2 my-lg-0" id="search_form" action="{% url "searchresults" %}" method="post">{% csrf_token %}
         {{ form_searchobject.searchText.errors }}
         {{ form_searchobject.searchText }}
-        <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Find Object" name="find_object"><i class="fas fa-search"></i><span class="d-none d-xl-inline"> Search</span></button>
+        <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Find Object" name="find_object"><i class="fas fa-search"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> Search</span></button>
       </form>
       {% if form_searchobject.errors %}{{ form_searchobject.errors|pluralize }}{% endif %}
       </li>
       {% endif %}
-      <li class="nav-item"><a class="nav-link" href="https://github.com/genghisken/psat-server-web/issues"><i class="fas fa-bug" title="Raise a Bug Report or Suggest Improvements"></i><span class="d-none d-xl-inline"> bug/feature request<span></a></li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-bug" title="Raise a Bug Report or Suggest Improvements"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> bug/feature request</span></a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="https://github.com/genghisken/psat-server-web/issues" target="_blank">Webserver issues</a>
+          <a class="dropdown-item" href="https://github.com/thespacedoctor/sherlock/issues" target="_blank">Context issues</a>
+        </div>
+      </li>
       <li class="nav-item"><a class="nav-link disabled" href="#">{{request.user.username}}</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt" title="Sign out"></i><span class="d-none d-xl-inline"> logout<span></a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt" title="Sign out"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> logout<span></a></li>
     </ul>
   </div>
 </nav>
