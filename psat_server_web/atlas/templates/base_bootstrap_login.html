@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <link rel="stylesheet" href="{{ STATIC_URL }}css/main_bootstrap.css" type="text/css"/>
 <link rel="stylesheet" href="{{ STATIC_URL }}css/aladin.css" />
+<link rel="stylesheet" href="{{ STATIC_URL }}css/fontawesome.css" />
 
 <title>{% block title %}Main Base Title{% endblock %}</title>
 </head>
@@ -22,7 +23,7 @@
   <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">dashboard</a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-tachometer-alt" title="Useful Status/Dashboard Links"></i><span class="d-none d-xl-inline"> dashboard</span></a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="http://minidash.fallingstar.com/" target="_blank">MiniDash</a>
           <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/mlo.html" target="_blank">Mauna Loa</a>
