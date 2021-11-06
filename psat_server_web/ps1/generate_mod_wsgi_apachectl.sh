@@ -27,6 +27,7 @@
 # export DJANGO_SURVEY_FIELD='3P'
 # 
 # export DJANGO_LASAIR_TOKEN=''
+# export DJANGO_DISPLAY_AGNS=''
 
 
 if [ -f ~/.config/django/django_env_$CONDA_DEFAULT_ENV ]; then chmod 600 ~/.config/django/django_env_$CONDA_DEFAULT_ENV; source ~/.config/django/django_env_$CONDA_DEFAULT_ENV; fi

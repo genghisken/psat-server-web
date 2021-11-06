@@ -846,7 +846,7 @@ def candidateflot(request, tcs_transient_objects_id):
     # 2011-04-04 KWS Add the user defined list to the objects passed to the web page.
     # 2013-10-24 KWS Added context_instance=RequestContext(request) to the render_to_response call.
     #                If not included, the specified template won't understand STATIC_URL.
-    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches})
+    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'displayagns': settings.DISPLAY_AGNS})
 
 
 
@@ -1268,7 +1268,7 @@ def followupListNew(request, listNumber):
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
-    return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject' : form, 'public': public})
+    return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject' : form, 'public': public, 'displayagns': settings.DISPLAY_AGNS})
 
 
 
@@ -1324,7 +1324,7 @@ def followupAllNew(request):
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
-    return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'form_searchobject': form, 'public': public})
+    return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'form_searchobject': form, 'public': public, 'displayagns': settings.DISPLAY_AGNS})
 
 
 
@@ -1808,7 +1808,7 @@ def followupQuickView(request, listNumber):
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
-    return render(request, 'psdb/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'public': public, 'fgss': fgss, 'processingStatus': processingStatus, 'nobjects': nobjects})
+    return render(request, 'psdb/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'public': public, 'fgss': fgss, 'processingStatus': processingStatus, 'nobjects': nobjects, 'displayagns': settings.DISPLAY_AGNS})
 
 
 # 2013-12-12 KWS Added followupQuickViewAll mainly for the public pages.
@@ -1873,7 +1873,7 @@ def followupAllQuickView(request):
     except ValueError as e:
         nobjects = 100
 
-    return render(request, 'psdb/followup_quickview.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects})
+    return render(request, 'psdb/followup_quickview.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects, 'displayagns': settings.DISPLAY_AGNS})
 
 
 @login_required
@@ -1988,7 +1988,7 @@ def userDefinedListsQuickview(request, userDefinedListNumber):
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
-    return render(request, 'psdb/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects})
+    return render(request, 'psdb/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects, 'displayagns': settings.DISPLAY_AGNS})
 
 
 
@@ -2172,7 +2172,7 @@ def userDefinedLists(request, userDefinedListNumber):
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
-    return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject' : form})
+    return render(request, 'psdb/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject' : form, 'displayagns': settings.DISPLAY_AGNS})
 
 
 @login_required
@@ -2228,7 +2228,7 @@ def homepage2(request):
         public = True
         return render(request, 'psdb/index_public.html', {'form_searchobject' : form, 'public': public})
     else:
-        return render(request, 'psdb/index_bs_celestial.html', {'form_searchobject' : form, 'public': public})
+        return render(request, 'psdb/index_bs_celestial.html', {'form_searchobject' : form, 'public': public, 'displayagns': settings.DISPLAY_AGNS})
 
 
 # 2014-01-31 KWS Altered the home page to only show public info for public database.
@@ -2366,7 +2366,7 @@ def userDefinedListDefinitions(request):
     table = UserDefinedListDefinitionsTable(userListDefinitionsQuery, order_by=request.GET.get('sort', 'id'))
     RequestConfig(request, paginate={"per_page": 20}).configure(table)
     formSearchObject = SearchForObjectForm()
-    return render(request, 'psdb/userdefinedlists_bs.html', {'table': table, 'form_searchobject': formSearchObject})
+    return render(request, 'psdb/userdefinedlists_bs.html', {'table': table, 'form_searchobject': formSearchObject, 'displayagns': settings.DISPLAY_AGNS})
 
 
 # 2011-10-11 KWS CfA Crossmatching pages

@@ -101,7 +101,7 @@ USE_TZ = True
 
 LASAIR_TOKEN = os.environ.get('DJANGO_LASAIR_TOKEN')
 
-
+DISPLAY_AGNS = os.environ.get('DJANGO_DISPLAY_AGNS') in ('true', '1', 't', 'True', 'TRUE', 'T')
 
 # 2021-05-06 KWS New settings means that if we edit a static file we MUST rerun the collectstatic
 #                code to deploy the modified file.

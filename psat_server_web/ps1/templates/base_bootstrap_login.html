@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <link rel="stylesheet" href="{{ STATIC_URL }}css/main_bootstrap.css" type="text/css"/>
 <link rel="stylesheet" href="{{ STATIC_URL }}css/aladin.css" />
+<link rel="stylesheet" href="{{ STATIC_URL }}css/fontawesome.css" />
 
 <title>{% block title %}Main Base Title{% endblock %}</title>
 </head>
@@ -22,9 +23,9 @@
   <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">dashboard</a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-tachometer-alt" title="Useful Status/Dashboard Links"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> dashboard</span></a>
         <div class="dropdown-menu">
-          <a class="dropdown-item" href="http://kopiko.ifa.hawaii.edu/cams/ps1.shtml" target="_blank">Pan-STARRS all sky cam</a>
+          <a class="dropdown-item" href="http://ps1puka.ps1.ifa.hawaii.edu/cgi-bin/colorAllSkyCam" target="_blank">Pan-STARRS all sky cam</a>
           <a class="dropdown-item" href="https://ps1wiki.ifa.hawaii.edu/data/metrics/index.html" target="_blank">PS1 Metrics</a>
           <a class="dropdown-item" href="https://ps1wiki.ifa.hawaii.edu/data/ps2metrics/index.html" target="_blank">PS2 Metrics</a>
         </div>
