@@ -1524,6 +1524,7 @@ def atel(request, tcs_transient_objects_id):
         request:
         tcs_transient_objects_id:
     """
+    import sys
     transient = get_object_or_404(AtlasDiffObjects, pk=tcs_transient_objects_id)
 
     # By default, grab the information out of the top sherlock_crossmatch. But allow an offset in case sherlock as zoomed in
@@ -1544,6 +1545,21 @@ def atel(request, tcs_transient_objects_id):
     if len(sxms) > 0 and offset < len(sxms):
         sxm = sxms[offset]
 
+    # 2021-11-19 KWS Grab the PS1 extinction values from the SFD dustmap. NOTE that the dustmap must be
+    #                installed. The first time this code runs, it should download the dustmap.
+    extinction = {}
+    try:
+        from gkutils.commonutils import getSFDPanSTARRSATLASExtinction
+        extinction = getSFDPanSTARRSATLASExtinction(transient.ra, transient.dec, settings.DUSTMAP_LOCATION, download = True)
+        sys.stderr.write("\n%s\n" % str(extinction))
+
+    except ModuleNotFoundError as e:
+        pass
+
+    except ImportError as e:
+        pass
+        
+        
     # Use the avarage RA and Dec unless they are not yet set.
 
     
@@ -1569,7 +1585,7 @@ def atel(request, tcs_transient_objects_id):
 
     #scls = SherlockClassifications.objects.filter(transient_object_id = transient.id)
 
-    return render(request, 'atlas/atelfasttrackobject.txt',{'transient': transient, 'sxm': sxm, 'stats': stats}, content_type="text/plain")
+    return render(request, 'atlas/atelfasttrackobject.txt',{'transient': transient, 'sxm': sxm, 'stats': stats, 'extinction': extinction}, content_type="text/plain")
 
 
 # 2013-02-08 KWS As with lightcurves above, make the colour data available via plain text.

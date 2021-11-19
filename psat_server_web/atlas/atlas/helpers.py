@@ -272,7 +272,7 @@ def filterGetParameters(request, queryFilter, prefix = ''):
     if flagDate:
         queryFilter[prefix + flagParameter] = flagDate
 
-    # 2020-10-13 KWS Added confidence_factor (i.e. RB factor)
+    # 2020-10-13 KWS Added rb_pix (i.e. RB factor)
     rbPix = None
     rbPixParameter = 'rb_pix'
     for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
@@ -290,6 +290,27 @@ def filterGetParameters(request, queryFilter, prefix = ''):
 
     if rbPix:
         queryFilter[prefix + rbPixParameter] = rbPix
+
+
+    # 2021-11-19 KWS Added realbogus_factor
+    realBogus = None
+    realBogusParameter = 'realbogus_factor'
+    for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
+        realBogusParameter = 'realbogus_factor' + suffix
+        realBogus = request.GET.get(realBogusParameter)
+        if realBogus is not None:
+            break
+
+    try:
+        realBogus = float(realBogus)
+    except ValueError as e:
+        realBogus = None
+    except TypeError as e:
+        realBogus = None
+
+    if realBogus:
+        queryFilter[prefix + realBogusParameter] = realBogus
+
 
     otherDesignation = None
     otherDesignationParameter = 'other_designation'

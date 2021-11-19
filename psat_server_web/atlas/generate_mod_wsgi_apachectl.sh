@@ -25,6 +25,7 @@
 # export WSGI_PREFIX=''
 #
 # export DJANGO_LASAIR_TOKEN=''
+# export DJANGO_DUSTMAP_LOCATION=''
 
 
 if [ -f ~/.config/django/django_env_$CONDA_DEFAULT_ENV ]; then chmod 600 ~/.config/django/django_env_$CONDA_DEFAULT_ENV; source ~/.config/django/django_env_$CONDA_DEFAULT_ENV; fi

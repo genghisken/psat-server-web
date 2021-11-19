@@ -92,6 +92,7 @@ USE_TZ = True
 
 LASAIR_TOKEN = os.environ.get('DJANGO_LASAIR_TOKEN')
 
+DUSTMAP_LOCATION = os.environ.get('DJANGO_DUSTMAP_LOCATION')
 
 
 # 2021-05-06 KWS New settings means that if we edit a static file we MUST rerun the collectstatic
