@@ -709,7 +709,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
           <script type="text/javascript" src="{{ STATIC_URL }}js/aladin.js" charset="utf-8"></script>
           <script type="text/javascript">
               var imagesurvey = {% if avg_coords.dec > -30.0 %}"P/PanSTARRS/DR1/color-i-r-g"{% else %}"P/DSS2/color"{% endif %};
-              var aladin = A.aladin('#aladin-lite-div', {survey: imagesurvey, fov:0.02, target: "{{ avg_coords.ra_sex }} {{ avg_coords.dec_sex }}"});
+              var aladin = A.aladin('#aladin-lite-div', {survey: imagesurvey, fov:0.1033, target: "{{ avg_coords.ra_sex }} {{ avg_coords.dec_sex }}"});
               var contextcat = A.catalog({name: 'Catalogue Sources', sourceSize: 10, color: "blue"});
           
               // 2018-08-10 KWS Added PS1 DR1 and Gaia DR2 catalogs

@@ -12,7 +12,7 @@ setup(
     description='Pan-STARRS and ATLAS web interface.',
     long_description=readme(),
     long_description_content_type="text/markdown",
-    version="0.0.28",
+    version="0.0.29",
     author='genghisken',
     author_email='ken.w.smith@gmail.com',
     license='MIT',

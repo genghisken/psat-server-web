@@ -385,7 +385,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
       <script type="text/javascript" src="{{ STATIC_URL }}js/aladin.js" charset="utf-8"></script>
       <script type="text/javascript">
           var imagesurvey = {% if row.dec_avg > -30.0 or row.dec > -30.0 %}"P/PanSTARRS/DR1/color-i-r-g"{% else %}"P/DSS2/color"{% endif %};
-          var aladin = A.aladin('#aladin-lite-div{{row.id}}', {survey: imagesurvey, fov:0.02, target: "{{ row.ra_sex }} {{ row.dec_sex }}", showFrame: false, showLayersControl: false, showGotoControl: false, showZoomControl: false});
+          var aladin = A.aladin('#aladin-lite-div{{row.id}}', {survey: imagesurvey, fov:0.1033, target: "{{ row.ra_sex }} {{ row.dec_sex }}", showFrame: false, showLayersControl: false, showGotoControl: false, showZoomControl: false});
       </script>
     </div>
 
