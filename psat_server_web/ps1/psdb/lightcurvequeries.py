@@ -378,7 +378,7 @@ def getRecurrenceDataForPlotting(candidate, primRA, primDEC, secRA = None, secDE
     recurrenceData = []
 
     for row in recurrences:
-        recurrenceData.append([(primRA - row.RA) * math.cos(math.radians(row.DEC)) * -3600.0, (primDEC - row.DEC) * 3600.0])
+        recurrenceData.append([(primRA - row.RA) * math.cos(math.radians(row.DEC)) * 3600.0, (primDEC - row.DEC) * -3600.0])
 
     # The recurrence plot data will contain:
     # * The recurrences (deltas)
@@ -390,7 +390,7 @@ def getRecurrenceDataForPlotting(candidate, primRA, primDEC, secRA = None, secDE
     if secRA and secDEC:
         # This is a neighbouring detection
         # 2013-08-26 KWS Flipped east-west by multiplying x by -1.
-        primaryDetection = [[(primRA - secRA) * math.cos(math.radians(primDEC)) * -3600.0, (primDEC - secDEC) * 3600.0]]
+        primaryDetection = [[(primRA - secRA) * math.cos(math.radians(primDEC)) * 3600.0, (primDEC - secDEC) * -3600.0]]
         # Add an anchor tag so that we can click on the legend to go to the new object.
         # This should really be done inside the javascript itself, but it's hard to know
         # which label to add a tag to, hence it's done here.
@@ -406,7 +406,7 @@ def getRecurrenceDataForPlotting(candidate, primRA, primDEC, secRA = None, secDE
 
     recurrencePlotData = [json.dumps(recurrenceData),
                           json.dumps(primaryDetection),
-                          json.dumps([[(primRA - averageObjectCoords["RA"]) * math.cos(math.radians(primDEC)) * -3600.0, (primDEC - averageObjectCoords["DEC"]) * 3600.0]])]
+                          json.dumps([[(primRA - averageObjectCoords["RA"]) * math.cos(math.radians(primDEC)) * 3600.0, (primDEC - averageObjectCoords["DEC"]) * -3600.0]])]
 
 
     recurrencePlotLabels = [json.dumps({'label': 'Recurrences', 'color': objectColour, 'display': False}),
