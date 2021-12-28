@@ -34,7 +34,7 @@ COUNTS_LIMIT = 200
 # created in dbviews. The model is passed in as a parameter if required.
 
 LC_PLAIN_TEXT_QUERY = '''\
-          select o.id, o.id transient_object_id, m.imageid, m.mjd_obs, o.ra_psf, o.dec_psf, o.psf_inst_mag, o.psf_inst_mag_sig, o.ap_mag, o.cal_psf_mag, o.psf_inst_flux, o.psf_inst_flux_sig, substr(m.fpa_filter,1,1) filter, o.flags, m.filename cmf_file, i.name
+          select o.id, o.id transient_object_id, m.imageid, m.mjd_obs, o.ra_psf, o.dec_psf, o.psf_inst_mag, o.psf_inst_mag_sig, o.ap_mag, o.cal_psf_mag, o.psf_inst_flux, o.psf_inst_flux_sig, substr(m.fpa_filter,1,1) filter, o.flags, m.filename cmf_file, i.name, m.fpa_detector
             from tcs_transient_objects o
       inner join tcs_cmf_metadata m
               on (o.tcs_cmf_metadata_id = m.id)
@@ -43,7 +43,7 @@ LC_PLAIN_TEXT_QUERY = '''\
            where o.id = %s
              and m.mjd_obs > %s
            union all
-          select r.id, r.transient_object_id, m.imageid, m.mjd_obs, r.ra_psf, r.dec_psf, r.psf_inst_mag, r.psf_inst_mag_sig, r.ap_mag, r.cal_psf_mag, r.psf_inst_flux, r.psf_inst_flux_sig, substr(m.fpa_filter,1,1) filter, r.flags, m.filename cmf_file, i.name
+          select r.id, r.transient_object_id, m.imageid, m.mjd_obs, r.ra_psf, r.dec_psf, r.psf_inst_mag, r.psf_inst_mag_sig, r.ap_mag, r.cal_psf_mag, r.psf_inst_flux, r.psf_inst_flux_sig, substr(m.fpa_filter,1,1) filter, r.flags, m.filename cmf_file, i.name, m.fpa_detector
             from tcs_transient_reobservations r
       inner join tcs_cmf_metadata m
               on (r.tcs_cmf_metadata_id = m.id)
@@ -195,8 +195,10 @@ LC_NON_DET_QUERY = """\
 #                This allows us to request stamps based on new detections whilst not
 #                overwriting the existing ones.
 # 2015-05-31 KWS Added filename, ppsub_input, ppsub_reference to selection.
+# 2021-12-28 KWS Pull out fpa_detector so we can identify which camera we need to make
+#                requests for (GPC1 or GPC2).
 LC_DET_QUERY = """\
-         select mjd_obs mjd, substr(fpa_filter,1,1) filter, imageid, cast(truncate(mjd_obs,3) as char) tdate, ipp_idet, ra_psf, dec_psf, o.id, filename, ppsub_input, ppsub_reference, m.skycell sc,
+         select mjd_obs mjd, substr(fpa_filter,1,1) filter, imageid, cast(truncate(mjd_obs,3) as char) tdate, ipp_idet, ra_psf, dec_psf, o.id, filename, ppsub_input, ppsub_reference, m.skycell sc, m.fpa_detector,
                 case
                     when instr(m.filename,'MD') then substr(m.filename, instr(m.filename,'MD'),4)
                     when instr(m.filename,'RINGS') then substr(m.filename, instr(m.filename,'RINGS'),8)
@@ -214,7 +216,7 @@ LC_DET_QUERY = """\
             and o.cal_psf_mag is not null
             and (fpa_filter like concat(%s,'%%') or fpa_filter like concat(%s,'%%') or fpa_filter like concat(%s,'%%') or fpa_filter like concat(%s,'%%') or fpa_filter like concat(%s,'%%') or fpa_filter like concat(%s,'%%') or fpa_filter like concat(%s,'%%') or fpa_filter like concat(%s,'%%') or fpa_filter like concat(%s,'%%'))
          union all
-         select mjd_obs mjd, substr(fpa_filter,1,1) filter, imageid, cast(truncate(mjd_obs,3) as char) tdate, ipp_idet, ra_psf, dec_psf, transient_object_id id, filename, ppsub_input, ppsub_reference, m.skycell sc,
+         select mjd_obs mjd, substr(fpa_filter,1,1) filter, imageid, cast(truncate(mjd_obs,3) as char) tdate, ipp_idet, ra_psf, dec_psf, transient_object_id id, filename, ppsub_input, ppsub_reference, m.skycell sc, m.fpa_detector,
                 case
                     when instr(m.filename,'MD') then substr(m.filename, instr(m.filename,'MD'),4)
                     when instr(m.filename,'RINGS') then substr(m.filename, instr(m.filename,'RINGS'),8)
@@ -237,8 +239,10 @@ LC_DET_QUERY = """\
 
 # 2013-09-16 KWS Non-detections AND Blanks so that we can request postage stamps for blank areas...
 # 2015-05-31 KWS Added filename, ppsub_input, ppsub_reference to selection.
+# 2021-12-28 KWS Pull out fpa_detector so we can identify which camera we need to make
+#                requests for (GPC1 or GPC2).
 LC_NON_DET_AND_BLANKS_QUERY = """\
-         select distinct mjd_obs mjd, substr(mm.fpa_filter,1,1) filter, imageid, cast(truncate(mm.mjd_obs,3) as char) tdate, field, det.skycell, filename, ppsub_input, ppsub_reference, mm.skycell sc, mm.zero_pt, mm.exptime, mm.deteff_counts, mm.deteff_magref, mm.deteff_calculated_offset
+         select distinct mjd_obs mjd, substr(mm.fpa_filter,1,1) filter, imageid, cast(truncate(mm.mjd_obs,3) as char) tdate, field, det.skycell, filename, ppsub_input, ppsub_reference, mm.skycell sc, mm.zero_pt, mm.exptime, mm.deteff_counts, mm.deteff_magref, mm.deteff_calculated_offset, mm.fpa_detector
            from tcs_cmf_metadata mm,
            (
              select distinct field, skycell
@@ -325,8 +329,9 @@ FOLLOWUP_PHOTOMETRY_QUERY = """\
       """
 
 # Get forced photometry only if the flux s/n ratio > 3 and limit to a minimum MJD.
+# 2021-12-18 KWS Added pscamera (GPC1 or GPC2) to the forced photometry raw query.
 FORCED_PHOTOMETRY_QUERY = """\
-          select id, transient_object_id, mjd_obs, ra_psf, dec_psf, skycell, exptime, psf_inst_mag, psf_inst_mag_sig, cal_psf_mag, psf_inst_flux, psf_inst_flux_sig, filter, zero_pt, fpa_id
+          select id, transient_object_id, mjd_obs, ra_psf, dec_psf, skycell, exptime, psf_inst_mag, psf_inst_mag_sig, cal_psf_mag, psf_inst_flux, psf_inst_flux_sig, filter, zero_pt, fpa_id, pscamera
             from tcs_forced_photometry
            where transient_object_id = %s
              and mjd_obs > %s

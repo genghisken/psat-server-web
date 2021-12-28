@@ -1,4 +1,4 @@
-#mjd cal_psf_mag psf_inst_mag_sig psf_inst_flux psf_inst_flux_sig filter
-{% for row in table %}{{ row.mjd_obs }} {{ row.cal_psf_mag }} {{ row.psf_inst_mag_sig }} {{ row.psf_inst_flux }} {{ row.psf_inst_flux_sig }} {{ row.filter }}
+#mjd cal_psf_mag psf_inst_mag_sig psf_inst_flux psf_inst_flux_sig filter pscamera
+{% for row in table %}{{ row.mjd_obs }} {{ row.cal_psf_mag }} {{ row.psf_inst_mag_sig }} {{ row.psf_inst_flux }} {{ row.psf_inst_flux_sig }} {{ row.filter }} {{ row.fpa_detector }}
 {% endfor %}
 

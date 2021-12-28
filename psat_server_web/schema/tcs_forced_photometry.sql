@@ -3,6 +3,7 @@
 --                this one, which is 39 columns from CMF table + survey field, skycell,
 --                filter, mjd_obs, exptime.
 -- 2015-10-13 KWS Forgot to add zero_pt.
+-- 2021-12-28 KWS Added pscamera to the list of columns.
 drop table if exists `tcs_forced_photometry`;
 
 create table `tcs_forced_photometry` (
@@ -56,6 +57,7 @@ create table `tcs_forced_photometry` (
 `n_frames` smallint unsigned,
 `padding` smallint,
 `zero_pt_skycell_corrected` float,
+`pscamera` varchar(10),
 PRIMARY KEY `key_id` (`id`),
 UNIQUE KEY `idx_transient_object_id_fpa_id` (`transient_object_id`,`fpa_id`),
 KEY `idx_ra_psf_dec_psf` (`ra_psf`,`dec_psf`),
