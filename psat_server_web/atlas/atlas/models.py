@@ -7,7 +7,7 @@
 #
 # Also note: You'll have to insert the output of 'django-admin.py sqlcustom [app_label]'
 # into your database.
-
+import sys
 
 from django.db import models
 
@@ -167,7 +167,10 @@ class TcsImages(models.Model):
     def whole_mjd(self):
         """whole_mjd.
         """
-        m = int(self.mjd_obs)
+        # 2022-01-01 KWS Use the exposure name buried in the 3rd field and take the MJD which is
+        #                always characters 3 to 7. DO NOT use MJD - since in S. Africa, the int MJD
+        #                at the start of the night is always the previous day.
+        m = int(self.diff.split('_')[2][3:8])
         return m
 
 
@@ -761,9 +764,14 @@ class TcsPostageStampImages(models.Model):
     def whole_mjd(self):
         """whole_mjd.
         """
-        # The second field is always the target MJD
-        fields = self.image_filename.split('_')
-        m = int(float(fields[1]))
+        # 2022-01-01 KWS Use the exposure name buried in the 3rd field and take the MJD which is
+        #                always characters 3 to 7. DO NOT use MJD - since in S. Africa, the int MJD
+        #                at the start of the night is always the previous day.
+        if self.image_type == 'reffinder':
+            m = int(self.mjd_obs)
+        else:
+            fields = self.image_filename.split('_')
+            m = int(fields[2][3:8])
         return m
 
 class TcsPostageStampRequests(models.Model):
