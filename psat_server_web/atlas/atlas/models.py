@@ -750,8 +750,8 @@ class TcsPostageStampImages(models.Model):
     def filename(self):
         """filename.
         """
-        mjdstring = int(float(self.image_filename.split('_')[1]))
-        f = str(mjdstring) + '/' + self.image_filename
+        mjdstring = self.image_filename.split('_')[2][3:8]
+        f = mjdstring + '/' + self.image_filename
         return f
 
     @property
