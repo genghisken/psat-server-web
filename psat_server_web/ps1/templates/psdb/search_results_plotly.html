@@ -453,6 +453,12 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
     {% endif %}
   {% endif %}
 
+  {% if row.sc.0.annotation %}
+  <div class="col-lg-12 col-md-12 col-sm-12">
+    <span class="parameter-value">{{ row.sc.0.annotation|default_if_none:""|safe }}</span>
+  </div>
+  {% endif %}
+
   {% if row.comments %}
   <div class="col-lg-12 col-md-12 col-sm-12">
     <span class="parameter-label">Comments:</span>

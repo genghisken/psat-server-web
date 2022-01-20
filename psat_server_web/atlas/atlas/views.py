@@ -3379,6 +3379,9 @@ def searchResults(request):
             comments = TcsObjectComments.objects.filter(transient_object_id = row.id).order_by('date_inserted')
             row.comments = comments
 
+            sc = SherlockClassifications.objects.filter(transient_object_id_id = row.id)
+            row.sc = sc
+
 
     return render(request, 'atlas/search_results_plotly.html', {'subdata': subdata, 'connection': connection, 'form_searchobject' : form, 'dbname': dbName, 'public': public, 'searchText': searchText, 'nobjects': nobjects, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT})
 
@@ -3683,6 +3686,9 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
             # 2021-08-01 KWS Get user comments. We can display these on the quickview page as well.
             comments = TcsObjectComments.objects.filter(transient_object_id = row.id).order_by('date_inserted')
             row.comments = comments
+
+            sc = SherlockClassifications.objects.filter(transient_object_id_id = row.id)
+            row.sc = sc
 
     return render(request, 'atlas/search_results_plotly.html', {'subdata': subdata, 'listHeader': listHeader, 'form_searchobject' : formSearchObject, 'dbname': dbName, 'list_id': list_id, 'processingStatus': processingStatus, 'nobjects': nobjects, 'public': public, 'searchText': searchText, 'urlsuffix': urlsuffix, 'classifyform': True, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT })
 
