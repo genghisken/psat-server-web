@@ -292,6 +292,44 @@ def filterGetParameters(request, queryFilter, prefix = ''):
         queryFilter[prefix + rbPixParameter] = rbPix
 
 
+    # 2022-01-28 KWS Added ra and dec
+    ra = None
+    raParameter = 'ra'
+    for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
+        raParameter = 'ra' + suffix
+        ra = request.GET.get(raParameter)
+        if ra is not None:
+            break
+
+    try:
+        ra = float(ra)
+    except ValueError as e:
+        ra = None
+    except TypeError as e:
+        ra = None
+
+    if ra:
+        queryFilter[prefix + raParameter] = ra
+
+    dec = None
+    decParameter = 'dec'
+    for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
+        decParameter = 'dec' + suffix
+        dec = request.GET.get(decParameter)
+        if dec is not None:
+            break
+
+    try:
+        dec = float(dec)
+    except ValueError as e:
+        dec = None
+    except TypeError as e:
+        dec = None
+
+    if dec:
+        queryFilter[prefix + decParameter] = dec
+
+
     # 2021-11-19 KWS Added realbogus_factor
     realBogus = None
     realBogusParameter = 'realbogus_factor'
