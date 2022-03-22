@@ -172,7 +172,7 @@ class TcsDetectionListsForm(forms.Form):
 
     name = forms.CharField()
 
-GARBAGE, CONFIRMED, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, EDGE, FASTEYE = list(range(9))
+GARBAGE, CONFIRMED, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, EDGE, FASTEYE, MOVERS, SMCLMC = list(range(11))
 
 OBJECT_LISTS = {
     'Garbage': GARBAGE,
@@ -184,6 +184,8 @@ OBJECT_LISTS = {
     'Star': STAR,
     'Edge': EDGE,
     'FastEye': FASTEYE,
+    'Movers': MOVERS,
+    'SMCLMC': SMCLMC,
     'DoNothing': -1
 }
 
@@ -917,7 +919,7 @@ def candidate(request, atlas_diff_objects_id):
         form.fields['user_list_membership'].choices = listMembership
 
         # 2011-10-04 KWS Added GARBAGE choices
-        if listId == EYEBALL or listId == FASTEYE:
+        if listId == EYEBALL or listId == FASTEYE or listId == SMCLMC:
             form.fields['promote_demote'].choices = EYEBALL_PROMOTION_CHOICES
         elif listId == CONFIRMED:
             form.fields['promote_demote'].choices = CONFIRMED_POST_PROMOTION_CHOICES
@@ -1252,7 +1254,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                 # Do an update if the form is valid, regardless of setting of detection list. If the
                 # form is valid, it means we've made a choice - if only to add some comments.
                 try:
-                   if (originalListId == EYEBALL or originalListId == POSSIBLE or originalListId == ATTIC or originalListId == STAR or originalListId == FASTEYE) and (listId == GOOD or listId == CONFIRMED):
+                   if (originalListId == EYEBALL or originalListId == POSSIBLE or originalListId == ATTIC or originalListId == STAR or originalListId == FASTEYE or originalListId == SMCLMC) and (listId == GOOD or listId == CONFIRMED):
                        # Is there an object already in the good or confirmed lists within 2.0 arcsec?
                        message, goodObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup2', queryType = FULL, conn = connection, django = True)
                        message, confirmedObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup1', queryType = FULL, conn = connection, django = True)
@@ -1366,7 +1368,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
         form.fields['user_list_membership'].choices = listMembership
 
         # 2011-10-04 KWS Added GARBAGE choices
-        if listId == EYEBALL or listId == FASTEYE:
+        if listId == EYEBALL or listId == FASTEYE or listId == SMCLMC:
             form.fields['promote_demote'].choices = EYEBALL_PROMOTION_CHOICES
         elif listId == CONFIRMED:
             form.fields['promote_demote'].choices = CONFIRMED_POST_PROMOTION_CHOICES
@@ -2834,6 +2836,8 @@ AtlasDiffObjectsTables = [AtlasDiffObjectsTableGarbageOptions,
                           AtlasDiffObjectsTableAtticOptions,
                           AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableEyeballOptions,
+                          AtlasDiffObjectsTableEyeballOptions,
+                          AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableEyeballOptions]
 
 PROMOTE_DEMOTE = {'C': 1, 'G': 2, 'P': 3, 'E': 4, 'A': 5, 'T': 0}
@@ -3050,7 +3054,7 @@ def followupQuickView(request, listNumber):
         nobjects = 100
 
     try:
-        if int(list_id) in (0,1,2,3,4,5,6,7,8):
+        if int(list_id) in (0,1,2,3,4,5,6,7,8,9,10):
             #table = AtlasDiffObjectsTables[list_id]
             table = AtlasDiffObjectsTables[list_id](objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
         else:

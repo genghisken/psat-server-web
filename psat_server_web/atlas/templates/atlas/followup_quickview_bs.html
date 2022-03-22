@@ -20,7 +20,7 @@
 <h4>({{table.rows|length}})</h4>
 
 {% if listHeader %}
-  {% if list_id >= 0 and list_id < 9 and table.rows|length > 0 %}
+  {% if list_id >= 0 and list_id < 10 and table.rows|length > 0 %}
 <form id="classify_form" action="" method="post">{% csrf_token %}
   {% endif %}
 {% endif %}
@@ -32,7 +32,7 @@
       {% endif %}
 
 {% if listHeader %}
-  {% if list_id >= 0 and list_id < 9 and table.rows|length > 0 %}
+  {% if list_id >= 0 and list_id <= 10 and table.rows|length > 0 %}
 <input type="submit" value="Classify Objects" name="classify" /></p>
   {% endif %}
 </form>
