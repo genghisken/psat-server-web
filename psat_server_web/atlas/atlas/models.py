@@ -11,7 +11,7 @@ import sys
 
 from django.db import models
 
-from gkutils.commonutils import FLAGS, PROCESSING_FLAGS, getFlagDefs, ra_to_sex, dec_to_sex, getDateFractionMJD
+from gkutils.commonutils import FLAGS, PROCESSING_FLAGS, getFlagDefs, ra_to_sex, dec_to_sex, getDateFractionMJD, getMJDFromSqlDate
 
 
 class TcsDetectionLists(models.Model):
@@ -1017,6 +1017,14 @@ class TcsObjectComments(models.Model):
     date_inserted = models.DateTimeField(db_column='date_inserted', blank=False, null=False)
     comment = models.CharField(max_length=768, db_column='comment', blank=True, null=True)
     username = models.CharField(max_length=90, db_column='username', blank=True, null=True)
+
+    @property
+    def date_inserted_mjd(self):
+        """date_inserted_mjd.
+        """
+        date_inserted_mjd = getMJDFromSqlDate(self.date_inserted.strftime("%Y-%m-%d %H:%M:%S"))
+        return date_inserted_mjd
+
 
     class Meta:
         """Meta.

@@ -576,7 +576,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         </div>
         {% for comment in comments %}
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <span class="parameter-value">{{ comment.date_inserted|date:"Y-m-d H:i:s" }}{% if comment.username %} ({{ comment.username }}){% endif %}: {{ comment.comment }}</span>
+          <span class="parameter-value">{{ comment.date_inserted|date:"Y-m-d H:i:s" }}[{{ comment.date_inserted_mjd|floatformat:"5" }}]{% if comment.username %} ({{ comment.username }}){% endif %}: {{ comment.comment }}</span>
         </div>
         {% endfor %}
         {% endif %}
