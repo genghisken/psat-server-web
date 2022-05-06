@@ -1068,3 +1068,21 @@ class AtlasStackedForcedPhotometry(models.Model):
 
         managed = False
         db_table = 'atlas_stacked_forced_photometry'
+
+# 2022-05-06 KWS Added AtlasDiffSubcells for heatmap plots.
+
+class AtlasDiffSubcells(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    obs = models.CharField(max_length=60, blank=True, null=True)
+    region = models.PositiveSmallIntegerField()
+    ndet = models.PositiveIntegerField()
+
+    class Meta:
+        """Meta.
+        """
+
+        managed = False
+        db_table = 'atlas_diff_subcells'
+        unique_together = (('obs', 'region'),)
+
+

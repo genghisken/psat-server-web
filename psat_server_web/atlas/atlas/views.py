@@ -83,6 +83,10 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # 2016-02-26 KWS Required for authentication
 from django.contrib.auth.decorators import login_required
 
+# 2022-05-06 KWS New model - AtlasDiffSubcells
+from atlas.models import AtlasDiffSubcells
+from django.http import Http404
+
 class LoginForm(forms.Form):
     """LoginForm.
     """
@@ -606,7 +610,8 @@ class AtlasDetectionsddcTable(tables2.Table):
     """
 
     mjd = tables2.Column(accessor='atlas_metadata_id.mjd')
-    obs = tables2.Column(accessor='atlas_metadata_id.obs')
+    #obs = tables2.Column(accessor='atlas_metadata_id.obs')
+    obs = tables2.LinkColumn('heatmap', accessor='atlas_metadata_id.obs', args=[A('atlas_metadata_id.obs')])
     mag5sig = tables2.Column(accessor='atlas_metadata_id.mag5sig')
     magzp = tables2.Column(accessor='atlas_metadata_id.magzp')
     texp = tables2.Column(accessor='atlas_metadata_id.texp')
@@ -1732,6 +1737,31 @@ def iobserve(request, userDefinedListNumber):
     table = WebViewUserDefinedTable(initial_queryset, order_by=request.GET.get('sort', 'RA'))
 
     return render(request, 'atlas/iobserve.txt',{'table': table, 'rows' : table.rows}, content_type="text/plain")
+
+@login_required
+def heatmap(request, expname, template_name):
+    """Generate a heat map for detections within an exposure"""
+
+    import numpy as n
+    import json
+
+    matrix = n.zeros((8,8), dtype=n.int)
+
+    data = AtlasDiffSubcells.objects.filter(obs=expname).order_by('region')
+    if len(data) == 0:
+        raise Http404("%s exposure not exist" % expname)
+
+    for cell in data:
+        x = cell.region % 8
+        y = int (cell.region / 8)
+        matrix[y][x] = cell.ndet
+
+    # Now we have a correctly sized list of lists even when some cell data is missing.
+    # Also convert into JSON so it can be directly used in javascript.
+    heatmap = json.dumps(matrix.tolist())
+
+
+    return render(request, 'atlas/' + template_name, {'obs': expname, 'heatmap' : heatmap})
 
 @login_required
 # 2018-10-18 KWS Code to generate a JSON table of all the good & confirmed SNe - required by celestial.js

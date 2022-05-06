@@ -1,0 +1,40 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title %}Exposure Detections Heatmap{% endblock %}
+
+<!-- Heatmap data Globals -->
+{% block heatmapdataglobal %}
+<script language="javascript" type="text/javascript">
+var jsheatmapdataglobal = new Object();
+var jsheatmaplabelsglobal = new Object();
+var jsheatmaplimitsglobal = new Object();
+
+var heatmapdata = {{ heatmap }};
+
+jsheatmapdataglobal["#heatmap{{ obs }}"] = heatmapdata;
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row">
+
+    <div class="col-lg-12 col-md-12 col-sm-12">
+      <h3>Exposure Detections Heatmap</h3>
+
+      <h4>{{ obs }}</h4>
+
+      <div id="heatmap{{ obs }}"></div>
+      <script src="{{ STATIC_URL }}js/plotly/plotly-latest.kws.js"></script>
+      <script language="javascript" type="text/javascript">var heatmapdivname = "#heatmap{{ obs }}", heatmapplotheight = 400,heatmapplotmaxwidth=600;</script>
+      <script src="{{ STATIC_URL }}js/heatmap.js"></script>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -71,6 +71,9 @@ urlpatterns = [
 # 2016-08-27 KWS Search Results URL
     url(r'^searchresults/$', views.searchResults, name='searchresults'),
     url(r'^snejson/$', views.jsonSNe, name='snejson'),
+
+# 2022-05-06 KWS Exposure heat maps
+    url(r'^heatmap/(?P<expname>.*)/$', views.heatmap, {'template_name':'heatmap.html'}, name='heatmap'),
 ]
 
 
