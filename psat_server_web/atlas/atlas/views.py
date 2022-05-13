@@ -611,7 +611,10 @@ class AtlasDetectionsddcTable(tables2.Table):
 
     mjd = tables2.Column(accessor='atlas_metadata_id.mjd')
     #obs = tables2.Column(accessor='atlas_metadata_id.obs')
-    obs = tables2.LinkColumn('heatmap', accessor='atlas_metadata_id.obs', args=[A('atlas_metadata_id.obs')])
+    #obs = tables2.LinkColumn('heatmap', accessor='atlas_metadata_id.obs', args=[A('atlas_metadata_id.obs')])
+
+    obs = tables2.TemplateColumn('''<a href="{% url 'heatmap' record.atlas_metadata_id.obs %}?x={{ record.x }}&y={{ record.y }}">{{ record.atlas_metadata_id.obs }}</a>''')
+
     mag5sig = tables2.Column(accessor='atlas_metadata_id.mag5sig')
     magzp = tables2.Column(accessor='atlas_metadata_id.magzp')
     texp = tables2.Column(accessor='atlas_metadata_id.texp')
@@ -1745,6 +1748,22 @@ def heatmap(request, expname, template_name):
     import numpy as n
     import json
 
+    xpos = request.GET.get('x')
+    try:
+        xpos = float(xpos)
+    except ValueError as e:
+        xpos = None
+    except TypeError as e:
+        xpos = None
+
+    ypos = request.GET.get('y')
+    try:
+        ypos = float(ypos)
+    except ValueError as e:
+        ypos = None
+    except TypeError as e:
+        ypos = None
+
     matrix = n.zeros((8,8), dtype=n.int)
 
     data = AtlasDiffSubcells.objects.filter(obs=expname).order_by('region')
@@ -1761,7 +1780,7 @@ def heatmap(request, expname, template_name):
     heatmap = json.dumps(matrix.tolist())
 
 
-    return render(request, 'atlas/' + template_name, {'obs': expname, 'heatmap' : heatmap})
+    return render(request, 'atlas/' + template_name, {'obs': expname, 'heatmap' : heatmap, 'x': xpos, 'y': ypos})
 
 @login_required
 # 2018-10-18 KWS Code to generate a JSON table of all the good & confirmed SNe - required by celestial.js

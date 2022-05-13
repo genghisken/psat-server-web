@@ -10,6 +10,8 @@ var jsheatmaplabelsglobal = new Object();
 var jsheatmaplimitsglobal = new Object();
 
 var heatmapdata = {{ heatmap }};
+var x = {% if x %}[{{ x }}].map(function(a) { return a / 10559.0 * 8.0 - 0.5; }){% else %}null{% endif %};
+var y = {% if y %}[{{ y }}].map(function(a) { return a / 10559.0 * 8.0 - 0.5; }){% else %}null{% endif %};
 
 jsheatmapdataglobal["#heatmap{{ obs }}"] = heatmapdata;
 </script>

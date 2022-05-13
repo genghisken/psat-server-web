@@ -89,11 +89,29 @@ function plotheatmaps(ptdata)
   zmax: 2000,
   type: 'heatmap',
   colorscale: 'Viridis',
-  colorbar: {len: 1.0}
+  colorbar: {len: 1.0},
+  name: 'heatmap'
   };
 
   heatmapdata.push(dataOptions);
 
+  if (x !== null && y !== null)
+  {
+    var scaledx = x.map(function(a) { return (a + 0.5) * 10559.0 / 8.0; })
+    var scaledy = y.map(function(a) { return (a + 0.5) * 10559.0 / 8.0; })
+
+    var scatterOptions = {
+    x: x,
+    y: y,
+    customdata: [[scaledx, scaledy]],
+    hovertemplate: ('x = %{customdata[0]:.2f}, y = %{customdata[1]:.2f}'),
+    mode: 'markers',
+    type: 'scatter',
+    name: 'location'
+    };
+
+  heatmapdata.push(scatterOptions);
+  }
 }
 
 
