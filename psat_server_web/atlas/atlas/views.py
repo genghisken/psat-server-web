@@ -1017,7 +1017,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     transient = get_object_or_404(AtlasDiffObjects, pk=atlas_diff_objects_id)
 
     token = settings.LASAIR_TOKEN
-    L = lasair(token)
+    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api')
 
     lasairZTFCrossmatches = None
     try:

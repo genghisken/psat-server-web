@@ -377,7 +377,7 @@ def candidateflot(request, tcs_transient_objects_id):
     transient = get_object_or_404(TcsTransientObjects, pk=tcs_transient_objects_id)
 
     token = settings.LASAIR_TOKEN
-    L = lasair(token)
+    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api')
 
     lasairZTFCrossmatches = None
     try:
