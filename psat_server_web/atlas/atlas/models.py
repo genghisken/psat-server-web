@@ -170,7 +170,9 @@ class TcsImages(models.Model):
         # 2022-01-01 KWS Use the exposure name buried in the 3rd field and take the MJD which is
         #                always characters 3 to 7. DO NOT use MJD - since in S. Africa, the int MJD
         #                at the start of the night is always the previous day.
-        m = int(self.diff.split('_')[2][3:8])
+        m = None
+        if self.diff is not None:
+            m = int(self.diff.split('_')[2][3:8])
         return m
 
 
