@@ -84,3 +84,6 @@ source tcs_zooniverse_scores.sql;
 
 -- 2021-03-11 KWS Added atlas_diff_logs table.
 source atlas_diff_logs.sql;
+
+-- 2022-08-16 KWS Added atlas_heatmaps table.
+source atlas_heatmaps.sql;

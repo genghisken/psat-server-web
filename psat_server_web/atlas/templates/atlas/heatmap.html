@@ -6,14 +6,19 @@
 {% block heatmapdataglobal %}
 <script language="javascript" type="text/javascript">
 var jsheatmapdataglobal = new Object();
-var jsheatmaplabelsglobal = new Object();
-var jsheatmaplimitsglobal = new Object();
+var jsheatmapresolutionglobal = new Object();
+var jsheatmapcolorbarspanglobal = new Object();
 
+var jsheatmapcolorbarspan = {{ colorbarspan }};
+var jsheatmapresolution = {{ resolution }};
 var heatmapdata = {{ heatmap }};
-var x = {% if x %}[{{ x }}].map(function(a) { return a / 10559.0 * 8.0 - 0.5; }){% else %}null{% endif %};
-var y = {% if y %}[{{ y }}].map(function(a) { return a / 10559.0 * 8.0 - 0.5; }){% else %}null{% endif %};
+var x = {% if x %}[{{ x }}].map(function(a) { return a / 10559.0 * {{ resolution }} - 0.5; }){% else %}null{% endif %};
+var y = {% if y %}[{{ y }}].map(function(a) { return a / 10559.0 * {{ resolution }} - 0.5; }){% else %}null{% endif %};
 
 jsheatmapdataglobal["#heatmap{{ obs }}"] = heatmapdata;
+jsheatmapresolutionglobal["#heatmap{{ obs }}"] = jsheatmapresolution;
+jsheatmapcolorbarspanglobal["#heatmap{{ obs }}"] = jsheatmapcolorbarspan;
+
 </script>
 {% endblock %}
 

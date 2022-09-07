@@ -32,6 +32,9 @@ var pad = 20.0; // i.e. 5 percent
 //var ymin = jsheatmaplimits["ymin"] - padding;
 //var ymax = jsheatmaplimits["ymax"] + padding;
 
+var resolution = jsheatmapresolutionglobal[localheatmapdivname];
+var colorbarspan = jsheatmapcolorbarspanglobal[localheatmapdivname];
+
 // colour palette for each data series (up to 26 at the moment)
 var colorpalette = ["#6A5ACD", //SlateBlue
                     "#008000", //Green
@@ -86,7 +89,7 @@ function plotheatmaps(ptdata)
   z: ptdata,
   zauto: false,
   zmin: 0,
-  zmax: 2000,
+  zmax: colorbarspan,
   type: 'heatmap',
   colorscale: 'Viridis',
   colorbar: {len: 1.0},
@@ -97,8 +100,8 @@ function plotheatmaps(ptdata)
 
   if (x !== null && y !== null)
   {
-    var scaledx = x.map(function(a) { return (a + 0.5) * 10559.0 / 8.0; })
-    var scaledy = y.map(function(a) { return (a + 0.5) * 10559.0 / 8.0; })
+    var scaledx = x.map(function(a) { return (a + 0.5) * 10559.0 / resolution; })
+    var scaledy = y.map(function(a) { return (a + 0.5) * 10559.0 / resolution; })
 
     var scatterOptions = {
     x: x,

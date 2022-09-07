@@ -37,7 +37,7 @@ from atlas.models import TcsObjectComments
 from atlas.models import AtlasStackedForcedPhotometry
 from atlas.dbviews import *
 # import django_tables as tables
-from math import log
+from math import log, sqrt
 import datetime
 
 from django import forms
@@ -85,6 +85,10 @@ from django.contrib.auth.decorators import login_required
 
 # 2022-05-06 KWS New model - AtlasDiffSubcells
 from atlas.models import AtlasDiffSubcells
+
+# 2022-09-06 KWS New model - AtlasHeatmaps
+from atlas.models import AtlasHeatmaps
+
 from django.http import Http404
 
 class LoginForm(forms.Form):
@@ -613,7 +617,7 @@ class AtlasDetectionsddcTable(tables2.Table):
     #obs = tables2.Column(accessor='atlas_metadata_id.obs')
     #obs = tables2.LinkColumn('heatmap', accessor='atlas_metadata_id.obs', args=[A('atlas_metadata_id.obs')])
 
-    obs = tables2.TemplateColumn('''<a href="{% url 'heatmap' record.atlas_metadata_id.obs %}?x={{ record.x }}&y={{ record.y }}">{{ record.atlas_metadata_id.obs }}</a>''')
+    obs = tables2.TemplateColumn('''<a href="{% url 'heatmap' record.atlas_metadata_id.obs %}?x={{ record.x }}&y={{ record.y }}">{{ record.atlas_metadata_id.obs }}</a> (<a href="{% url 'heatmap' record.atlas_metadata_id.obs|slice:"0:3" %}?x={{ record.x }}&y={{ record.y }}">{{ record.atlas_metadata_id.obs|slice:"0:3" }}</a>)''')
 
     mag5sig = tables2.Column(accessor='atlas_metadata_id.mag5sig')
     magzp = tables2.Column(accessor='atlas_metadata_id.magzp')
@@ -1764,23 +1768,57 @@ def heatmap(request, expname, template_name):
     except TypeError as e:
         ypos = None
 
-    matrix = n.zeros((8,8), dtype=n.int)
+    multiplier = request.GET.get('multiplier', '1.5')
+    try:
+        multiplier = float(multiplier)
+    except ValueError as e:
+        multiplier = 1.5
+    except TypeError as e:
+        multiplier = 1.5
 
-    data = AtlasDiffSubcells.objects.filter(obs=expname).order_by('region')
+    mask = request.GET.get('mask', '0')
+    try:
+        mask = bool(int(mask))
+    except ValueError as e:
+        mask = False
+    except TypeError as e:
+        mask = False
+
+    resolution = 8
+    if expname in ['01a','02a','03a','04a']:
+        matrix = n.zeros((resolution,resolution), dtype=n.int)
+        data = AtlasHeatmaps.objects.filter(site=expname).order_by('region')
+        resolution = int(sqrt(len(data)))
+        if resolution not in [8, 16, 32, 64, 128, 256, 512]:
+            raise Http404("Resolution of %s pixel map is not an acceptable power of 2" % expname)
+    else:
+        resolution = 8
+        data = AtlasDiffSubcells.objects.filter(obs=expname).order_by('region')
+
     if len(data) == 0:
         raise Http404("%s exposure not exist" % expname)
 
+    matrix = n.zeros((resolution,resolution), dtype=n.int)
+
     for cell in data:
-        x = cell.region % 8
-        y = int (cell.region / 8)
+        x = cell.region % resolution
+        y = int (cell.region / resolution)
         matrix[y][x] = cell.ndet
+
+    colorBarSpan = 2000
+
+    if expname in ['01a','02a','03a','04a']:
+        medValue = n.median(matrix)
+        colorBarSpan = multiplier * medValue
+        if mask:
+            matrix[matrix > colorBarSpan] = 0
 
     # Now we have a correctly sized list of lists even when some cell data is missing.
     # Also convert into JSON so it can be directly used in javascript.
     heatmap = json.dumps(matrix.tolist())
 
 
-    return render(request, 'atlas/' + template_name, {'obs': expname, 'heatmap' : heatmap, 'x': xpos, 'y': ypos})
+    return render(request, 'atlas/' + template_name, {'obs': expname, 'heatmap' : heatmap, 'x': xpos, 'y': ypos, 'resolution': resolution, 'colorbarspan': colorBarSpan})
 
 @login_required
 # 2018-10-18 KWS Code to generate a JSON table of all the good & confirmed SNe - required by celestial.js

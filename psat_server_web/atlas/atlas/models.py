@@ -1088,3 +1088,17 @@ class AtlasDiffSubcells(models.Model):
         unique_together = (('obs', 'region'),)
 
 
+class AtlasHeatmaps(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    site = models.CharField(max_length=10, blank=True, null=True)
+    region = models.PositiveIntegerField()
+    ndet = models.PositiveIntegerField()
+
+    class Meta:
+        """Meta.
+        """
+
+        managed = False
+        db_table = 'atlas_heatmaps'
+        unique_together = (('site', 'region'),)
+
