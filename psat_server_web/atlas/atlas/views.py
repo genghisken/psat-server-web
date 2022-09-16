@@ -1768,13 +1768,13 @@ def heatmap(request, expname, template_name):
     except TypeError as e:
         ypos = None
 
-    multiplier = request.GET.get('multiplier', '1.5')
+    multiplier = request.GET.get('multiplier', '1.6')
     try:
         multiplier = float(multiplier)
     except ValueError as e:
-        multiplier = 1.5
+        multiplier = 1.6
     except TypeError as e:
-        multiplier = 1.5
+        multiplier = 1.6
 
     mask = request.GET.get('mask', '0')
     try:
