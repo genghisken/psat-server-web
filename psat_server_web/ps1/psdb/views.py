@@ -380,10 +380,10 @@ def candidateflot(request, tcs_transient_objects_id):
     L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api')
 
     lasairZTFCrossmatches = None
-    try:
-        lasairZTFCrossmatches = L.cone(transient.ra_psf, transient.dec_psf, 2.0, requestType='all')
-    except LasairError as e:
-        sys.stderr.write('%s\n' % str(e))
+    #try:
+    #    lasairZTFCrossmatches = L.cone(transient.ra_psf, transient.dec_psf, 2.0, requestType='all')
+    #except LasairError as e:
+    #    sys.stderr.write('%s\n' % str(e))
 
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
