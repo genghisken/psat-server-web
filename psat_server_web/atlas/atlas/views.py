@@ -180,7 +180,7 @@ class TcsDetectionListsForm(forms.Form):
 
     name = forms.CharField()
 
-GARBAGE, CONFIRMED, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, EDGE, FASTEYE, MOVERS, SMCLMC = list(range(11))
+GARBAGE, CONFIRMED, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, AGN, FASTEYE, MOVERS, SMCLMC = list(range(11))
 
 OBJECT_LISTS = {
     'Garbage': GARBAGE,
@@ -190,7 +190,7 @@ OBJECT_LISTS = {
     'Eyeball': EYEBALL,
     'Attic': ATTIC,
     'Star': STAR,
-    'Edge': EDGE,
+    'AGN': AGN,
     'FastEye': FASTEYE,
     'Movers': MOVERS,
     'SMCLMC': SMCLMC,
@@ -931,7 +931,7 @@ def candidate(request, atlas_diff_objects_id):
         form.fields['user_list_membership'].choices = listMembership
 
         # 2011-10-04 KWS Added GARBAGE choices
-        if listId == EYEBALL or listId == FASTEYE or listId == SMCLMC:
+        if listId == EYEBALL or listId == FASTEYE or listId == SMCLMC or listId == AGN:
             form.fields['promote_demote'].choices = EYEBALL_PROMOTION_CHOICES
         elif listId == CONFIRMED:
             form.fields['promote_demote'].choices = CONFIRMED_POST_PROMOTION_CHOICES
@@ -1024,10 +1024,12 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api')
 
     lasairZTFCrossmatches = None
-    #try:
-    #    lasairZTFCrossmatches = L.cone(transient.ra, transient.dec, 2.0, requestType='all')
-    #except LasairError as e:
-    #    sys.stderr.write('%s\n' % str(e))
+
+    # If Lasair connectivity problems arise, comment out the following 4 lines.
+    try:
+        lasairZTFCrossmatches = L.cone(transient.ra, transient.dec, 2.0, requestType='all')
+    except LasairError as e:
+        sys.stderr.write('%s\n' % str(e))
 
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
@@ -1380,7 +1382,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
         form.fields['user_list_membership'].choices = listMembership
 
         # 2011-10-04 KWS Added GARBAGE choices
-        if listId == EYEBALL or listId == FASTEYE or listId == SMCLMC:
+        if listId == EYEBALL or listId == FASTEYE or listId == SMCLMC or listId == AGN:
             form.fields['promote_demote'].choices = EYEBALL_PROMOTION_CHOICES
         elif listId == CONFIRMED:
             form.fields['promote_demote'].choices = CONFIRMED_POST_PROMOTION_CHOICES

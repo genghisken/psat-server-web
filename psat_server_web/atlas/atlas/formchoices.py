@@ -103,6 +103,7 @@ OBSERVATION_STATUS_CHOICES = (
     ('M dwarf', 'M dwarf'),
     ('ILRT', 'ILRT'),
     ('Nova', 'Nova'),
+    ('Afterglow', 'Afterglow'),
     ('SN', 'SN'), # It's a SN but we don't yet know what type
     ('SN I', 'SN I'),
     ('SN I-faint', 'SN I-faint'),
