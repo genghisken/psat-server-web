@@ -73,6 +73,9 @@ from django.template.context_processors import csrf
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, getDjangoTables2ImageTemplate, SHOW_LC_DATA_LIMIT
 
+# 2022-11-16 KWS If the Lasair API is unreachable we should catch the connection error.
+from requests.exceptions import ConnectionError as RequestsConnectionError
+
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.
     """
@@ -377,13 +380,22 @@ def candidateflot(request, tcs_transient_objects_id):
     transient = get_object_or_404(TcsTransientObjects, pk=tcs_transient_objects_id)
 
     token = settings.LASAIR_TOKEN
-    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api')
+    # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
+    #                version v0.0.5+. This should help if Lasair goes offline for any
+    #                reason. But extra (Requests)ConnectionError catch needed.
+    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api', timeout = 2.0)
 
     lasairZTFCrossmatches = None
-    #try:
-    #    lasairZTFCrossmatches = L.cone(transient.ra_psf, transient.dec_psf, 2.0, requestType='all')
-    #except LasairError as e:
-    #    sys.stderr.write('%s\n' % str(e))
+    try:
+        lasairZTFCrossmatches = L.cone(transient.ra_psf, transient.dec_psf, 2.0, requestType='all')
+    except RequestsConnectionError as e:
+        # If the API URL is incorrect or times out we will get a connection error.
+        sys.stderr.write('Lasair API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except LasairError as e:
+        sys.stderr.write('Lasair Error\n')
+        sys.stderr.write('%s\n' % str(e))
+        
 
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
