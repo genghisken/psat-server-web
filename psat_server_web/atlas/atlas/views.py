@@ -92,7 +92,13 @@ from atlas.models import AtlasHeatmaps
 from django.http import Http404
 
 # 2022-11-16 KWS If the Lasair API is unreachable we should catch the connection error.
+# 2023-01-03 KWS If the Lasair API times out we should catch the timeout error.
 from requests.exceptions import ConnectionError as RequestsConnectionError
+from requests.exceptions import Timeout as RequestsConnectionTimeoutError
+
+# 2023-01-06 KWS Import the new code to grab a name from the nameserver.
+#                Requires an update to gkutils.
+from gkutils.commonutils import getLocalObjectName
 
 
 class LoginForm(forms.Form):
@@ -837,6 +843,7 @@ def candidate(request, atlas_diff_objects_id):
 
                     followupFlagDate = transient.followup_flag_date
                     if followupFlagDate is None:
+                       followupFlagDate = datetime.date.today()
                        objectFlagMonth = datetime.date.today().month
                        objectFlagYear = datetime.date.today().year
                     else:
@@ -844,15 +851,33 @@ def candidate(request, atlas_diff_objects_id):
                        objectFlagYear = followupFlagDate.year
 
                     # 2019-01-02 KWS bug in comparison of object flag year and object name if object name is previously known object.
-                    fieldCounter = AtlasDiffObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField, atlas_designation__contains=(objectFlagYear-2000)).aggregate(Max('followup_counter'))['followup_counter__max']
-                    if fieldCounter is None:
-                       # This is the first time we've used the counter
-                       fieldCounter = 1
+#                    fieldCounter = AtlasDiffObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField, atlas_designation__contains=(objectFlagYear-2000)).aggregate(Max('followup_counter'))['followup_counter__max']
+#                    if fieldCounter is None:
+#                       # This is the first time we've used the counter
+#                       fieldCounter = 1
+#                    else:
+#                       fieldCounter += 1
+
+                    nameData = getLocalObjectName(settings.NAMESERVER_API_URL, settings.NAMESERVER_TOKEN, transient.id, transient.ra, transient.dec, followupFlagDate.strftime("%Y-%m-%d"), dbName)
+                    if nameData:
+                        if nameData['status'] == 201 and nameData['counter'] is not None and nameData['name'] is not None:
+                            sys.stderr.write("\n%s\n" % nameData['info'])
+                            fieldCounter = nameData['counter']
+                            atlasDesignation = nameData['name']
+                        else:
+                            sys.stderr.write("\nStatus = %s. %s\n" % (str(nameData['status']), nameData['info']))
+                            request.session['error'] = "ERROR: Nameserver error. Status = %s. %s" % (str(nameData['status']), nameData['info'])
+                            redirect_to = "../../error/"
+                            return HttpResponseRedirect(redirect_to)  
                     else:
-                       fieldCounter += 1
+                        sys.stderr.write("\nBad response from the nameserver. Something went wrong.\n")
+                        request.session['error'] = "ERROR: Bad response from the Nameserver."
+                        redirect_to = "../../error/"
+                        return HttpResponseRedirect(redirect_to)  
+
 
                     #atlasDesignation = '%d%s%s%s' % (objectFlagYear - 2010, MONTHS[objectFlagMonth - 1], fieldCode, base26(fieldCounter))
-                    atlasDesignation = '%s%d%s' % (fieldCode, objectFlagYear - 2000, base26(fieldCounter))
+                    #atlasDesignation = '%s%d%s' % (fieldCode, objectFlagYear - 2000, base26(fieldCounter))
 
 
                 # Do an update if the form is valid, regardless of setting of detection list. If the
@@ -1038,6 +1063,10 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     except RequestsConnectionError as e:
         # If the API URL is incorrect or times out we will get a connection error.
         sys.stderr.write('Lasair API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except RequestsConnectionTimeoutError as e:
+        # If the API times out, we will get a timeout error.
+        sys.stderr.write('Lasair API Timeout Error\n')
         sys.stderr.write('%s\n' % str(e))
     except LasairError as e:
         sys.stderr.write('Lasair Error\n')
@@ -1255,6 +1284,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
 
                     followupFlagDate = transient.followup_flag_date
                     if followupFlagDate is None:
+                       followupFlagDate = datetime.date.today()
                        objectFlagMonth = datetime.date.today().month
                        objectFlagYear = datetime.date.today().year
                     else:
@@ -1266,15 +1296,34 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                         fieldCounter = xmresults['xmNearestCounter']
                         atlasDesignation = xmresults['xmNearestName']
                     else:
-                        fieldCounter = AtlasDiffObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField, atlas_designation__contains=(objectFlagYear-2000)).aggregate(Max('followup_counter'))['followup_counter__max']
-                        if fieldCounter is None:
-                           # This is the first time we've used the counter
-                           fieldCounter = 1
+#                        fieldCounter = AtlasDiffObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField, atlas_designation__contains=(objectFlagYear-2000)).aggregate(Max('followup_counter'))['followup_counter__max']
+#                        if fieldCounter is None:
+#                           # This is the first time we've used the counter
+#                           fieldCounter = 1
+#                        else:
+#                           fieldCounter += 1
+
+                        nameData = getLocalObjectName(settings.NAMESERVER_API_URL, settings.NAMESERVER_TOKEN, transient.id, transient.ra, transient.dec, followupFlagDate.strftime("%Y-%m-%d"), dbName)
+                        if nameData:
+                            if nameData['status'] == 201 and nameData['counter'] is not None and nameData['name'] is not None:
+                                sys.stderr.write("\n%s\n" % nameData['info'])
+                                fieldCounter = nameData['counter']
+                                atlasDesignation = nameData['name']
+                            else:
+                                sys.stderr.write("\nStatus = %s. %s\n" % (str(nameData['status']), nameData['info']))
+                                request.session['error'] = "ERROR: Nameserver error. Status = %s. %s" % (str(nameData['status']), nameData['info'])
+                                redirect_to = "../../error/"
+                                return HttpResponseRedirect(redirect_to)
                         else:
-                           fieldCounter += 1
+                            sys.stderr.write("\nBad response from the nameserver. Something went wrong.\n")
+                            request.session['error'] = "ERROR: Bad response from the Nameserver."
+                            redirect_to = "../../error/"
+                            return HttpResponseRedirect(redirect_to)
+
+
 
                         #atlasDesignation = '%d%s%s%s' % (objectFlagYear - 2010, MONTHS[objectFlagMonth - 1], fieldCode, base26(fieldCounter))
-                        atlasDesignation = '%s%d%s' % (fieldCode, objectFlagYear - 2000, base26(fieldCounter))
+                        #atlasDesignation = '%s%d%s' % (fieldCode, objectFlagYear - 2000, base26(fieldCounter))
 
 
                 # Do an update if the form is valid, regardless of setting of detection list. If the
@@ -3088,6 +3137,7 @@ def followupQuickView(request, listNumber):
 
                         followupFlagDate = transient.followup_flag_date
                         if followupFlagDate is None:
+                           followupFlagDate = datetime.date.today()
                            objectFlagMonth = datetime.date.today().month
                            objectFlagYear = datetime.date.today().year
                         else:
@@ -3098,15 +3148,31 @@ def followupQuickView(request, listNumber):
                             fieldCounter = xmresults['xmNearestCounter']
                             atlasDesignation = xmresults['xmNearestName']
                         else:
-                            fieldCounter = AtlasDiffObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField, atlas_designation__contains=(objectFlagYear-2000)).aggregate(Max('followup_counter'))['followup_counter__max']
-                            if fieldCounter is None:
-                               # This is the first time we've used the counter
-                               fieldCounter = 1
+#                            fieldCounter = AtlasDiffObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField, atlas_designation__contains=(objectFlagYear-2000)).aggregate(Max('followup_counter'))['followup_counter__max']
+#                            if fieldCounter is None:
+#                               # This is the first time we've used the counter
+#                               fieldCounter = 1
+#                            else:
+#                               fieldCounter += 1
+#
+#                            atlasDesignation = '%s%d%s' % (fieldCode, objectFlagYear - 2000, base26(fieldCounter))
+
+                            nameData = getLocalObjectName(settings.NAMESERVER_API_URL, settings.NAMESERVER_TOKEN, transient.id, transient.ra, transient.dec, followupFlagDate.strftime("%Y-%m-%d"), dbName)
+                            if nameData:
+                                if nameData['status'] == 201 and nameData['counter'] is not None and nameData['name'] is not None:
+                                    sys.stderr.write("\n%s\n" % nameData['info'])
+                                    fieldCounter = nameData['counter']
+                                    atlasDesignation = nameData['name']
+                                else:
+                                    sys.stderr.write("\nStatus = %s. %s\n" % (str(nameData['status']), nameData['info']))
+                                    request.session['error'] = "ERROR: Nameserver error. Status = %s. %s" % (str(nameData['status']), nameData['info'])
+                                    redirect_to = "../../error/"
+                                    return HttpResponseRedirect(redirect_to)
                             else:
-                               fieldCounter += 1
-
-                            atlasDesignation = '%s%d%s' % (fieldCode, objectFlagYear - 2000, base26(fieldCounter))
-
+                                sys.stderr.write("\nBad response from the nameserver. Something went wrong.\n")
+                                request.session['error'] = "ERROR: Bad response from the Nameserver."
+                                redirect_to = "../../error/"
+                                return HttpResponseRedirect(redirect_to)
                     try:
                         # 2011-02-24 KWS Added Observation Status
                         # 2013-10-29 KWS Added date_modified so we can track when bulk updates were done.
@@ -3680,6 +3746,7 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
 
                         followupFlagDate = transient.followup_flag_date
                         if followupFlagDate is None:
+                           followupFlagDate = datetime.date.today()
                            objectFlagMonth = datetime.date.today().month
                            objectFlagYear = datetime.date.today().year
                         else:
@@ -3690,15 +3757,31 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
                             fieldCounter = xmresults['xmNearestCounter']
                             atlasDesignation = xmresults['xmNearestName']
                         else:
-                            fieldCounter = AtlasDiffObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField, atlas_designation__contains=(objectFlagYear-2000)).aggregate(Max('followup_counter'))['followup_counter__max']
-                            if fieldCounter is None:
-                               # This is the first time we've used the counter
-                               fieldCounter = 1
+#                            fieldCounter = AtlasDiffObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField, atlas_designation__contains=(objectFlagYear-2000)).aggregate(Max('followup_counter'))['followup_counter__max']
+#                            if fieldCounter is None:
+#                               # This is the first time we've used the counter
+#                               fieldCounter = 1
+#                            else:
+#                               fieldCounter += 1
+#
+#                            atlasDesignation = '%s%d%s' % (fieldCode, objectFlagYear - 2000, base26(fieldCounter))
+
+                            nameData = getLocalObjectName(settings.NAMESERVER_API_URL, settings.NAMESERVER_TOKEN, transient.id, transient.ra, transient.dec, followupFlagDate.strftime("%Y-%m-%d"), dbName)
+                            if nameData:
+                                if nameData['status'] == 201 and nameData['counter'] is not None and nameData['name'] is not None:
+                                    sys.stderr.write("\n%s\n" % nameData['info'])
+                                    fieldCounter = nameData['counter']
+                                    atlasDesignation = nameData['name']
+                                else:
+                                    sys.stderr.write("\nStatus = %s. %s\n" % (str(nameData['status']), nameData['info']))
+                                    request.session['error'] = "ERROR: Nameserver error. Status = %s. %s" % (str(nameData['status']), nameData['info'])
+                                    redirect_to = "../../error/"
+                                    return HttpResponseRedirect(redirect_to)
                             else:
-                               fieldCounter += 1
-
-                            atlasDesignation = '%s%d%s' % (fieldCode, objectFlagYear - 2000, base26(fieldCounter))
-
+                                sys.stderr.write("\nBad response from the nameserver. Something went wrong.\n")
+                                request.session['error'] = "ERROR: Bad response from the Nameserver."
+                                redirect_to = "../../error/"
+                                return HttpResponseRedirect(redirect_to)
                     try:
                         # 2011-02-24 KWS Added Observation Status
                         # 2013-10-29 KWS Added date_modified so we can track when bulk updates were done.

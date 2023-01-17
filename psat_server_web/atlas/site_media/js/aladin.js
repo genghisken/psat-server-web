@@ -9004,6 +9004,14 @@ HpxImageSurvey = (function() {
         "format": "jpeg"
      },
      {
+        "id": "P/DECaPS/DR2/color",
+        "url": "http://alasky.u-strasbg.fr/DECaPS/DR2/CDS_P_DECaPS_DR2_color",
+        "name": "DECaPS DR2 color",
+        "maxOrder": 11,
+        "frame": "equatorial",
+        "format": "png"
+     },
+     {
         "id": "P/DES-DR1/ColorIRG",
         "url": "http://alasky.u-strasbg.fr/DES/CDS_P_DES-DR1_ColorIRG",
         "name": "DES-DR1 color (I-R-G bands)",

@@ -75,6 +75,7 @@ from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, ge
 
 # 2022-11-16 KWS If the Lasair API is unreachable we should catch the connection error.
 from requests.exceptions import ConnectionError as RequestsConnectionError
+from requests.exceptions import Timeout as RequestsConnectionTimeoutError
 
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.
@@ -391,6 +392,10 @@ def candidateflot(request, tcs_transient_objects_id):
     except RequestsConnectionError as e:
         # If the API URL is incorrect or times out we will get a connection error.
         sys.stderr.write('Lasair API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except RequestsConnectionTimeoutError as e:
+        # If the API times out, we will get a timeout error.
+        sys.stderr.write('Lasair API Timeout Error\n')
         sys.stderr.write('%s\n' % str(e))
     except LasairError as e:
         sys.stderr.write('Lasair Error\n')
