@@ -562,13 +562,13 @@ var b = new Image(); b.src = 'http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpe
 
 <!-- Data table -->
 
-{% ifnotequal table.rows.count 0 %}
+{% if table.rows.count != 0 %}
 <div id="lcdatatable">
 
 {% render_table table %}
 
 </div>
-{% endifnotequal %}
+{% endif %}
 
 {% endif %}
 
@@ -643,7 +643,7 @@ var b = new Image(); b.src = 'http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpe
 <div id="externalinfo">
 <!-- possible associations -->
 
-{% ifnotequal transient.object_classification.flag_id 1 %}
+{% if transient.object_classification.flag_id != 1 %}
 <div id="associations">
 
 {% if not crossmatches.0.z %}
@@ -694,7 +694,7 @@ var b = new Image(); b.src = 'http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpe
 
 {% endif %}
 </div>
-{% endifnotequal %}
+{% endif %}
 
  
 <!-- insert this snippet where you want Aladin Lite viewer to appear and after the loading of jQuery -->

@@ -163,7 +163,7 @@ var b = new Image(); b.src = 'http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?
 <BR><BR>
 
 <!-- Data table -->
-{% ifnotequal table.rows.count 0 %}
+{% if table.rows.count != 0 %}
 <CENTER>
 <TABLE border="1" cellpadding="5" bgcolor="white">
 <tr>
@@ -202,7 +202,7 @@ var b = new Image(); b.src = 'http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?
 {% endfor %}
 
 </TABLE>
-{% endifnotequal %}
+{% endif %}
 <BR>
 
 {% if crossmatches.0.z %}

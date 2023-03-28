@@ -840,7 +840,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
   <!-- Second part of page layout ends -->
 
   <!-- Third part of page - 1 column, width 12 -->
-  {% ifnotequal table.rows.count 0 %}
+  {% if table.rows.count != 0 %}
   <div class="col-lg-12 col-md-12 col-sm-12">
 
     <div class="table-responsive table-body table-condensed">
@@ -850,7 +850,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
     </div>
 
   </div>
-  {% endifnotequal %}
+  {% endif %}
   <!-- Third part of page layout ends -->
 
   <!-- Fourth part of page - 1 column, width 12 - form submit -->

@@ -1,4 +1,5 @@
-from django.conf.urls import url
+# 2023-03-02 KWS url() is deprecated. Use re_path or just rename it on import.
+from django.urls import re_path as url
 from django.urls import path, include
 from django.contrib import admin
 from psdb import views

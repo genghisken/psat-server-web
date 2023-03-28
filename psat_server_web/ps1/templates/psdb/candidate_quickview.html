@@ -527,7 +527,7 @@ var b = new Image(); b.src = 'http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpe
 <BR><BR>
 
 <!-- Data table -->
-{% ifnotequal table.rows.count 0 %}
+{% if table.rows.count != 0 %}
 <CENTER>
 <TABLE border="1" cellpadding="5" bgcolor="white">
 <tr>
@@ -566,7 +566,7 @@ var b = new Image(); b.src = 'http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpe
 {% endfor %}
 
 </TABLE>
-{% endifnotequal %}
+{% endif %}
 <BR>
 
 {% if crossmatches.0.z %}
@@ -641,7 +641,7 @@ var b = new Image(); b.src = 'http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpe
 <tr align="center"><td>
 <!-- possible associations -->
 
-{% ifnotequal transient.object_classification.flag_id 1 %}
+{% if transient.object_classification.flag_id != 1 %}
 
 {% if not crossmatches.0.z %}
 <FONT color="#A9D0F5" size='5'><B> Possible Associations </B></FONT>
@@ -689,7 +689,7 @@ var b = new Image(); b.src = 'http://skyservice.pha.jhu.edu/DR9/ImgCutout/getjpe
 {% endif %}
 
 <BR><BR>
-{% endifnotequal %}
+{% endif %}
 
 
 

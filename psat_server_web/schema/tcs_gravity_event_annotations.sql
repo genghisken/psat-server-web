@@ -11,5 +11,6 @@ CREATE TABLE `tcs_gravity_event_annotations` (
   `updated` tinyint(4) DEFAULT '0',
   `dateCreated` datetime DEFAULT NULL,
   PRIMARY KEY (`primaryId`),
+  KEY `key_transient_object_id` (`transient_object_id`),
   UNIQUE KEY `transient_gracedb` (`transient_object_id`,`gracedb_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
