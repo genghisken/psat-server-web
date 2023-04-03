@@ -25,9 +25,9 @@ SITE_ID = 1
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG = True
 
 # 2021-08-21 KWS Need to set this to None, otherwise default is 1000.
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
@@ -43,7 +43,8 @@ CSRF_COOKIE_NAME = 'csrf_' + os.environ.get('DJANGO_MYSQL_DBNAME')
 SESSION_COOKIE_NAME = 'session_' + os.environ.get('DJANGO_MYSQL_DBNAME')
 
 # 2017-10-03 KWS Had to add this setting because of SSL proxy.
-CSRF_TRUSTED_ORIGINS = ['star.pst.qub.ac.uk']
+CSRF_TRUSTED_ORIGINS = ['https://star.pst.qub.ac.uk', 'https://psweb.mp.qub.ac.uk']
+
 
 CSRF_FAILURE_VIEW = 'atlas.views.csrf_failure'
 

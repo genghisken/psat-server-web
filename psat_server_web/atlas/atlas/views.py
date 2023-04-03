@@ -1849,7 +1849,7 @@ def heatmap(request, expname, template_name):
 
     resolution = 8
     if expname in ['01a','02a','03a','04a']:
-        matrix = n.zeros((resolution,resolution), dtype=n.int)
+        matrix = n.zeros((resolution,resolution), dtype=int)
         data = AtlasHeatmaps.objects.filter(site=expname).order_by('region')
         resolution = int(sqrt(len(data)))
         if resolution not in [8, 16, 32, 64, 128, 256, 512]:
@@ -1861,7 +1861,7 @@ def heatmap(request, expname, template_name):
     if len(data) == 0:
         raise Http404("%s exposure not exist" % expname)
 
-    matrix = n.zeros((resolution,resolution), dtype=n.int)
+    matrix = n.zeros((resolution,resolution), dtype=int)
 
     for cell in data:
         x = cell.region % resolution
@@ -1900,6 +1900,7 @@ def jsonSNe(request):
 
     querySet = AtlasDiffObjects.objects.filter(atlas_designation__isnull = False, detection_list_id__id__gt = 0, detection_list_id__id__lt = 3)
     features = []                       
+    # Can possibly add 'URL': '{% url candidate ' + str(row.id) + ' %}'}, below
     for row in querySet: 
         features.append({'type': 'Feature',
                          'id': row.atlas_designation,

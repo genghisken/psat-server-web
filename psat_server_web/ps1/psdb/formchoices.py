@@ -101,6 +101,7 @@ OBSERVATION_STATUS_CHOICES = (
     ('M dwarf', 'M dwarf'),
     ('ILRT', 'ILRT'),
     ('Nova', 'Nova'),
+    ('Afterglow', 'Afterglow'),
     ('SN', 'SN'), # It's a SN but we don't yet know what type
     ('SN I', 'SN I'),
     ('SN I-faint', 'SN I-faint'),
@@ -175,3 +176,12 @@ def getChoiceSelectorTemplate(choice, checked = ''):
     templateParameters['attrs'] = attrs
     return templateParameters
 
+FILTER_DEFINITIONS = [{'fieldName': 'xt', 'fieldType': 'boolean', 'validValues': [None, 0, 1, False, True]},
+                      {'fieldName': 'rb_pix', 'fieldType': 'float', 'validValues' : [0,1], 'rangeSuffixes': ['lt','lte','gt','gte']},
+                      {'fieldName': 'realbogus_factor', 'fieldType': 'float', 'validValues' : [0,1]},
+                      {'fieldName': 'earliest_mag', 'fieldType': 'float', 'validValues' : [], 'rangeSuffixes': ['lt','lte','gt','gte']},
+                      {'fieldName': 'latest_mag', 'fieldType': 'float', 'validValues' : [], 'rangeSuffixes': ['lt','lte','gt','gte']},
+                      {'fieldName': 'earliest_mjd', 'fieldType': 'float', 'validValues' : [], 'rangeSuffixes': ['lt','lte','gt','gte']},
+                      {'fieldName': 'latest_mjd', 'fieldType': 'float', 'validValues' : [], 'rangeSuffixes': ['lt','lte','gt','gte']},
+                      {'fieldName': 'followup_flag_date', 'fieldType': 'date', 'validValues' : [], 'rangeSuffixes': ['lt','lte','gt','gte']},
+    ]
