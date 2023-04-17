@@ -4,6 +4,8 @@
 -- 2010-01-28 KWS Added a Description field so that the web page titles
 --                for each type of object can be database driven rather
 --                than hard wired into the Web interface code.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 --
 drop table if exists `tcs_classification_flags`;
 
@@ -12,7 +14,7 @@ create table `tcs_classification_flags` (
 `flag_name` varchar(30) not null,
 `description` varchar(80),
 PRIMARY KEY `pk_flag_id` (`flag_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 insert into tcs_classification_flags (flag_id, flag_name, description)
 values

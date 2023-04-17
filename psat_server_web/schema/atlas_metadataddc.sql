@@ -4,6 +4,8 @@ drop table if exists `atlas_metadataddc`;
 -- Author: K. W. Smith
 -- Initially created by generateATLASSchemaAndCPPClasses.py
 -- on 2017-06-06
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 --
 CREATE TABLE `atlas_metadataddc` (
 `id` bigint unsigned not null auto_increment,     -- autoincrementing detection id
@@ -57,4 +59,4 @@ KEY `idx_reference` (`reference`),
 KEY `idx_htm16ID` (`htm16ID`),
 KEY `idx_date_inserted` (`date_inserted`),
 KEY `idx_ra_dec` (`ra`,`dec`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

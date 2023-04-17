@@ -14,6 +14,8 @@
 -- 2018-06-21 KWS The detection_id column needs to be bigint unsigned! Otherwise after 4 billion
 --                detections inserts into this table will FAIL!
 -- 2018-06-21 KWS Changed the followup_flag_date to datetime, rather than date.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `atlas_diff_objects`;
 
@@ -61,4 +63,4 @@ KEY `idx_other_designation` (`other_designation`),
 KEY `idx_detection_list_id_object_classification` (detection_list_id, object_classification),
 KEY `idx_detection_list_id_observation_status` (detection_list_id, observation_status),
 KEY `idx_detection_list_id_realbogus_factor` (detection_list_id, realbogus_factor)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

@@ -16,6 +16,8 @@
 -- 2019-03-29 KWS The _v columns were incorrectly set to type int. Changed to varchar(20).
 -- 2019-08-27 KWS Added 40 new varchar columns that allow us to calculate the chip from the
 --                input warp and diff image.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `tcs_cmf_metadata`;
 
@@ -186,4 +188,4 @@ CREATE TABLE `tcs_cmf_metadata` (
   KEY `idx_templim` (`templim`),
   KEY `idx_tessellation` (`tessellation`),
   KEY `idx_skycell` (`skycell`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

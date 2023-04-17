@@ -1,3 +1,5 @@
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 drop table if exists tcs_gravity_event_annotations;
 
 CREATE TABLE `tcs_gravity_event_annotations` (
@@ -13,4 +15,4 @@ CREATE TABLE `tcs_gravity_event_annotations` (
   PRIMARY KEY (`primaryId`),
   KEY `key_transient_object_id` (`transient_object_id`),
   UNIQUE KEY `transient_gracedb` (`transient_object_id`,`gracedb_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

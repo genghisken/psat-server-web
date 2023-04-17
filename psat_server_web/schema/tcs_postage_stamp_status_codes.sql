@@ -4,6 +4,8 @@
 --  Stores the list of postage stamp requests sent to the postage stamp server
 --
 -- 2011-11-11 KWS Minor modification of status codes to reflect current usage.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 --
 
 drop table if exists `tcs_postage_stamp_status_codes`;
@@ -13,7 +15,7 @@ create table `tcs_postage_stamp_status_codes` (
 `code` varchar(20) not null,
 `description` varchar(80),
 PRIMARY KEY `pk_id` (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 insert into tcs_postage_stamp_status_codes (id, code, description)
 values

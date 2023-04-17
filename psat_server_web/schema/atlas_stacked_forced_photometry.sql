@@ -1,3 +1,5 @@
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 -- ###MJD          m      dm   uJy   duJy F err chi/N     RA       Dec        x        y     maj  min   phi  apfit  Sky    ZP    Stack
 -- 58414.640780  21.185  1.429    12   17 o  0   1.05 161.19738  53.66524   356.28  1198.43 6.32 6.32   0.0 -0.200 18.42 19.32 161+53o58414
 -- 58416.626060  20.278  0.406    28   11 o  0   1.10 161.19738  53.66524   356.28  1198.43 4.49 4.49   0.0 -0.200 18.57 18.88 161+53o58416
@@ -36,4 +38,4 @@ PRIMARY KEY `key_id` (`id`),
 KEY `idx_atlas_object_id` (`atlas_object_id`),
 KEY `idx_mjd` (`mjd`),
 KEY `idx_date_inserted` (`date_inserted`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

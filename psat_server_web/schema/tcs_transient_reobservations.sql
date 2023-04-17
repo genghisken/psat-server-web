@@ -36,6 +36,8 @@
 --                  the option of combining them later if necessary.
 -- 2016-04-29 KWS Added unique key to tcs_cmf_metadata_id, transient_object_id, ipp_idet to
 --                prevent multiple accidental ingests of the same data.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `tcs_transient_reobservations`;
 
@@ -128,4 +130,4 @@ KEY `idx_date_modified` (`date_modified`),
 KEY `idx_metadata_id` (`tcs_cmf_metadata_id`),
 KEY `idx_conf_factor` (`confidence_factor`),
 UNIQUE KEY `idx_metadata_object_ippidet` (`tcs_cmf_metadata_id`, `transient_object_id`, `ipp_idet`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

@@ -1,3 +1,5 @@
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 --     Obs      <sumkern> srms  <good> grms nbad  badcells        B K   nddc  freal fvar  ftran fdup
 -- 01a58543o0002o   0.980 0.018  2.054 0.405   0 0000000000000000 0 1    3265 0.178 0.007 0.171 0.037
 
@@ -21,4 +23,4 @@ create table `atlas_diff_logs` (
 `fdup` float,
 PRIMARY KEY `pk_id` (`id`),
 UNIQUE KEY `idx_obs` (`obs`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

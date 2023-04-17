@@ -6,6 +6,8 @@
 
 -- 2014-02-20 KWS Added 2 new columns: external_crossmatches, discovery_target.
 --                Also added indexes to the various columns.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `tcs_latest_object_stats`;
 
@@ -57,4 +59,4 @@ CREATE TABLE `tcs_latest_object_stats` (
   KEY `idx_external_crossmatches` (external_crossmatches),
   KEY `idx_discovery_target` (discovery_target),
   KEY `idx_rms` (rms)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

@@ -1,6 +1,8 @@
 -- The ATLAS non-diff objects table.  This table is used to tag all detections
 -- with an object id.  The equivalent atlas_detections table, although created
 -- for MySQL will eventually just be a "big data" flat table.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `atlas_objects`;
 
@@ -34,4 +36,4 @@ PRIMARY KEY `key_id` (`id`),
 KEY `idx_detection_id` (`detection_id`),
 KEY `idx_htm16ID` (`htm16ID`),
 KEY `idx_ra_dec` (`ra`,`dec`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

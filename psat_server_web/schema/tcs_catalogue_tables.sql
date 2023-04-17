@@ -7,6 +7,8 @@
 -- 2012-12-18 KWS Added the new SDSS DR9 catalogues, plus ROSAT,
 --                CfA PS1 detections, and PESSTO transientBucket
 --                and views.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 drop table if exists `tcs_catalogue_tables`;
 
 create table `tcs_catalogue_tables` (
@@ -15,7 +17,7 @@ create table `tcs_catalogue_tables` (
 `description` varchar(60) not NULL,
 `url` varchar(255),
 PRIMARY KEY `pk_id` (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 insert into tcs_catalogue_tables (id, table_name, description, url)
 values

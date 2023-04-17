@@ -4,6 +4,8 @@
 
 -- The tphot header look like this (with ra, dec and mag added by Brian's code):
 -- x        y     peakval  skyval  peakfit   dpeak  skyfit     flux     dflux    major  minor    phi  err chi/N ra dec mag mjd filter exptime zp htm14
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `atlas_diff_detections`;
 
@@ -58,4 +60,4 @@ KEY `idx_atlas_metadata_id` (`atlas_metadata_id`),
 KEY `idx_tphot_id` (`tphot_id`),
 KEY `idx_date_inserted` (`date_inserted`),
 KEY `idx_ra_dec` (`ra`,`dec`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

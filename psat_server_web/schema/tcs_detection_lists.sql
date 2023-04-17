@@ -1,6 +1,8 @@
 --
 --  Detection Lists
 --
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 --
 drop table if exists `tcs_detection_lists`;
 
@@ -9,7 +11,7 @@ create table `tcs_detection_lists` (
 `name` varchar(20) not null,
 `description` varchar(80),
 PRIMARY KEY `pk_id` (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 insert into tcs_detection_lists (id, name, description)
 values

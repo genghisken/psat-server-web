@@ -17,6 +17,8 @@
 -- 2010-11-11 KWS Added new "association_type" column.  Allows different types of cross-
 --                matching to be recorded (e.g. closest object to ps1 object (1), closest
 --                object to closest matched object (2), etc)
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `tcs_cross_matches`;
 
@@ -36,4 +38,4 @@ PRIMARY KEY `key_id` (`id`),
 KEY `key_transient_object_id` (`transient_object_id`),
 KEY `key_catalogue_object_id` (`catalogue_object_id`),
 KEY `idx_separation` (`separation`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

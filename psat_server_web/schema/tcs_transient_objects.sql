@@ -60,6 +60,8 @@
 --                accidental ingests of the same data.
 -- 2016-07-01 KWS Added sherlockClassification and zooniverse_score.
 -- 2021-06-07 KWS Renamed classification_type (not used) to xt (crosstalk suspect) 1 = suspect.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `tcs_transient_objects`;
 
@@ -192,4 +194,4 @@ KEY `idx_detection_list_id_object_classification` (detection_list_id, object_cla
 KEY `idx_detection_list_id_observation_status` (detection_list_id, observation_status),
 KEY `idx_detection_list_id_confidence_factor` (detection_list_id, confidence_factor),
 UNIQUE KEY `idx_metadata_object_ippidet` (`tcs_cmf_metadata_id`, `id`, `ipp_idet`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

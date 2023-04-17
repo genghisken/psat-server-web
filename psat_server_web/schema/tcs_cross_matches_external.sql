@@ -1,3 +1,5 @@
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 drop table if exists `tcs_cross_matches_external`;
 
 create table `tcs_cross_matches_external` (
@@ -22,5 +24,5 @@ UNIQUE KEY `key_toi_ml_ed` (`transient_object_id`, `matched_list`, `external_des
 KEY `idx_transient_object_id` (`transient_object_id`),
 KEY `idx_external_designation` (`external_designation`),
 KEY `idx_url` (`url`)
-) ENGINE=MyISAM
+) ENGINE=InnoDB
 ;

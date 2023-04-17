@@ -1,6 +1,8 @@
 -- Table to facilitate rapid crossmatching of tphot detections.
 -- Created to speed up crossmatching of fake sources injected into
 -- ATLAS images.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 -- The tphot header look like this (with ra, dec and mag added by Brian's code):
 -- x        y     peakval  skyval  peakfit   dpeak  skyfit     flux     dflux    major  minor    phi  err chi/N ra dec mag
@@ -41,4 +43,4 @@ KEY `idx_htm16ID` (`htm16ID`),
 KEY `idx_htm20ID` (`htm20ID`),
 KEY `idx_ra_dec` (`ra`,`dec`),
 KEY `idx_expname` (`expname`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

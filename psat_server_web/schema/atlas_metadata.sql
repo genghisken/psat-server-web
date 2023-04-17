@@ -1,4 +1,6 @@
 -- 2015-10-21 KWS Added HTM level 16 index for boresight RA and Dec.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 -- Header example as of 2015-11-02
 
@@ -75,4 +77,4 @@ CREATE TABLE `atlas_metadata` (
   KEY `idx_reference` (`reference`),
   KEY `idx_date_inserted` (`date_inserted`),
   KEY `idx_htm16ID` (`htm16ID`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

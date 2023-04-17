@@ -3,6 +3,8 @@
 --
 --
 -- 2009-10-01 KWS/DRY Added new parameter set
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 --
 drop table if exists `tcs_search_parameters`;
 
@@ -12,7 +14,7 @@ create table `tcs_search_parameters` (
 `comments` varchar(80),
 `last_updated` datetime,
 PRIMARY KEY `pk_id` (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 insert into tcs_search_parameters (id, parameter_set_name, comments, last_updated)
 values

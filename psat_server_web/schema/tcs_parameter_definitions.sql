@@ -1,6 +1,8 @@
 --
 --  Parameter definitions
 --
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 --
 drop table if exists `tcs_parameter_definitions`;
 
@@ -13,7 +15,7 @@ create table `tcs_parameter_definitions` (
 `catalogue_table_id` smallint unsigned not null,
 `search_parameters_id` int unsigned not null,
 PRIMARY KEY `pk_id` (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 insert into tcs_parameter_definitions(id, name, type, value, units, catalogue_table_id, search_parameters_id)
 values

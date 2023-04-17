@@ -4,6 +4,8 @@
 --                filter, mjd_obs, exptime.
 -- 2015-10-13 KWS Forgot to add zero_pt.
 -- 2021-12-28 KWS Added pscamera to the list of columns.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 drop table if exists `tcs_forced_photometry`;
 
 create table `tcs_forced_photometry` (
@@ -66,5 +68,5 @@ KEY `idx_skycell` (`skycell`),
 KEY `key_mjd_obs` (`mjd_obs`),
 KEY `key_exptime` (`exptime`),
 KEY `key_transient_object_id` (`transient_object_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 

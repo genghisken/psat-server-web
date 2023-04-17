@@ -1,3 +1,5 @@
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 drop table if exists `tcs_followup_telescopes`;
 
 create table `tcs_followup_telescopes` (
@@ -5,7 +7,7 @@ create table `tcs_followup_telescopes` (
 `name` varchar(30) not NULL,
 `description` varchar(60) not NULL,
 PRIMARY KEY `pk_id` (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 insert into tcs_followup_telescopes (id, name, description)
 values

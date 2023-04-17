@@ -8,6 +8,8 @@
 --  is not required for uniqueness, it helps users to know immediately
 --  the age of the image (group).
 --
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 drop table if exists `tcs_image_groups`;
 
 create table `tcs_image_groups` (
@@ -16,5 +18,5 @@ create table `tcs_image_groups` (
 `group_type` smallint unsigned,
 PRIMARY KEY `pk_id` (`id`),
 UNIQUE KEY `idx_name` (`name`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 

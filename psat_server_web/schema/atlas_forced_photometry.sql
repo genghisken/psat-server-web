@@ -1,5 +1,7 @@
 -- Table to store ATLAS forced photometry
 -- 2017-08-07 KWS Added x,y,peakval,skyval,peakfit,dpeak,skyfit,flux,dflux,chin
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `atlas_forced_photometry`;
 
@@ -39,4 +41,4 @@ KEY `key_expname` (`expname`),
 KEY `idx_mjd_obs` (`mjd_obs`),
 UNIQUE KEY `idx_atlas_object_id_expname` (`atlas_object_id`,`expname`),
 KEY `idx_date_inserted` (`date_inserted`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

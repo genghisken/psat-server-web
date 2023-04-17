@@ -1,0 +1,17 @@
+alter table tcs_latest_object_stats add column `latest_mjd_forced` double DEFAULT NULL,
+                                    add column `latest_flux_forced` float DEFAULT NULL,
+                                    add column `latest_dflux_forced` float DEFAULT NULL,
+                                    add column `latest_filter_forced` varchar(10) DEFAULT NULL,
+                                    add column `earliest_mjd_forced` double DEFAULT NULL,
+                                    add column `earliest_flux_forced` float DEFAULT NULL,
+                                    add column `earliest_dflux_forced` float DEFAULT NULL,
+                                    add column `earliest_filter_forced` varchar(10) DEFAULT NULL,
+                                    add KEY `idx_latest_mjd_forced` (latest_mjd_forced),
+                                    add KEY `idx_latest_flux_forced` (latest_flux_forced),
+                                    add KEY `idx_latest_dflux_forced` (latest_dflux_forced),
+                                    add KEY `idx_latest_filter_forced` (latest_filter_forced),
+                                    add KEY `idx_earliest_mjd_forced` (earliest_mjd_forced),
+                                    add KEY `idx_earliest_flux_forced` (earliest_flux_forced),
+                                    add KEY `idx_earliest_dflux_forced` (earliest_dflux_forced),
+                                    add KEY `idx_earliest_filter_forced` (earliest_filter_forced);
+show warnings;

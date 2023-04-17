@@ -2,6 +2,8 @@
 
 -- The moments (.mom) header look like this:
 -- x y cx cy xpk ypk rkron rvar flux crad qrad trad q2 q2cos q2sin q3cos q3sin q1cos q1sin
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 drop table if exists `atlas_diff_moments`;
 
@@ -34,4 +36,4 @@ PRIMARY KEY `key_id` (`id`),
 KEY `idx_detection_id` (`detection_id`),
 KEY `idx_realbogus_factor` (`realbogus_factor`),
 KEY `idx_date_inserted` (`date_inserted`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

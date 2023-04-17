@@ -1,3 +1,5 @@
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 drop table if exists `tcs_cfa_detections`;
 
 create table `tcs_cfa_detections` (
@@ -66,4 +68,4 @@ PRIMARY KEY `idx_eventID` (`eventID`),
 KEY `idx_htm20ID` (`htm20ID`),
 KEY `idx_htm16ID` (`htm16ID`),
 KEY `idx_raDeg_decDeg` (`raDeg`,`decDeg`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

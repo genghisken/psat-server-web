@@ -18,6 +18,8 @@
 --  100 = COMPLETED
 --  999 = FAULT
 --
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 drop table if exists `tcs_processing_status`;
 
 create table `tcs_processing_status` (
@@ -28,5 +30,5 @@ create table `tcs_processing_status` (
 PRIMARY KEY `pk_id` (`id`),
 KEY `idx_started` (`started`),
 KEY `idx_modified` (`modified`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 

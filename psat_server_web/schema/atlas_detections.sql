@@ -5,6 +5,8 @@
 -- from the files, or just use the .obs files.  Do we ultimately want to store the data
 -- in a FLAT table structure?  In which case we should have columns below for expname,
 -- exptime, mjd, etc.
+-- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
+--                regularly purged (as has been done with ATLAS).
 
 -- The dophot header look like this, with one example row added.  idx and Type are integers, the rest are floats. RA and Dec should be stored as doubles: 
 --    RA        Dec       m       idx Type  xtsk     ytsk    fitmag dfitmag     sky       major    minor    phi    probgal     apmag dapmag     apsky  ap-fit
@@ -49,4 +51,4 @@ UNIQUE KEY `key_tphot_id_expname` (`tphot_id`, `expname`),
 KEY `idx_htm16ID` (`htm16ID`),
 KEY `idx_ra_dec` (`ra`,`dec`),
 KEY `idx_expname` (`expname`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
