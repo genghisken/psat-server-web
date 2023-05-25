@@ -585,9 +585,11 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         <div class="col-lg-12 col-md-12 col-sm-12">
           <span class="parameter-label">Possible GW Events Association:</span>
         </div>
+        {% for row in gw %}
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <span class="parameter-value">{% for row in gw %}{{ row.gravity_event_id.gravity_event_id|default_if_none:"" }} (MJD {{ row.gravity_event_id.mjd }} - {{ row.enclosing_contour|default_if_none:"" }}&#37; contour) {% endfor %}</span>
+          <span class="parameter-value">{{ row.gravity_event_id|default_if_none:"" }}. Days since event {{ row.days_since_event|floatformat:"2" }}. {{ row.enclosing_contour|default_if_none:"" }}&#37; contour (probability: {{ row.probability }}). Map iteration: {{ row.map_iteration }}</span>
         </div>
+        {% endfor %}
         {% endif %}
 
       </div>

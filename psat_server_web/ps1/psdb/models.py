@@ -930,26 +930,49 @@ class TcsGravityEvents(models.Model):
         managed = False
 
 
-class TcsGravityEventAnnotations(models.Model):
-    """TcsGravityEventAnnotations.
-    """
+#class TcsGravityEventAnnotations(models.Model):
+#    """TcsGravityEventAnnotations.
+#    """
+#
+#    primaryid = models.BigIntegerField(db_column='primaryId', primary_key=True)  # Field name made lowercase.
+#    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
+#    gravity_event_id = models.ForeignKey(TcsGravityEvents, to_field='gravity_event_id', db_column='gravity_event_id', on_delete=models.CASCADE)
+#    gracedb_id = models.CharField(max_length=10)
+#    enclosing_contour = models.IntegerField(blank=True, null=True)
+#    map_name = models.CharField(max_length=30, blank=True, null=True)
+#    datelastmodified = models.DateTimeField(db_column='dateLastModified', blank=True, null=True)  # Field name made lowercase.
+#    updated = models.IntegerField(blank=True, null=True)
+#
+#    class Meta:
+#        """Meta.
+#        """
+#
+#        db_table = 'tcs_gravity_event_annotations'
+#        managed = False
+#        unique_together = (('transient_object_id', 'gracedb_id'),)
 
+# 2023-05-24 KWS Updated columns in tcs_gravity_event_annotations
+class TcsGravityEventAnnotations(models.Model):
     primaryid = models.BigIntegerField(db_column='primaryId', primary_key=True)  # Field name made lowercase.
     transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
-    gravity_event_id = models.ForeignKey(TcsGravityEvents, to_field='gravity_event_id', db_column='gravity_event_id', on_delete=models.CASCADE)
-    gracedb_id = models.CharField(max_length=10)
+    gravity_event_id = models.CharField(max_length=10, db_collation='utf8_swedish_ci')
+    gracedb_id = models.CharField(max_length=10, db_collation='utf8_swedish_ci')
     enclosing_contour = models.IntegerField(blank=True, null=True)
-    map_name = models.CharField(max_length=30, blank=True, null=True)
+    map_name = models.CharField(max_length=100, blank=True, null=True)
+    map_iteration = models.CharField(max_length=100, blank=True, null=True)
+    days_since_event = models.FloatField(blank=True, null=True)
+    probability = models.FloatField(blank=True, null=True)
     datelastmodified = models.DateTimeField(db_column='dateLastModified', blank=True, null=True)  # Field name made lowercase.
     updated = models.IntegerField(blank=True, null=True)
+    datecreated = models.DateTimeField(db_column='dateCreated', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         """Meta.
         """
 
-        db_table = 'tcs_gravity_event_annotations'
         managed = False
-        unique_together = (('transient_object_id', 'gracedb_id'),)
+        db_table = 'tcs_gravity_event_annotations'
+        unique_together = (('transient_object_id', 'gravity_event_id', 'map_iteration'),)
 
 
 # 2019-08-09 KWS Added TcsLatestObjectStats

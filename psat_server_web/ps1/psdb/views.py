@@ -1262,7 +1262,7 @@ def followupListNew(request, listNumber):
         gwt1 = None
 
     if gwEvent:
-        gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=listNumber).filter(gravity_event_id__gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+        gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=listNumber).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
         gwTaggedObjects = [x.transient_object_id_id for x in gw]
         if len(gwTaggedObjects) == 0:
             # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
@@ -1706,7 +1706,7 @@ def followupQuickView(request, listNumber):
             # 2019-07-31 KWS Rattle through all the objects to see if we have any
             #                associated with a specified GW event.
             if gwEvent:
-                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(gravity_event_id__gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
                 gwTaggedObjects = [x.transient_object_id_id for x in gw]
                 if len(gwTaggedObjects) == 0:
                     # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
@@ -1784,7 +1784,7 @@ def followupQuickView(request, listNumber):
         # 2019-07-31 KWS Rattle through all the objects to see if we have any
         #                associated with a specified GW event.
         if gwEvent:
-            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(gravity_event_id__gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
             gwTaggedObjects = [x.transient_object_id_id for x in gw]
             if len(gwTaggedObjects) == 0:
                 # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.

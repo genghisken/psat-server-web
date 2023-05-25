@@ -292,7 +292,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
     {% for event in row.gw %}
     <div class="row parameter-value">
     <div class="col-lg-12 col-md-12 col-sm-12">
-    <span class="parameter-value">{{ event.gravity_event_id.gravity_event_id }} ({{ event.enclosing_contour }}%)</span>
+    <span class="parameter-value">{{ event.gravity_event_id|default_if_none:"" }}. Days since event {{ event.days_since_event|floatformat:"2" }}. {{ event.enclosing_contour|default_if_none:"" }}&#37; contour (probability: {{ event.probability }}). Map iteration: {{ event.map_iteration }}</span>
     </div>
     </div>
     {% endfor %}

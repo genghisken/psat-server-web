@@ -87,3 +87,7 @@ source atlas_diff_logs.sql;
 
 -- 2022-08-16 KWS Added atlas_heatmaps table.
 source atlas_heatmaps.sql;
+
+-- 2023-04-18 KWS Create mjdnow() function.
+source mjdnow.sql;
+

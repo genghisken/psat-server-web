@@ -2,6 +2,7 @@ from setuptools import setup, find_packages
 import os
 
 moduleDirectory = os.path.dirname(os.path.realpath(__file__))
+exec(open(moduleDirectory + "/psat_server_web/__version__.py").read())
 
 def readme():
     with open(moduleDirectory + '/README.md') as f:
@@ -12,7 +13,7 @@ setup(
     description='Pan-STARRS and ATLAS web interface.',
     long_description=readme(),
     long_description_content_type="text/markdown",
-    version="0.0.54",
+    version=__version__,
     author='genghisken',
     author_email='ken.w.smith@gmail.com',
     license='MIT',
