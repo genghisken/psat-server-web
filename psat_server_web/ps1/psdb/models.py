@@ -958,6 +958,42 @@ class TcsGravityAlerts(models.Model):
     dateadded = models.DateTimeField(db_column='dateAdded', blank=True, null=True)  # Field name made lowercase.
     datelastmodified = models.DateTimeField(db_column='dateLastModified', blank=True, null=True)  # Field name made lowercase.
 
+    @property
+    def class_bbh_pc(self):
+        """class_bbh_pc.
+        """
+        p = None
+        if self.class_bbh is not None:
+            p = self.class_bbh * 100.0
+        return p
+
+    @property
+    def class_bns_pc(self):
+        """class_bns_pc.
+        """
+        p = None
+        if self.class_bns is not None:
+            p = self.class_bns * 100.0
+        return p
+
+    @property
+    def class_nsbh_pc(self):
+        """class_nsbh_pc.
+        """
+        p = None
+        if self.class_nsbh is not None:
+            p = self.class_nsbh * 100.0
+        return p
+
+    @property
+    def class_terrestrial_pc(self):
+        """class_terrestrial_pc.
+        """
+        p = None
+        if self.class_terrestrial is not None:
+            p = self.class_terrestrial * 100.0
+        return p
+
     class Meta:
         managed = False
         db_table = 'tcs_gravity_alerts'
