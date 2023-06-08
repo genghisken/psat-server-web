@@ -91,3 +91,6 @@ source atlas_heatmaps.sql;
 -- 2023-04-18 KWS Create mjdnow() function.
 source mjdnow.sql;
 
+-- 2023-06-02 KWS Added tcs_gravity_alerts table.
+source tcs_gravity_alerts.sql;
+

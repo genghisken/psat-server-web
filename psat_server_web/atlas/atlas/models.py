@@ -988,6 +988,41 @@ class TcsGravityEvents(models.Model):
 
         db_table = 'tcs_gravity_events'
 
+
+class TcsGravityAlerts(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    superevent_id = models.CharField(max_length=20)
+    significant = models.IntegerField(blank=True, null=True)
+    alert_type = models.CharField(max_length=20, blank=True, null=True)
+    alert_time = models.DateTimeField(blank=True, null=True)
+    mjd_obs = models.FloatField(blank=True, null=True)
+    far = models.FloatField(blank=True, null=True)
+    distmean = models.FloatField(blank=True, null=True)
+    diststd = models.FloatField(blank=True, null=True)
+    class_bbh = models.FloatField(blank=True, null=True)
+    class_bns = models.FloatField(blank=True, null=True)
+    class_nsbh = models.FloatField(blank=True, null=True)
+    class_terrestrial = models.FloatField(blank=True, null=True)
+    prop_hasns = models.FloatField(blank=True, null=True)
+    prop_hasremnant = models.FloatField(blank=True, null=True)
+    prop_hasmassgap = models.FloatField(blank=True, null=True)
+    area10 = models.FloatField(blank=True, null=True)
+    area50 = models.FloatField(blank=True, null=True)
+    area90 = models.FloatField(blank=True, null=True)
+    creator = models.CharField(max_length=30, blank=True, null=True)
+    group = models.CharField(max_length=100, blank=True, null=True)
+    pipeline = models.CharField(max_length=100, blank=True, null=True)
+    map_iteration = models.CharField(max_length=100, blank=True, null=True)
+    alert_map = models.CharField(db_column='map', max_length=400, blank=True, null=True)
+    dateadded = models.DateTimeField(db_column='dateAdded', blank=True, null=True)  # Field name made lowercase.
+    datelastmodified = models.DateTimeField(db_column='dateLastModified', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'tcs_gravity_alerts'
+        unique_together = (('superevent_id', 'alert_time', 'alert_type'),)
+
+
 #class TcsGravityEventAnnotations(models.Model):
 #    """TcsGravityEventAnnotations.
 #    """
@@ -1017,9 +1052,12 @@ class TcsGravityEventAnnotations(models.Model):
     gracedb_id = models.CharField(max_length=10, db_collation='utf8_swedish_ci')
     enclosing_contour = models.IntegerField(blank=True, null=True)
     map_name = models.CharField(max_length=100, blank=True, null=True)
-    map_iteration = models.CharField(max_length=100, blank=True, null=True)
+    #map_iteration = models.CharField(max_length=100, blank=True, null=True)
+    map_iteration = models.ForeignKey('TcsGravityAlerts', to_field='map_iteration', db_column='map_iteration', on_delete=models.CASCADE)
     days_since_event = models.FloatField(blank=True, null=True)
     probability = models.FloatField(blank=True, null=True)
+    distance = models.FloatField(blank=True, null=True)
+    distance_sigma = models.FloatField(blank=True, null=True)
     datelastmodified = models.DateTimeField(db_column='dateLastModified', blank=True, null=True)  # Field name made lowercase.
     updated = models.IntegerField(blank=True, null=True)
     datecreated = models.DateTimeField(db_column='dateCreated', blank=True, null=True)  # Field name made lowercase.

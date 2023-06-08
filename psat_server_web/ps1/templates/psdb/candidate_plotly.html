@@ -598,7 +598,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         </div>
         {% for row in gw %}
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <span class="parameter-value">{{ row.gravity_event_id|default_if_none:"" }}. Days since event {{ row.days_since_event|floatformat:"2" }}. {{ row.enclosing_contour|default_if_none:"" }}&#37; contour (probability: {{ row.probability }}). Map iteration: {{ row.map_iteration }}</span>
+          <span class="parameter-value"><a href="https://gracedb.ligo.org/superevents/{{ row.gravity_event_id }}/view/">{{ row.gravity_event_id }}</a>{% if row.map_iteration.mjd_obs %} <a href="https://psweb.mp.qub.ac.uk/o4_events/superevents/{{ row.gravity_event_id }}/{{ row.map_iteration.map_iteration }}/skymap.png">qub map</a> (MJD = {{ row.map_iteration.mjd_obs|floatformat:"5" }}).{% endif %}{% if row.days_since_event %} Time since GW trigger {{ row.days_since_event|floatformat:"2" }} days.{% endif %} {% if row.enclosing_contour %} Within {{ row.enclosing_contour|default_if_none:"" }}&#37; contour{% endif %}{% if row.probability %} ({{ row.probability }}&#37;).{% endif %}{% if row.map_iteration.alert_time %} Alert time: {{ row.map_iteration.alert_time }}.{% endif %}{% if row.map_iteration.alert_type %} Alert type: {{ row.map_iteration.alert_type }}.{% endif %}</span>
         </div>
         {% endfor %}
         {% endif %}

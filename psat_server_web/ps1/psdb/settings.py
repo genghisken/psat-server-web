@@ -33,7 +33,7 @@ CSRF_COOKIE_NAME = 'csrf_' + os.environ.get('DJANGO_MYSQL_DBNAME')
 SESSION_COOKIE_NAME = 'session_' + os.environ.get('DJANGO_MYSQL_DBNAME')
 
 # 2017-10-03 KWS Had to add this setting because of SSL proxy.
-CSRF_TRUSTED_ORIGINS = ['star.pst.qub.ac.uk']
+CSRF_TRUSTED_ORIGINS = ['https://star.pst.qub.ac.uk', 'https://psweb.mp.qub.ac.uk']
 
 CSRF_FAILURE_VIEW = 'psdb.views.csrf_failure'
 

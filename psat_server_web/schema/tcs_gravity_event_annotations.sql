@@ -15,6 +15,8 @@ CREATE TABLE `tcs_gravity_event_annotations` (
   `map_iteration` varchar(100) DEFAULT NULL,
   `days_since_event` float DEFAULT NULL,
   `probability` float DEFAULT NULL,
+  `distance` float DEFAULT NULL,
+  `distance_sigma` float DEFAULT NULL,
   `dateLastModified` datetime DEFAULT NULL,
   `updated` tinyint(4) DEFAULT '0',
   `dateCreated` datetime DEFAULT NULL,
