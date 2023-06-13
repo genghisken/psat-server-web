@@ -75,6 +75,10 @@ urlpatterns = [
 
 # 2022-05-06 KWS Exposure heat maps
     url(r'^heatmap/(?P<expname>.*)/$', views.heatmap, {'template_name':'heatmap.html'}, name='heatmap'),
+
+# 2023-06-09 KWS GCN notification with custom lists combined with GW events
+    url(r'^userlist_gcn/(?P<userDefinedListNumber>\d+)/$', views.gcn, {'template_name':'gcn.txt'}, name='gcn'),
+    url(r'^userlist_gcn_latex/(?P<userDefinedListNumber>\d+)/$', views.gcn, {'template_name':'gcn_latex.txt'}, name='gcn'),
 ]
 
 

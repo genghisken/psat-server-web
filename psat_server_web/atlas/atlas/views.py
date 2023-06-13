@@ -598,6 +598,32 @@ def userDefinedLists(request, userDefinedListNumber):
     return render(request, 'atlas/followup_bs.html', {'table': table, 'rows' : table.rows, 'listHeader' : listHeader, 'form_searchobject': form})
 
 
+# 2023-06-09 KWS Get GCN formatted user defined lists
+@login_required
+def gcn(request, userDefinedListNumber, template_name):
+    """Create a text only GCN list from a custom list"""
+
+    userDefinedListRow = get_object_or_404(TcsObjectGroupDefinitions, pk=userDefinedListNumber)
+
+    listHeader = userDefinedListRow.description
+
+    # 2023-06-13 KWS Add ability to filter on a GW event (in case associated with multiple events).
+    gwEvent = None
+    gwEvent = request.GET.get('gwevent')
+
+    initial_queryset = TcsObjectGroups.objects.filter(object_group_id = userDefinedListNumber)
+
+    # Grab any GW annotations for any object. What if we have more than one?
+    for row in initial_queryset:
+        if gwEvent is not None:
+            g = TcsGravityEventAnnotations.objects.filter(transient_object_id__id = row.transient_object_id.id).filter(gravity_event_id__contains=gwEvent)
+        else:
+            g = TcsGravityEventAnnotations.objects.filter(transient_object_id__id = row.transient_object_id.id)
+        row.events = g
+
+    return render(request, 'atlas/' + template_name ,{'table': initial_queryset, 'listHeader' : listHeader}, content_type="text/plain")
+
+
 class AtlasDiffDetectionsTable(tables2.Table):
     """AtlasDiffDetectionsTable.
     """
@@ -1755,32 +1781,6 @@ def atelsFast(request, userDefinedListNumber):
     #table = WebViewUserDefinedTable(initial_queryset, order_by=request.GET.get('sort', 'earliest_mjd'))
 
     return render(request, 'atlas/atelsfast.txt',{'table': results, 'listHeader' : listHeader}, content_type="text/plain")
-
-
-@login_required
-def gcn(request, userDefinedListNumber):
-    """Create a text only Discovery ATel list"""
-
-    userDefinedListRow = get_object_or_404(TcsObjectGroupDefinitions, pk=userDefinedListNumber)
-    listHeader = userDefinedListRow.description
-
-    initial_queryset = WebViewUserDefined.objects.filter(object_group_id = userDefinedListNumber)
-    table = WebViewUserDefinedTable(initial_queryset, order_by=request.GET.get('sort', 'RA'))
-
-    return render(request, 'atlas/gcn.txt',{'table': table, 'rows' : table.rows, 'listHeader' : listHeader}, content_type="text/plain")
-
-
-@login_required
-def gcnlatex(request, userDefinedListNumber):
-    """Create a text only Discovery ATel list"""
-
-    userDefinedListRow = get_object_or_404(TcsObjectGroupDefinitions, pk=userDefinedListNumber)
-    listHeader = userDefinedListRow.description
-
-    initial_queryset = WebViewUserDefined.objects.filter(object_group_id = userDefinedListNumber)
-    table = WebViewUserDefinedTable(initial_queryset, order_by=request.GET.get('sort', 'RA'))
-
-    return render(request, 'atlas/gcn_latex.txt',{'table': table, 'rows' : table.rows, 'listHeader' : listHeader}, content_type="text/plain")
 
 
 @login_required

@@ -1,0 +1,8 @@
+\begin{center}
+\begin{tabular}{ l l l l l l p{1cm} }
+\hline \hline
+Name & RA (J2000) & Dec (J2000) & GW Events & GW Event contours & Days since events \\ \hline
+{% for row in table %}{% if row.transient_object_id.atlas_designation %}{{ row.transient_object_id.atlas_designation }}{% else %}{{ row.transient_object_id.ID }}{% endif %} & {{ row.transient_object_id.ra_sex }} & {{ row.transient_object_id.dec_sex }} & {% for event in row.events %}{{ event.gravity_event_id }} {% endfor %}& {% for event in row.events %}{{ event.enclosing_contour }} {% endfor %}& {% for event in row.events %}{{ event.days_since_event|floatformat:"2" }} {% endfor %}& \\
+{% endfor %}\hline
+\end{tabular}
+\end{center}

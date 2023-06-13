@@ -61,8 +61,9 @@ urlpatterns = [
     url(r'^psdb/userlistcat/(?P<userDefinedListNumber>\d+)/$', views.obsCatalogue),
     url(r'^psdb/userlistwiki/(?P<userDefinedListNumber>\d+)/$', views.obsMediaWiki),
     url(r'^psdb/userlist_atel_discovery/(?P<userDefinedListNumber>\d+)/$', views.atelsDiscovery),
-    url(r'^psdb/userlist_gcn/(?P<userDefinedListNumber>\d+)/$', views.gcn),
-    url(r'^psdb/userlist_gcn_latex/(?P<userDefinedListNumber>\d+)/$', views.gcnlatex),
+# 2023-06-09 KWS GCN notification with custom lists combined with GW events
+    url(r'^psdb/userlist_gcn/(?P<userDefinedListNumber>\d+)/$', views.gcn, {'template_name':'gcn.txt'}, name='gcn'),
+    url(r'^psdb/userlist_gcn_latex/(?P<userDefinedListNumber>\d+)/$', views.gcn, {'template_name':'gcn_latex.txt'}, name='gcn'),
 
 # 2014-07-23 KWS Added New CSV lists
     url(r'^psdb/followupcsv/(?P<listNumber>\d+)/$', views.followupCsv),
