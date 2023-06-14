@@ -786,7 +786,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
       {% if avg_coords.dec >= -30.0 %}
       <!-- PS1 Stamp Server -->
         <div class="col-lg-12 col-md-12 col-sm-12">
-        <a href="http://plpsipp1v.stsci.edu/cgi-bin/ps1cutouts?pos={{ avg_coords.ra }}{% if avg_coords.dec >= 0.0 %}+{% endif %}{{ avg_coords.dec }}&filter=color&filter=g&filter=r&filter=i&filetypes=stack&auxiliary=data&size=240&output_size=512&verbose=0&autoscale=99.500000&catlist=" target="blank">PS1 Stamp</a>
+        <a href="http://ps1images.stsci.edu/cgi-bin/ps1cutouts?pos={{ avg_coords.ra }}{% if avg_coords.dec >= 0.0 %}+{% endif %}{{ avg_coords.dec }}&filter=color&filter=g&filter=r&filter=i&filetypes=stack&auxiliary=data&size=240&output_size=512&verbose=0&autoscale=99.500000&catlist=" target="blank">PS1 Stamp</a>
         </div>
       {% endif %}
 

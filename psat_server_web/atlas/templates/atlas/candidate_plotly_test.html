@@ -5,7 +5,6 @@
 {% block title %}Candidate {{transient.id}}{% endblock %}
 
 
-<!-- Lightcurve data Globals -->
 {% block lightcurvedataglobal %}
 <script language="javascript" type="text/javascript">
 var jslcdataglobal = new Object();
@@ -14,7 +13,6 @@ var jslimitsglobal = new Object();
 </script>
 {% endblock %}
 
-<!-- Recurrence data Globals -->
 {% block recurrencedataglobal %}
 <script language="javascript" type="text/javascript">
 var jsrecurrencedataglobal = new Object();
@@ -195,7 +193,6 @@ jslabelsglobal["#flot-lightcurve-forced-stack-flux"] = jslabelsforcedstackflux;
 {% endblock %}
 
 
-<!-- Colour data Globals -->
 {% block colourplotdataglobal %}
 <script language="javascript" type="text/javascript">
 var jscolourdataglobal = new Object();
@@ -341,11 +338,9 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
 {% block content %}
 
-<!-- For my own sanity - see comments describing which columns are which in the layout -->
 
 <div class="container-fluid">
   <div class="row">
-    <!-- First part of the page - 3 columns in large format, width 4, 2, 6 -->
 
     <div class="col-lg-4 col-md-6 col-sm-12">
       <div class="row">
@@ -406,7 +401,6 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         </div>
         {% endif %}
 
-        <!-- 2019-02-11 KWS Added ATel button. -->
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a class="btn btn-outline-primary" href="{% url 'atel' transient.id %}" role="button">Generate AstroNote</a>
         </div>
@@ -585,20 +579,16 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         <div class="col-lg-12 col-md-12 col-sm-12">
           <span class="parameter-label">Possible GW Events Association:</span>
         </div>
-        {% for row in gw %}
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <span class="parameter-value"><a href="https://gracedb.ligo.org/superevents/{{ row.gravity_event_id }}/view/">{{ row.gravity_event_id }}</a>{% if row.map_iteration.mjd_obs %} <a href="https://psweb.mp.qub.ac.uk/o4_events/superevents/{{ row.gravity_event_id }}/{{ row.map_iteration.map_iteration }}/skymap.png">qub map</a> (MJD = {{ row.map_iteration.mjd_obs|floatformat:"5" }}).{% endif %}{% if row.days_since_event %} Time since GW trigger {{ row.days_since_event|floatformat:"2" }} days.{% endif %} {% if row.enclosing_contour %} Within {{ row.enclosing_contour|default_if_none:"" }}&#37; contour{% endif %}{% if row.probability %} ({{ row.probability }}&#37;).{% endif %}{% if row.map_iteration.alert_time %}{% if row.map_iteration.distmean %} Position specific distance {{ row.map_iteration.distmean|floatformat:"0" }} (+/- {{ row.map_iteration.diststd|floatformat:"0" }}) Mpc. {% endif %}{% if row.map_iteration.class_bbh %}BBH ({{ row.map_iteration.class_bbh_pc|floatformat:"0" }}&#37) {% endif %}{% if row.map_iteration.class_bns %}BNS ({{ row.map_iteration.class_bns_pc|floatformat:"0" }}&#37) {% endif %}{% if row.map_iteration.class_nsbh %}NSBH ({{ row.map_iteration.class_nsbh_pc|floatformat:"0" }}&#37) {% endif %}{% if row.map_iteration.class_terrestrial %}Terr ({{ row.map_iteration.class_terrestrial_pc|floatformat:"0" }}&#37) {% endif %}Alert time: {{ row.map_iteration.alert_time }}.{% endif %}{% if row.map_iteration.alert_type %} Alert type: {{ row.map_iteration.alert_type }}.{% endif %}</span>
+          <span class="parameter-value">{% for row in gw %}{{ row.gravity_event_id.gravity_event_id|default_if_none:"" }} (MJD {{ row.gravity_event_id.mjd }} - {{ row.enclosing_contour|default_if_none:"" }}&#37; contour) {% endfor %}</span>
         </div>
-        {% endfor %}
         {% endif %}
 
       </div>
     </div>
 
   </div>
-  <!-- First part of page layout ends -->
 
-  <!-- Second part of page - 3 columns, width 6, 2, 4 OR 8, 4 if there are no images -->
 
   <div class="row">
     {% if images %}
@@ -751,46 +741,38 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
 
 
-      <!-- WIKISKY --> <!-- NEED TO INPUT RA (DECIMAL HOURS) HERE x 2 -->
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a href="http://www.wikisky.org/?ra={{ avg_coords.ra_in_hours }}&de={{ avg_coords.dec }}&zoom=13&show_grid=1&show_constellation_lines=1&show_constellation_boundaries=1&show_const_names=0&show_galaxies=1&show_box=1&box_ra={{ avg_coords.ra_in_hours }}&box_de={{ avg_coords.dec }}&box_width=50&box_height=50&img_source=DSS2" target="_blank">WIKISKY</a>
         </div>
 
       {% if avg_coords.dec >= -30.0 %}
-      <!-- PS1 Stamp Server -->
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a href="http://ps1images.stsci.edu/cgi-bin/ps1cutouts?pos={{ avg_coords.ra }}{% if avg_coords.dec >= 0.0 %}+{% endif %}{{ avg_coords.dec }}&filter=color&filter=g&filter=r&filter=i&filetypes=stack&auxiliary=data&size=240&output_size=512&verbose=0&autoscale=99.500000&catlist=" target="_blank">PS1 Stamp</a>
         </div>
       {% endif %}
 
       {% if avg_coords.dec < 0.0 %}
-      <!-- Skymapper Stamp Server -->
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a href="http://api.skymapper.nci.org.au/public/siap/dr1/query?POS={{ avg_coords.ra }},{{ avg_coords.dec }}&SIZE=0.05&BAND=g,r,i&FORMAT=GRAPHIC&VERB=3" target="_blank">Skymapper Stamps</a>
         </div>
       {% endif %}
 
-      <!-- SDSS DR15 NAVIGATE LINK -->
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a href="http://skyserver.sdss.org/dr15/en/tools/chart/navi.aspx?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&scale=0.1&width=500&height=500&opt=GPS" target="_blank">SDSS DR15 Navigate</a>
         </div>
 
-      <!-- NED LINK -->
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a href="http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch?in_csys=Equatorial&in_equinox=J2000.0&lon={{ avg_coords.ra|floatformat:6 }}d&lat={{ avg_coords.dec|floatformat:6 }}d&radius=2.0&hconst=73&omegam=0.27&omegav=0.73&corr_z=1&z_constraint=Unconstrained&z_value1=&z_value2=&z_unit=z&search_type=Near+Position+Search&ot_include=ANY&nmp_op=ANY&out_csys=Equatorial&out_equinox=J2000.0&obj_sort=Distance+to+search+center&of=pre_text&zv_breaker=30000.0&list_limit=5&img_stamp=YES" target="_blank">NED: 2 arcmin radius</a>
         </div>
 
-      <!-- LEDA -->
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a href="http://leda.univ-lyon1.fr/fG.cgi?n=0&c=o&p=J{{ avg_coords.ra }}d{{ avg_coords.dec }}d&f=0.16667&ob=ra" target="_blank">LEDA: 10 arcsec radius</a>
         </div>
 
-      <!-- SIMBAD -->
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a href="http://simbad.u-strasbg.fr/simbad/sim-coo?Coord={{avg_coords.ra}}d{{ avg_coords.dec }}d&Radius=10&Radius.unit=arcsec&CooFrame=FK5&CooEqui=2000&CooEpoch=2000" target="_blank">SIMBAD: 10 arcsec radius</a>
         </div>
 
-      <!-- Galactic Extinction -->
 
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a href="http://nedwww.ipac.caltech.edu/cgi-bin/nph-calc?in_csys=Equatorial&in_equinox=J2000.0&obs_epoch=2000.0&lon={{ avg_coords.ra }}d&lat={{ avg_coords.dec }}d&pa=0.0&out_csys=Equatorial&out_equinox=J2000.0" target="_blank">Galactic Extinction</a>
@@ -806,7 +788,6 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
     </div>
 
-    <!-- Third column only exists if there are images -->
     {% if images %}
     <div class="col-lg-4 col-md-12 col-sm-12">
       <div class="scrollTable">
@@ -839,9 +820,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
     {% endif %}
 
   </div>
-  <!-- Second part of page layout ends -->
 
-  <!-- Third part of page - 1 column, width 12 -->
   {% if table.rows.count != 0 %}
   <div class="col-lg-12 col-md-12 col-sm-12">
 
@@ -853,9 +832,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
   </div>
   {% endif %}
-  <!-- Third part of page layout ends -->
 
-  <!-- Fourth part of page - 1 column, width 12 - form submit -->
 {% if not public and user.is_authenticated %}
 {% if processingStatus != 1 %}
 
@@ -914,7 +891,6 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
 {% endif %}
 {% endif %}
-  <!-- Fourth part of page layout ends -->
 
 
 </div>
@@ -923,10 +899,6 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 <script src="{{ STATIC_URL }}js/plotly/plotly-latest.kws.js"></script>
 <script language="javascript" type="text/javascript">var lcdivname = "#flot-lightcurve", lcplotheight = 400, markersize = 15, errorbarsize = 4, arrowsize = 7;</script>
 <script src="{{ STATIC_URL }}js/lightcurveplotly.js"></script>
-<!--
-<script language="javascript" type="text/javascript">
-</script>
--->
 
 {% if lcdataforced.0 %}
 <script language="javascript" type="text/javascript">var lcdivname = "#flot-lightcurve-forced", lcplotheight = 400, markersize = 15, errorbarsize = 4, arrowsize = 7;</script>
