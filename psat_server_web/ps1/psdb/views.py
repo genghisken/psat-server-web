@@ -1269,10 +1269,11 @@ def followupListNew(request, listNumber):
         if len(gwTaggedObjects) == 0:
             # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
             gwTaggedObjects = [1]
-        if gwt0 is not None and gwt1 is not None and gwt0 > -10.0 and gwt0 < 21.0 and gwt1 > gwt0 and gwt1 < 21.0:
-            initial_queryset = followupClassList[int(listNumber)].objects.filter(ID__in=gwTaggedObjects).filter((Q(earliest_mjd__gt=gwt0) | Q(followup_flag_date__gt=datetime.timedelta(days=gwt0))) & (Q(earliest_mjd__lt=gwt1) | Q(followup_flag_date__lt=datetime.timedelta(days=gwt1))))
-        else:
-            initial_queryset = followupClassList[int(listNumber)].objects.filter(ID__in=gwTaggedObjects)
+        #if gwt0 is not None and gwt1 is not None and gwt0 > -10.0 and gwt0 < 21.0 and gwt1 > gwt0 and gwt1 < 21.0:
+        #    initial_queryset = followupClassList[int(listNumber)].objects.filter(ID__in=gwTaggedObjects).filter((Q(earliest_mjd__gt=gwt0) | Q(followup_flag_date__gt=datetime.timedelta(days=gwt0))) & (Q(earliest_mjd__lt=gwt1) | Q(followup_flag_date__lt=datetime.timedelta(days=gwt1))))
+        #else:
+        queryFilter = filterGetParameters(request, {})
+        initial_queryset = followupClassList[int(listNumber)].objects.filter(**queryFilter).filter(id__in=gwTaggedObjects)
     else:
         queryFilter = filterGetParameters(request, {})
         initial_queryset = followupClassList[int(listNumber)].objects.all().filter(**queryFilter)
