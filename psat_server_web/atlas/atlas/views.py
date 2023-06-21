@@ -1631,7 +1631,7 @@ def lightcurvestackedforcedplain(request, tcs_transient_objects_id):
     transient = get_object_or_404(AtlasDiffObjects, pk=tcs_transient_objects_id)
     orderBy = request.GET.get('sort')
     if not orderBy:
-        orderBy = 'mjd_obs'
+        orderBy = 'mjd'
     forcedPhotometry = AtlasStackedForcedPhotometry.objects.filter(atlas_object_id = transient.id).order_by(orderBy)
 
     return render(request, 'atlas/lightcurveforced.txt',{'transient' : transient, 'table' : forcedPhotometry }, content_type="text/plain")
