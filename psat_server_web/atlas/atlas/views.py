@@ -1634,7 +1634,7 @@ def lightcurvestackedforcedplain(request, tcs_transient_objects_id):
         orderBy = 'mjd'
     forcedPhotometry = AtlasStackedForcedPhotometry.objects.filter(atlas_object_id = transient.id).order_by(orderBy)
 
-    return render(request, 'atlas/lightcurveforced.txt',{'transient' : transient, 'table' : forcedPhotometry }, content_type="text/plain")
+    return render(request, 'atlas/lightcurvestackedforced.txt',{'transient' : transient, 'table' : forcedPhotometry }, content_type="text/plain")
 
 
 # 2019-02-18 KWS Add ATel template for an object
