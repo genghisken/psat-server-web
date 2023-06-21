@@ -1619,6 +1619,24 @@ def lightcurveforcedplain(request, tcs_transient_objects_id):
 
     return render(request, 'atlas/lightcurveforced.txt',{'transient' : transient, 'table' : forcedPhotometry }, content_type="text/plain")
 
+# 2023-06-21 KWS Add a plain text version of the stacked forced photometry.
+
+def lightcurvestackedforcedplain(request, tcs_transient_objects_id):
+    """lightcurvestackedforcedplain.
+    
+    Args:
+        request:
+        tcs_transient_objects_id:
+    """
+    transient = get_object_or_404(AtlasDiffObjects, pk=tcs_transient_objects_id)
+    orderBy = request.GET.get('sort')
+    if not orderBy:
+        orderBy = 'mjd_obs'
+    forcedPhotometry = AtlasStackedForcedPhotometry.objects.filter(atlas_object_id = transient.id).order_by(orderBy)
+
+    return render(request, 'atlas/lightcurveforced.txt',{'transient' : transient, 'table' : forcedPhotometry }, content_type="text/plain")
+
+
 # 2019-02-18 KWS Add ATel template for an object
 def atel(request, tcs_transient_objects_id):
     """atel.

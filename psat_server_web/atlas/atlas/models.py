@@ -989,6 +989,7 @@ class TcsGravityEvents(models.Model):
         db_table = 'tcs_gravity_events'
 
 
+# 2023-06-15 KWS Added "interesting" column to human override all other significance factors.
 class TcsGravityAlerts(models.Model):
     id = models.BigIntegerField(primary_key=True)
     superevent_id = models.CharField(max_length=20)
@@ -1014,6 +1015,7 @@ class TcsGravityAlerts(models.Model):
     pipeline = models.CharField(max_length=100, blank=True, null=True)
     map_iteration = models.CharField(max_length=100, blank=True, null=True)
     alert_map = models.CharField(db_column='map', max_length=400, blank=True, null=True)
+    interesting = models.IntegerField(blank=True, null=True)
     dateadded = models.DateTimeField(db_column='dateAdded', blank=True, null=True)  # Field name made lowercase.
     datelastmodified = models.DateTimeField(db_column='dateLastModified', blank=True, null=True)  # Field name made lowercase.
 

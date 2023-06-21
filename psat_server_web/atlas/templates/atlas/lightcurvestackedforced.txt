@@ -1,0 +1,3 @@
+#mjd,m,dm,ujy,dujy,f,err,chin,ra,dec,x,y,maj,min,phi,apfit,sky,zp,stack
+{% for row in table %}{{ row.mjd }},{{ row.m }},{{ row.dm }},{{ row.ujy }},{{ row.dujy }},{{ row.f }},{{ row.err }},{{ row.chin }},{{ row.ra }},{{ row.dec }},{{ row.x }},{{ row.y }},{{ row.maj }},{{ row.min }},{{ row.phi }},{{ row.apfit }},{{ row.sky }},{{ row.zp }},{{ row.stack }}
+{% endfor %}

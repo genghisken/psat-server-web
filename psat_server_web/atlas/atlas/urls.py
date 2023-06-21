@@ -28,6 +28,7 @@ urlpatterns = [
 #    url(r'^lightcurve/(?P<tcs_transient_objects_id>\d+)/$', views.lightcurveplain, name='lightcurveplain'),
     url(r'^lightcurve/(?P<tcs_transient_objects_id>\d+)/$', views.lightcurveplainddc, name='lightcurveplain'),
     url(r'^lightcurveforced/(?P<tcs_transient_objects_id>\d+)/$', views.lightcurveforcedplain, name='lightcurveforcedplain'),
+    url(r'^lightcurvestackedforced/(?P<tcs_transient_objects_id>\d+)/$', views.lightcurvestackedforcedplain, name='lightcurvestackedforcedplain'),
     url(r'^atel/(?P<tcs_transient_objects_id>\d+)/$', views.atel, name='atel'),
 
     # 2017-06-16 KWS New ddc detections
