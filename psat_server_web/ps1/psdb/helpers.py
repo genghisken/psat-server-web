@@ -418,6 +418,66 @@ def filterGetParameters(request, queryFilter, prefix = ''):
 
     return queryFilter
 
+
+# 2023-06-22 KWS Added helper to get GW event parameters
+def filterGetGWParameters(request, queryFilter, prefix = ''):
+    """filterGetParameters.
+
+    Args:
+        request:
+        queryFilter:
+        prefix:
+    """
+
+
+    gwEvent = None
+    gwEventParameter = 'gravity_event_id'
+
+    gwEvent = request.GET.get('gwevent')
+
+    if gwEvent:
+        queryFilter[prefix + gwEventParameter + '__contains'] = gwEvent
+
+
+    enclosingContour = None
+    enclosingContourParameter = 'enclosing_contour'
+    for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
+        enclosingContourParameter = 'enclosing_contour' + suffix
+        enclosingContour = request.GET.get(enclosingContourParameter)
+        if enclosingContour is not None:
+            break
+
+    try:
+        enclosingContour = float(enclosingContour)
+    except ValueError as e:
+        enclosingContour = None
+    except TypeError as e:
+        enclosingContour = None
+
+    if enclosingContour:
+        queryFilter[prefix + enclosingContourParameter] = enclosingContour
+
+    daysSinceEvent = None
+    daysSinceEventParameter = 'days_since_event'
+    for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
+        daysSinceEventParameter = 'days_since_event' + suffix
+        daysSinceEvent = request.GET.get(daysSinceEventParameter)
+        if daysSinceEvent is not None:
+            break
+
+    try:
+        daysSinceEvent = float(daysSinceEvent)
+    except ValueError as e:
+        daysSinceEvent = None
+    except TypeError as e:
+        daysSinceEvent = None
+
+    if daysSinceEvent:
+        queryFilter[prefix + daysSinceEventParameter] = daysSinceEvent
+
+    return queryFilter
+
+
 def getDjangoTables2ImageTemplate(imageType):
     IMAGE_TEMPLATE = """<img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ record.tcs_images_id.whole_mjd }}/{{ record.tcs_images_id.%s }}.jpeg" alt="triplet" title="{{ record.tcs_images_id.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" />""" % imageType
     return IMAGE_TEMPLATE

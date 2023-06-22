@@ -47,7 +47,7 @@ from django.template import RequestContext
 
 # base 26 numbers for candidate names
 from gkutils.commonutils import base26, ra_to_sex, dec_to_sex, ra_in_decimal_hours, coneSearchHTM, QUICK, FULL, COUNT, CAT_ID_RA_DEC_COLS, FLAGS, getFlagDefs, transform, J2000toGalactic, getDateFractionMJD, COORDS_SEX_REGEX_COMPILED, COORDS_DEC_REGEX_COMPILED, NAME_REGEX_COMPILED, calculateRMSScatter, dbConnect, Struct
-from atlas.helpers import processSearchForm, getNearbyObjectsFromAlternateDatabase, sendMessage, TNS_MESSAGES, getNearbyObjectsForScatterPlot, SHOW_LC_DATA_LIMIT, filterGetParameters, getDjangoTables2ImageTemplate
+from atlas.helpers import processSearchForm, getNearbyObjectsFromAlternateDatabase, sendMessage, TNS_MESSAGES, getNearbyObjectsForScatterPlot, SHOW_LC_DATA_LIMIT, filterGetParameters, filterGetGWParameters, getDjangoTables2ImageTemplate
 
 # *** FGSS CODE ***
 #from catalogueviews import *
@@ -608,15 +608,14 @@ def gcn(request, userDefinedListNumber, template_name):
     listHeader = userDefinedListRow.description
 
     # 2023-06-13 KWS Add ability to filter on a GW event (in case associated with multiple events).
-    gwEvent = None
-    gwEvent = request.GET.get('gwevent')
+    queryFilterGW = filterGetGWParameters(request, {})
 
     initial_queryset = TcsObjectGroups.objects.filter(object_group_id = userDefinedListNumber)
 
     # Grab any GW annotations for any object. What if we have more than one?
     for row in initial_queryset:
-        if gwEvent is not None:
-            g = TcsGravityEventAnnotations.objects.filter(transient_object_id__id = row.transient_object_id.id).filter(gravity_event_id__contains=gwEvent)
+        if queryFilterGW:
+            g = TcsGravityEventAnnotations.objects.filter(transient_object_id__id = row.transient_object_id.id).filter(**queryFilterGW)
         else:
             g = TcsGravityEventAnnotations.objects.filter(transient_object_id__id = row.transient_object_id.id)
         row.events = g
@@ -2394,8 +2393,7 @@ def followupList(request, listNumber):
     objectName = None
 
     # 2019-07-31 KWS Add ability to filter on a GW event.
-    gwEvent = None
-    gwEvent = request.GET.get('gwevent')
+    queryFilterGW = filterGetGWParameters(request, {})
 
     if request.method == 'POST':
         form = SearchForObjectForm(request.POST)
@@ -2410,8 +2408,8 @@ def followupList(request, listNumber):
                 #initial_queryset = WebViewFollowupTransients.objects.filter(pk__in=transients_queryset.values_list('id'))
                 listHeader = 'Candidates for Followup'
             else:
-                if gwEvent:
-                    gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=listNumber).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+                if queryFilterGW:
+                    gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=listNumber).filter(**queryFilterGW)
                     gwTaggedObjects = [x.transient_object_id_id for x in gw]
                     if len(gwTaggedObjects) == 0:
                         # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
@@ -2428,8 +2426,8 @@ def followupList(request, listNumber):
         else:
             form = SearchForObjectForm()
 
-        if gwEvent:
-            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=listNumber).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+        if queryFilterGW:
+            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=listNumber).filter(**queryFilterGW)
             gwTaggedObjects = [x.transient_object_id_id for x in gw]
             if len(gwTaggedObjects) == 0:
                 # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
@@ -3064,8 +3062,7 @@ def followupQuickView(request, listNumber):
 
 
     # 2019-07-31 KWS Add ability to filter on a GW event.
-    gwEvent = None
-    gwEvent = request.GET.get('gwevent')
+    queryFilterGW = filterGetGWParameters(request, {})
 
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
@@ -3096,8 +3093,8 @@ def followupQuickView(request, listNumber):
                 #objectsQueryset = AtlasDiffObjects.objects.filter(detection_list_id = listNumber, images_id__isnull = False)
                 # 2019-07-31 KWS Rattle through all the objects to see if we have any
                 #                associated with a specified GW event.
-                if gwEvent:
-                    gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+                if queryFilterGW:
+                    gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
                     gwTaggedObjects = [x.transient_object_id_id for x in gw]
                     if len(gwTaggedObjects) == 0:
                         # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
@@ -3107,8 +3104,8 @@ def followupQuickView(request, listNumber):
                     objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter)
         else:
             # We're using the submit form for the object updates
-            if gwEvent:
-                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+            if queryFilterGW:
+                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
                 gwTaggedObjects = [x.transient_object_id_id for x in gw]
                 if len(gwTaggedObjects) == 0:
                     # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
@@ -3219,8 +3216,8 @@ def followupQuickView(request, listNumber):
         if objectName:
             formSearchObject = SearchForObjectForm(initial={'searchText': objectName})
 
-        if gwEvent:
-            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+        if queryFilterGW:
+            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
             gwTaggedObjects = [x.transient_object_id_id for x in gw]
             if len(gwTaggedObjects) == 0:
                 # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
@@ -3643,10 +3640,9 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
 
 
     queryFilter = {'detection_list_id': listNumber, 'images_id__isnull': False}
-    gwEvent = None
     # 2019-04-16 KWS Get the GW Event name. We will do a "like" query
     #                on this, so we can grab multiple events if necessary.
-    gwEvent = request.GET.get('gwevent')
+    queryFilterGW = filterGetGWParameters(request, {})
 
     queryFilter = filterGetParameters(request, queryFilter)
 
@@ -3701,11 +3697,11 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
                     objectsQueryset = results
             else: # Default query if the form is NOT valid - need to fix!!
                 #objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter)
-                if gwEvent:
+                if queryFilterGW:
                     objectsQueryset = []
                     qs = WebViewFollowupTransientsGenericGW.objects.filter(**queryFilter).order_by(*sort)
                     for obj in qs:
-                        gw = TcsGravityEventAnnotations.objects.filter(transient_object_id=obj.id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+                        gw = TcsGravityEventAnnotations.objects.filter(transient_object_id=obj.id).filter(**queryFilterGW)
                         if gw:
                             obj.gw = gw
                             objectsQueryset.append(obj)
@@ -3714,11 +3710,11 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
         else:
             # We're using the submit form for the object updates
             #objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter)
-            if gwEvent:
+            if queryFilterGW:
                 objectsQueryset = []
                 qs = WebViewFollowupTransientsGenericGW.objects.filter(**queryFilter).order_by(*sort)
                 for obj in qs:
-                    gw = TcsGravityEventAnnotations.objects.filter(transient_object_id=obj.id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+                    gw = TcsGravityEventAnnotations.objects.filter(transient_object_id=obj.id).filter(queryFilterGW)
                     if gw:
                         obj.gw = gw
                         objectsQueryset.append(obj)
@@ -3829,11 +3825,11 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
             formSearchObject = SearchForObjectForm(initial={'searchText': objectName})
 
         #objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter)
-        if gwEvent:
+        if queryFilterGW:
             objectsQueryset = []
             qs = WebViewFollowupTransientsGenericGW.objects.filter(**queryFilter).order_by(*sort)
             for obj in qs:
-                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id=obj.id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id=obj.id).filter(**queryFilterGW)
                 if gw:
                     obj.gw = gw
                     objectsQueryset.append(obj)

@@ -71,7 +71,7 @@ from django.contrib import auth
 from django.template.context_processors import csrf
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, getDjangoTables2ImageTemplate, SHOW_LC_DATA_LIMIT
+from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, filterGetGWParameters, getDjangoTables2ImageTemplate, SHOW_LC_DATA_LIMIT
 
 # 2022-11-16 KWS If the Lasair API is unreachable we should catch the connection error.
 from requests.exceptions import ConnectionError as RequestsConnectionError
@@ -1055,15 +1055,14 @@ def gcn(request, userDefinedListNumber, template_name):
     listHeader = userDefinedListRow.description
 
     # 2023-06-13 KWS Add ability to filter on a GW event (in case associated with multiple events).
-    gwEvent = None
-    gwEvent = request.GET.get('gwevent')
+    queryFilterGW = filterGetGWParameters(request, {})
 
     initial_queryset = TcsObjectGroups.objects.filter(object_group_id = userDefinedListNumber)
 
     # Grab any GW annotations for any object. What if we have more than one?
     for row in initial_queryset:
-        if gwEvent is not None:
-            g = TcsGravityEventAnnotations.objects.filter(transient_object_id__id = row.transient_object_id.id).filter(gravity_event_id__contains=gwEvent)
+        if queryFilterGW:
+            g = TcsGravityEventAnnotations.objects.filter(transient_object_id__id = row.transient_object_id.id).filter(**queryFilterGW)
         else:
             g = TcsGravityEventAnnotations.objects.filter(transient_object_id__id = row.transient_object_id.id)
         row.events = g
@@ -1242,8 +1241,7 @@ def followupListNew(request, listNumber):
             form = SearchForObjectForm(initial={'searchText': objectName})
 
     # 2019-07-31 KWS Add ability to filter on a GW event.
-    gwEvent = None
-    gwEvent = request.GET.get('gwevent')
+    queryFilterGW = filterGetGWParameters(request, {})
 
     # 2019-08-16 KWS Filter on GW event time (currently wired to -10 days, +21 days)
     gwt0 = None
@@ -1263,8 +1261,8 @@ def followupListNew(request, listNumber):
     except TypeError as e:
         gwt1 = None
 
-    if gwEvent:
-        gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=listNumber).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+    if queryFilterGW:
+        gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=listNumber).filter(**queryFilterGW)
         gwTaggedObjects = [x.transient_object_id_id for x in gw]
         if len(gwTaggedObjects) == 0:
             # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
@@ -1690,8 +1688,7 @@ def followupQuickView(request, listNumber):
     queryFilter = filterGetParameters(request, queryFilter)
 
     # 2019-07-31 KWS Add ability to filter on a GW event.
-    gwEvent = None
-    gwEvent = request.GET.get('gwevent')
+    queryFilterGW = filterGetGWParameters(request, {})
 
     # Dummy form initialisation
     formSearchObject = SearchForObjectForm()
@@ -1708,8 +1705,8 @@ def followupQuickView(request, listNumber):
 
             # 2019-07-31 KWS Rattle through all the objects to see if we have any
             #                associated with a specified GW event.
-            if gwEvent:
-                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+            if queryFilterGW:
+                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
                 gwTaggedObjects = [x.transient_object_id_id for x in gw]
                 if len(gwTaggedObjects) == 0:
                     # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
@@ -1786,8 +1783,8 @@ def followupQuickView(request, listNumber):
 
         # 2019-07-31 KWS Rattle through all the objects to see if we have any
         #                associated with a specified GW event.
-        if gwEvent:
-            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(gravity_event_id__contains=gwEvent).filter(enclosing_contour__lt=100)
+        if queryFilterGW:
+            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
             gwTaggedObjects = [x.transient_object_id_id for x in gw]
             if len(gwTaggedObjects) == 0:
                 # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
