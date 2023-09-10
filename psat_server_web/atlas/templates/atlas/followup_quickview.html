@@ -86,6 +86,9 @@
     <a id="select_all_u" name="select_all_u" value="all_u">U</a>
   </th>
   <th>
+    <a id="select_all_s" name="select_all_s" value="all_s">S</a>
+  </th>
+  <th>
     <a id="select_all_p" name="select_all_p" value="all_p">P</a>
   </th>
   <th>
@@ -98,6 +101,9 @@
 {% if list_id == 3 %}
   <th>
     <a id="select_all_u" name="select_all_u" value="all_u">U</a>
+  </th>
+  <th>
+    <a id="select_all_s" name="select_all_s" value="all_s">S</a>
   </th>
   <th>
     <a id="select_all_a" name="select_all_a" value="all_a">A</a>
@@ -205,6 +211,12 @@
       </div>
   </td>
   <td>
+      <div class="radio-ugpt-s">
+<input class="S" type="radio" id="{{row.data.id}}_promote_demote_11" value="S" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_11">S</label>
+      </div>
+  </td>
+  <td>
       <div class="radio-ugpt-p">
 <input class="P" type="radio" id="{{row.data.id}}_promote_demote_3" value="P" name="{{row.data.id}}_promote_demote" />
 <label for="{{row.data.id}}_promote_demote_3">P</label>
@@ -228,6 +240,12 @@
       <div class="radio-ugpt-u">
 <input class="U" type="radio" id="{{row.data.id}}_promote_demote_1000" value="U" name="{{row.data.id}}_promote_demote" checked />
 <label for="{{row.data.id}}_promote_demote_1000">U</label>
+      </div>
+  </td>
+  <td>
+      <div class="radio-ugpt-s">
+<input class="S" type="radio" id="{{row.data.id}}_promote_demote_11" value="S" name="{{row.data.id}}_promote_demote" />
+<label for="{{row.data.id}}_promote_demote_11">S</label>
       </div>
   </td>
   <td>

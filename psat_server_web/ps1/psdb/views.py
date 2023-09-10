@@ -124,6 +124,7 @@ ALTERNATE_DB_CONNECTIONS = {'ps1md': ['ps1ss', 'psdb', 'http://star.pst.qub.ac.u
                       'ps1ss': ['ps1md', 'psdb2', 'http://star.pst.qub.ac.uk/sne/ps1md/psdb/'],
                       'ps1gw': ['ps13pi', 'db0', 'http://star.pst.qub.ac.uk/sne/ps13pi/psdb/'],
                       'pso3': ['ps13pi', 'db0', 'http://star.pst.qub.ac.uk/sne/ps13pi/psdb/'],
+                      'pso4': ['ps13pi', 'db0', 'http://star.pst.qub.ac.uk/sne/ps13pi/psdb/'],
                       'ps13pi': ['ps23pi', 'db3', 'http://star.pst.qub.ac.uk/sne/ps23pi/psdb/'],
                       'ps23pi': ['ps13pi', 'db0', 'http://star.pst.qub.ac.uk/sne/ps13pi/psdb/'],
                       'ps2o3': ['pso3', 'db0', 'http://star.pst.qub.ac.uk/sne/pso3/psdb/'],

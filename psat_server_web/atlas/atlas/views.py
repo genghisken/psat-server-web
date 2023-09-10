@@ -190,7 +190,7 @@ class TcsDetectionListsForm(forms.Form):
 
     name = forms.CharField()
 
-GARBAGE, CONFIRMED, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, AGN, FASTEYE, MOVERS, SMCLMC = list(range(11))
+GARBAGE, CONFIRMED, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, AGN, FASTEYE, MOVERS, SMCLMC, HPMSTAR = list(range(12))
 
 OBJECT_LISTS = {
     'Garbage': GARBAGE,
@@ -204,6 +204,7 @@ OBJECT_LISTS = {
     'FastEye': FASTEYE,
     'Movers': MOVERS,
     'SMCLMC': SMCLMC,
+    'HPMStar': HPMSTAR,
     'DoNothing': -1
 }
 
@@ -995,7 +996,7 @@ def candidate(request, atlas_diff_objects_id):
             form.fields['promote_demote'].choices = POSSIBLE_POST_PROMOTION_CHOICES
         elif listId == ATTIC:
             form.fields['promote_demote'].choices = ATTIC_POST_PROMOTION_CHOICES
-        elif listId == STAR:
+        elif listId == STAR or listId == HPMSTAR:
             form.fields['promote_demote'].choices = STAR_POST_PROMOTION_CHOICES
         elif listId == GARBAGE:
             form.fields['promote_demote'].choices = GARBAGE_CHOICES
@@ -1354,7 +1355,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                 # Do an update if the form is valid, regardless of setting of detection list. If the
                 # form is valid, it means we've made a choice - if only to add some comments.
                 try:
-                   if (originalListId == EYEBALL or originalListId == POSSIBLE or originalListId == ATTIC or originalListId == STAR or originalListId == FASTEYE or originalListId == SMCLMC) and (listId == GOOD or listId == CONFIRMED):
+                   if (originalListId == EYEBALL or originalListId == POSSIBLE or originalListId == ATTIC or originalListId == STAR or originalListId == FASTEYE or originalListId == SMCLMC or originalListId == HPMSTAR) and (listId == GOOD or listId == CONFIRMED):
                        # Is there an object already in the good or confirmed lists within 2.0 arcsec?
                        message, goodObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup2', queryType = FULL, conn = connection, django = True)
                        message, confirmedObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup1', queryType = FULL, conn = connection, django = True)
@@ -1478,7 +1479,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
             form.fields['promote_demote'].choices = POSSIBLE_POST_PROMOTION_CHOICES
         elif listId == ATTIC:
             form.fields['promote_demote'].choices = ATTIC_POST_PROMOTION_CHOICES
-        elif listId == STAR:
+        elif listId == STAR or listId == HPMSTAR:
             form.fields['promote_demote'].choices = STAR_POST_PROMOTION_CHOICES
         elif listId == GARBAGE:
             form.fields['promote_demote'].choices = GARBAGE_CHOICES
@@ -2370,7 +2371,10 @@ followupClassList = [WebViewFollowupTransients0,
                      WebViewFollowupTransients5,
                      WebViewFollowupTransients6,
                      WebViewFollowupTransients7,
-                     WebViewFollowupTransients8]
+                     WebViewFollowupTransients8,
+                     WebViewFollowupTransients9,
+                     WebViewFollowupTransients10,
+                     WebViewFollowupTransients11]
 
 
 @login_required
@@ -2919,6 +2923,7 @@ class AtlasDiffObjectsTableEyeballOptions(AtlasDiffObjectsTable):
 
     # We want to render the id link as a drop down menu. Do is this way!
     U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    S = tables2.TemplateColumn(getChoiceSelectorTemplate("S")['template'], verbose_name="S", orderable=False, attrs=getChoiceSelectorTemplate("S")['attrs'])
     P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
     A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
     T = tables2.TemplateColumn(getChoiceSelectorTemplate("T")['template'], verbose_name="T", orderable=False, attrs=getChoiceSelectorTemplate("T")['attrs'])
@@ -2936,6 +2941,7 @@ class AtlasDiffObjectsTablePossibleOptions(AtlasDiffObjectsTable):
 
     # We want to render the id link as a drop down menu. Do is this way!
     U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
+    S = tables2.TemplateColumn(getChoiceSelectorTemplate("S")['template'], verbose_name="S", orderable=False, attrs=getChoiceSelectorTemplate("S")['attrs'])
     A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
     T = tables2.TemplateColumn(getChoiceSelectorTemplate("T")['template'], verbose_name="T", orderable=False, attrs=getChoiceSelectorTemplate("T")['attrs'])
 
@@ -3005,9 +3011,10 @@ AtlasDiffObjectsTables = [AtlasDiffObjectsTableGarbageOptions,
                           AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableEyeballOptions,
+                          AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableEyeballOptions]
 
-PROMOTE_DEMOTE = {'C': 1, 'G': 2, 'P': 3, 'E': 4, 'A': 5, 'T': 0}
+PROMOTE_DEMOTE = {'C': 1, 'G': 2, 'P': 3, 'E': 4, 'A': 5, 'S': 11, 'T': 0}
 
 # 2015-02-26 KWS Need to hide the current trend and RB Factor from
 #                the public pages

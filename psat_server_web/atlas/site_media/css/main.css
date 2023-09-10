@@ -230,6 +230,22 @@ footer
 }
 
 
+.radio-ugpt-s input[type="radio"] {
+    display:none;
+}
+
+.radio-ugpt-s label {
+    display:inline-block;
+    background-color:#aaa;
+    padding:4px 11px;
+    font-size:16px;
+}
+
+.radio-ugpt-s input[type="radio"]:checked + label { 
+    background-color:purple;
+}
+
+
 .radio-ugpt-t input[type="radio"] {
     display:none; 
 }

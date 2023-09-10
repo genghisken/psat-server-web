@@ -6,6 +6,7 @@ PROMOTION_CHOICES = (
     ('Attic', 'Promote Object to Attic List'),
     ('Eyeball', 'Move Object to Eyeball List'),
     ('Possible', 'Promote Object to Possible List'),
+    ('HPMStar', 'Move to HPM Star List'),
     ('Garbage', 'Consign to Garbage'),
     ('DoNothing', 'Undecided - Comment only'),
 )
@@ -17,6 +18,7 @@ EYEBALL_PROMOTION_CHOICES = (
     ('Good', 'Promote Object to Good List'),
     ('Attic', 'Promote Object to Attic List'),
     ('Possible', 'Promote Object to Possible List'),
+    ('HPMStar', 'Move to HPM Star List'),
     ('Garbage', 'Consign to Garbage'),
     ('DoNothing', 'Undecided - Comment only'),
 )
@@ -35,6 +37,7 @@ GOOD_POST_PROMOTION_CHOICES = (
 POSSIBLE_POST_PROMOTION_CHOICES = (
     ('Good', 'Promote Object to Good List'),
     ('Attic', 'Move Object to Attic List'),
+    ('HPMStar', 'Move to HPM Star List'),
     ('Garbage', 'Consign to Garbage'),
     ('DoNothing', 'Add a Comment'),
 )
@@ -160,7 +163,7 @@ LIGHTCURVE_REPLOTTING_CHOICES = (
 
 # 2021-05-12 KWS Added selector templates for Django Tables2 for quickview.
 
-choiceSelectors = {'T': '0', 'C': '1', 'G': '2', 'P': '3', 'E': '4', 'A': '5', 'U': '1000'}
+choiceSelectors = {'T': '0', 'C': '1', 'G': '2', 'P': '3', 'E': '4', 'A': '5', 'S': '11', 'U': '1000'}
 
 def getChoiceSelectorTemplate(choice, checked = ''):
     templateParameters = {'template': None, 'attrs': None}

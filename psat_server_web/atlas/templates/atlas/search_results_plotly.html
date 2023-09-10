@@ -112,6 +112,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
     <label class="btn btn-outline-success btn-sm" id="select_all_c" name="select_all"> <input type="radio" name="options" autocomplete="off" />All Confirmed</label>
     <label class="btn btn-outline-success btn-sm" id="select_all_g" name="select_all"> <input type="radio" name="options" autocomplete="off" />All Good</label>
     <label class="btn btn-outline-warning btn-sm" id="select_all_p" name="select_all"> <input type="radio" name="options" autocomplete="off" />All Possible</label>
+    <label class="btn btn-outline-info btn-sm" id="select_all_s" name="select_all"> <input type="radio" name="options" autocomplete="off" />All HPM Stars</label>
     <label class="btn btn-outline-primary btn-sm" id="select_all_e" name="select_all"> <input type="radio" name="options" autocomplete="off" />All Eyeball</label>
     <label class="btn btn-outline-info btn-sm" id="select_all_a" name="select_all"> <input type="radio" name="options" autocomplete="off" />All Attic</label>
     <label class="btn btn-outline-danger btn-sm" id="select_all_t" name="select_all"> <input type="radio" name="options" autocomplete="off" />All Trash</label>
@@ -415,9 +416,11 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
             <label class="btn btn-outline-warning btn-sm" value="P" id="{{row.id}}_p"> <input type="radio" id="P" autocomplete="off" value="P" class="P" name="{{row.id}}_promote_demote" />Possible</label>
             <label class="btn btn-outline-info btn-sm" value="A" id="{{row.id}}_a"> <input type="radio" id="A" autocomplete="off" value="A" class="A" name="{{row.id}}_promote_demote" />Attic</label>
           {% elif row.detection_list_id.id == 3 or row.detection_list_id == 3 %}
+            <label class="btn btn-outline-info btn-sm" value="S" id="{{row.id}}_s"> <input type="radio" id="S" autocomplete="off" value="S" class="S" name="{{row.id}}_promote_demote" />HPM Star</label>
             <label class="btn btn-outline-info btn-sm" value="A" id="{{row.id}}_a"> <input type="radio" id="A" autocomplete="off" value="A" class="A" name="{{row.id}}_promote_demote" />Attic</label>
             <label class="btn btn-outline-danger btn-sm" value="T" id="{{row.id}}_t"> <input type="radio" id="T" autocomplete="off" value="T" class="T" name="{{row.id}}_promote_demote" />Trash</label>
           {% elif row.detection_list_id.id == 4 or row.detection_list_id == 4 %}
+            <label class="btn btn-outline-info btn-sm" value="S" id="{{row.id}}_s"> <input type="radio" id="S" autocomplete="off" value="S" class="S" name="{{row.id}}_promote_demote" />HPM Star</label>
             <label class="btn btn-outline-warning btn-sm" value="P" id="{{row.id}}_p"> <input type="radio" id="P" autocomplete="off" value="P" class="P" name="{{row.id}}_promote_demote" />Possible</label>
             <label class="btn btn-outline-info btn-sm" value="A" id="{{row.id}}_a"> <input type="radio" id="A" autocomplete="off" value="A" class="A" name="{{row.id}}_promote_demote" />Attic</label>
             <label class="btn btn-outline-danger btn-sm" value="T" id="{{row.id}}_t"> <input type="radio" id="T" autocomplete="off" value="T" class="T" name="{{row.id}}_promote_demote" />Trash</label>
@@ -425,6 +428,12 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
             <label class="btn btn-outline-warning btn-sm" value="P" id="{{row.id}}_p"> <input type="radio" id="P" autocomplete="off" value="P" class="P" name="{{row.id}}_promote_demote" />Possible</label>
             <label class="btn btn-outline-danger btn-sm" value="T" id="{{row.id}}_t"> <input type="radio" id="T" autocomplete="off" value="T" class="T" name="{{row.id}}_promote_demote" />Trash</label>
           {% elif row.detection_list_id.id == 8 or row.detection_list_id == 8 %}
+            <label class="btn btn-outline-info btn-sm" value="S" id="{{row.id}}_s"> <input type="radio" id="S" autocomplete="off" value="S" class="S" name="{{row.id}}_promote_demote" />HPM Star</label>
+            <label class="btn btn-outline-warning btn-sm" value="P" id="{{row.id}}_p"> <input type="radio" id="P" autocomplete="off" value="P" class="P" name="{{row.id}}_promote_demote" />Possible</label>
+            <label class="btn btn-outline-info btn-sm" value="A" id="{{row.id}}_a"> <input type="radio" id="A" autocomplete="off" value="A" class="A" name="{{row.id}}_promote_demote" />Attic</label>
+            <label class="btn btn-outline-danger btn-sm" value="T" id="{{row.id}}_t"> <input type="radio" id="T" autocomplete="off" value="T" class="T" name="{{row.id}}_promote_demote" />Trash</label>
+          {% elif row.detection_list_id.id >= 9 or row.detection_list_id >= 9 %}
+            <label class="btn btn-outline-info btn-sm" value="S" id="{{row.id}}_s"> <input type="radio" id="S" autocomplete="off" value="S" class="S" name="{{row.id}}_promote_demote" />HPM Star</label>
             <label class="btn btn-outline-warning btn-sm" value="P" id="{{row.id}}_p"> <input type="radio" id="P" autocomplete="off" value="P" class="P" name="{{row.id}}_promote_demote" />Possible</label>
             <label class="btn btn-outline-info btn-sm" value="A" id="{{row.id}}_a"> <input type="radio" id="A" autocomplete="off" value="A" class="A" name="{{row.id}}_promote_demote" />Attic</label>
             <label class="btn btn-outline-danger btn-sm" value="T" id="{{row.id}}_t"> <input type="radio" id="T" autocomplete="off" value="T" class="T" name="{{row.id}}_promote_demote" />Trash</label>

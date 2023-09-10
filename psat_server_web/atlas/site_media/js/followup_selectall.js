@@ -57,6 +57,17 @@ $('#select_all_p').click(function(){
     });
 });
 
+// select all radio buttons in the "S" column (.S class)
+$('#select_all_s').click(function(){
+    $("input[class=S]").each(function(){
+        $(this).prop("checked", true);
+        sessionStorage.setItem($( this ).attr('name'),"S");
+    });
+    $("label[value=S]").each(function(){
+        $(this).addClass('active').siblings().removeClass('active');
+    });
+});
+
 // select all radio buttons in the "A" column (.A class)
 $('#select_all_a').click(function(){
     $("input[class=A]").each(function(){

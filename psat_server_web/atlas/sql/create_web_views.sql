@@ -364,6 +364,126 @@ create or replace view atlas_v_followup8 as select o.followup_id rank,
 
 
 
+create or replace view atlas_v_followup9 as select o.followup_id rank,
+           o.id,
+           o.atlas_designation,
+           o.other_designation,
+           o.ra,
+           o.`dec`,
+           s.ra_avg,
+           s.dec_avg,
+           o.object_classification,
+           o.sherlockClassification,
+           o.followup_flag_date,
+           o.observation_status,
+           o.current_trend,
+           s.earliest_mjd,
+           s.earliest_mag,
+           s.earliest_filter,
+           s.latest_mjd,
+           s.latest_mag,
+           s.latest_filter,
+           s.catalogue,
+           s.catalogue_object_id,
+           s.separation,
+           o.realbogus_factor,
+           o.zooniverse_score,
+           o.date_modified,
+           s.external_crossmatches,
+           s.discovery_target,
+           s.rms,
+           o.htm16ID,
+           o.detection_list_id,
+           o.images_id
+      from atlas_diff_objects o
+ left join tcs_latest_object_stats s
+        on (o.id = s.id)
+     where followup_id is not null
+       and detection_list_id = '9'
+;
+
+
+
+create or replace view atlas_v_followup10 as select o.followup_id rank,
+           o.id,
+           o.atlas_designation,
+           o.other_designation,
+           o.ra,
+           o.`dec`,
+           s.ra_avg,
+           s.dec_avg,
+           o.object_classification,
+           o.sherlockClassification,
+           o.followup_flag_date,
+           o.observation_status,
+           o.current_trend,
+           s.earliest_mjd,
+           s.earliest_mag,
+           s.earliest_filter,
+           s.latest_mjd,
+           s.latest_mag,
+           s.latest_filter,
+           s.catalogue,
+           s.catalogue_object_id,
+           s.separation,
+           o.realbogus_factor,
+           o.zooniverse_score,
+           o.date_modified,
+           s.external_crossmatches,
+           s.discovery_target,
+           s.rms,
+           o.htm16ID,
+           o.detection_list_id,
+           o.images_id
+      from atlas_diff_objects o
+ left join tcs_latest_object_stats s
+        on (o.id = s.id)
+     where followup_id is not null
+       and detection_list_id = '10'
+;
+
+
+
+create or replace view atlas_v_followup11 as select o.followup_id rank,
+           o.id,
+           o.atlas_designation,
+           o.other_designation,
+           o.ra,
+           o.`dec`,
+           s.ra_avg,
+           s.dec_avg,
+           o.object_classification,
+           o.sherlockClassification,
+           o.followup_flag_date,
+           o.observation_status,
+           o.current_trend,
+           s.earliest_mjd,
+           s.earliest_mag,
+           s.earliest_filter,
+           s.latest_mjd,
+           s.latest_mag,
+           s.latest_filter,
+           s.catalogue,
+           s.catalogue_object_id,
+           s.separation,
+           o.realbogus_factor,
+           o.zooniverse_score,
+           o.date_modified,
+           s.external_crossmatches,
+           s.discovery_target,
+           s.rms,
+           o.htm16ID,
+           o.detection_list_id,
+           o.images_id
+      from atlas_diff_objects o
+ left join tcs_latest_object_stats s
+        on (o.id = s.id)
+     where followup_id is not null
+       and detection_list_id = '11'
+;
+
+
+
 create or replace view atlas_v_followupall as select o.followup_id rank,
            o.id,
            o.atlas_designation,
