@@ -53,7 +53,7 @@
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
       {% if not public %}
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-check-double" title="Confirmed Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> confirmed</span></a>
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-bullseye" title="Followup Targets"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> followup</span></a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=1 %}">quick view</a>
           <a class="dropdown-item" href="{% url 'followupquickview' listNumber=1 %}">old quick view</a>
@@ -98,6 +98,13 @@
           <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=8 %}">quick view</a>
           <a class="dropdown-item" href="{% url 'followupquickview' listNumber=8 %}">old quick view</a>
           <a class="dropdown-item" href="{% url 'followup' listNumber=8 %}">table view</a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fas fa-bullhorn" title="Fast Track Custom List"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> current-fast-track</span></a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="{% url 'userdefinedlistsquickview' userDefinedListNumber=44 %}">old quick view</a>
+          <a class="dropdown-item" href="{% url 'userdefinedlists' userDefinedListNumber=44 %}">table view</a>
         </div>
       </li>
       <li class="nav-item dropdown">

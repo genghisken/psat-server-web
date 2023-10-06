@@ -13,7 +13,7 @@
 <ul>
 {% if not public %}
 <li><a HREF="../{% if listHeader %}../{% endif %}">home</a></li>
-<li><a HREF="..{% if listHeader %}/..{% endif %}/followup_quickview/1/">confirmed</a></li>
+<li><a HREF="..{% if listHeader %}/..{% endif %}/followup_quickview/1/">followup</a></li>
 <li><a HREF="..{% if listHeader %}/..{% endif %}/followup_quickview/2/">good</a></li>
 <li><a HREF="..{% if listHeader %}/..{% endif %}/followup_quickview/3/">possible</a></li>
 <li><a HREF="..{% if listHeader %}/..{% endif %}/followup_quickview/5/">attic</a></li>
@@ -115,9 +115,6 @@
 {% if list_id == 2 %}
   <th>
     <a id="select_all_u" name="select_all_u" value="all_u">U</a>
-  </th>
-  <th>
-    <a id="select_all_c" name="select_all_c" value="all_c">C</a>
   </th>
   <th>
     <a id="select_all_p" name="select_all_p" value="all_p">P</a>
@@ -266,12 +263,6 @@
       <div class="radio-ugpt-u">
 <input class="U" type="radio" id="{{row.data.id}}_promote_demote_1000" value="U" name="{{row.data.id}}_promote_demote" checked />
 <label for="{{row.data.id}}_promote_demote_1000">U</label>
-      </div>
-  </td>
-  <td>
-      <div class="radio-ugpt-c">
-<input class="C" type="radio" id="{{row.data.id}}_promote_demote_1" value="C" name="{{row.data.id}}_promote_demote" />
-<label for="{{row.data.id}}_promote_demote_1">C</label>
       </div>
   </td>
   <td>

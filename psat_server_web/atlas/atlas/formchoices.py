@@ -1,7 +1,7 @@
 # Form display options file
 
 PROMOTION_CHOICES = (
-    ('Confirmed', 'Promote Object to Confirmed List'),
+    ('Followup', 'Promote Object to Followup List'),
     ('Good', 'Promote Object to Good List'),
     ('Attic', 'Promote Object to Attic List'),
     ('Eyeball', 'Move Object to Eyeball List'),
@@ -25,7 +25,7 @@ EYEBALL_PROMOTION_CHOICES = (
 
 # It's a GOOD object
 GOOD_POST_PROMOTION_CHOICES = (
-    ('Confirmed', 'Promote Object to Confirmed List'),
+    ('Followup', 'Promote Object to Followup List'),
     ('Attic', 'Move Object to Attic List'),
     ('Possible', 'Move Object to Possible List'),
     ('Garbage', 'Consign to Garbage'),
@@ -61,8 +61,8 @@ STAR_POST_PROMOTION_CHOICES = (
     ('DoNothing', 'Add a Comment'),
 )
 
-# It's a CONFIRMED object
-CONFIRMED_POST_PROMOTION_CHOICES = (
+# It's a FOLLOWUP target (formerly confirmed)
+FOLLOWUP_POST_PROMOTION_CHOICES = (
     ('Good', 'Move Object to Good List'),
     ('Attic', 'Move Object to Attic List'),
     ('Possible', 'Move Object to Possible List'),

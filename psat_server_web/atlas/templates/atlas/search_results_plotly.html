@@ -109,7 +109,6 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
   {% if classifyform and subdata.paginator.count %}
   <div class="btn-group btn-group-toggle" data-toggle="buttons">
     <label class="btn btn-outline-secondary btn-sm active" id="select_all_u" name="select_all"> <input type="radio" name="options" autocomplete="off" checked />All Undecided</label>
-    <label class="btn btn-outline-success btn-sm" id="select_all_c" name="select_all"> <input type="radio" name="options" autocomplete="off" />All Confirmed</label>
     <label class="btn btn-outline-success btn-sm" id="select_all_g" name="select_all"> <input type="radio" name="options" autocomplete="off" />All Good</label>
     <label class="btn btn-outline-warning btn-sm" id="select_all_p" name="select_all"> <input type="radio" name="options" autocomplete="off" />All Possible</label>
     <label class="btn btn-outline-info btn-sm" id="select_all_s" name="select_all"> <input type="radio" name="options" autocomplete="off" />All HPM Stars</label>
@@ -412,7 +411,6 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
             <label class="btn btn-outline-warning btn-sm" value="P" id="{{row.id}}_p"> <input type="radio" id="P" autocomplete="off" value="P" class="P" name="{{row.id}}_promote_demote" />Possible</label>
             <label class="btn btn-outline-info btn-sm" value="A" id="{{row.id}}_a"> <input type="radio" id="A" autocomplete="off" value="A" class="A" name="{{row.id}}_promote_demote" />Attic</label>
           {% elif row.detection_list_id.id == 2 or row.detection_list_id == 2 %}
-            <label class="btn btn-outline-success btn-sm" value="C" id="{{row.id}}_c"> <input type="radio" id="C" autocomplete="off" value="C" class="C" name="{{row.id}}_promote_demote" />Confirmed</label>
             <label class="btn btn-outline-warning btn-sm" value="P" id="{{row.id}}_p"> <input type="radio" id="P" autocomplete="off" value="P" class="P" name="{{row.id}}_promote_demote" />Possible</label>
             <label class="btn btn-outline-info btn-sm" value="A" id="{{row.id}}_a"> <input type="radio" id="A" autocomplete="off" value="A" class="A" name="{{row.id}}_promote_demote" />Attic</label>
           {% elif row.detection_list_id.id == 3 or row.detection_list_id == 3 %}

@@ -190,11 +190,11 @@ class TcsDetectionListsForm(forms.Form):
 
     name = forms.CharField()
 
-GARBAGE, CONFIRMED, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, AGN, FASTEYE, MOVERS, SMCLMC, HPMSTAR = list(range(12))
+GARBAGE, FOLLOWUP, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, AGN, FASTEYE, MOVERS, SMCLMC, HPMSTAR = list(range(12))
 
 OBJECT_LISTS = {
     'Garbage': GARBAGE,
-    'Confirmed': CONFIRMED,
+    'Followup': FOLLOWUP,
     'Good': GOOD,
     'Possible': POSSIBLE,
     'Eyeball': EYEBALL,
@@ -854,7 +854,7 @@ def candidate(request, atlas_diff_objects_id):
 
                 # 2010-12-02 KWS Added check for atlasDesignation.  Don't choose a new designation
                 # if we already have one.
-                if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == CONFIRMED):
+                if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
                     surveyField = 'ATLAS'
 
                     try:
@@ -988,8 +988,8 @@ def candidate(request, atlas_diff_objects_id):
         # 2011-10-04 KWS Added GARBAGE choices
         if listId == EYEBALL or listId == FASTEYE or listId == SMCLMC or listId == AGN:
             form.fields['promote_demote'].choices = EYEBALL_PROMOTION_CHOICES
-        elif listId == CONFIRMED:
-            form.fields['promote_demote'].choices = CONFIRMED_POST_PROMOTION_CHOICES
+        elif listId == FOLLOWUP:
+            form.fields['promote_demote'].choices = FOLLOWUP_POST_PROMOTION_CHOICES
         elif listId == GOOD:
             form.fields['promote_demote'].choices = GOOD_POST_PROMOTION_CHOICES
         elif listId == POSSIBLE:
@@ -1001,7 +1001,7 @@ def candidate(request, atlas_diff_objects_id):
         elif listId == GARBAGE:
             form.fields['promote_demote'].choices = GARBAGE_CHOICES
         else:
-            form.fields['promote_demote'].choices = CONFIRMED_POST_PROMOTION_CHOICES
+            form.fields['promote_demote'].choices = FOLLOWUP_POST_PROMOTION_CHOICES
 
 
     transient_images = TcsPostageStampImages.objects.filter(image_filename__istartswith = str(transient.id)).exclude(image_filename__istartswith = str(transient.id), image_type__iendswith = 'finder').order_by('-image_filename')
@@ -1295,7 +1295,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
 
                 # 2010-12-02 KWS Added check for atlasDesignation.  Don't choose a new designation
                 # if we already have one.
-                if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == CONFIRMED):
+                if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
                     surveyField = 'ATLAS'
 
                     try:
@@ -1355,7 +1355,17 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                 # Do an update if the form is valid, regardless of setting of detection list. If the
                 # form is valid, it means we've made a choice - if only to add some comments.
                 try:
-                   if (originalListId == EYEBALL or originalListId == POSSIBLE or originalListId == ATTIC or originalListId == STAR or originalListId == FASTEYE or originalListId == SMCLMC or originalListId == HPMSTAR) and (listId == GOOD or listId == CONFIRMED):
+                   if (originalListId == GOOD) and (listId == FOLLOWUP) and comments.strip() == '':
+                       # Did the user add any comments? Ah, ah, ah - blank comments not allowed!
+                       request.session['error'] = "WARNING: Please add a comment before promoting to the Followup Targets list, so other users know why it is there!"
+                       redirect_to = "../../error/"
+                       return HttpResponseRedirect(redirect_to)
+                   if originalListId in [EYEBALL, FASTEYE, SMCLMC, STAR, HPMSTAR, AGN, MOVERS] and (listId == POSSIBLE) and comments.strip() == '':
+                       # Did the user add any comments? Ah, ah, ah - blank comments not allowed!
+                       request.session['error'] = "WARNING: Please add a comment before promoting to the Possible list, so other users know why it is there!"
+                       redirect_to = "../../error/"
+                       return HttpResponseRedirect(redirect_to)
+                   if (originalListId == EYEBALL or originalListId == POSSIBLE or originalListId == ATTIC or originalListId == STAR or originalListId == FASTEYE or originalListId == SMCLMC or originalListId == HPMSTAR) and (listId == GOOD or listId == FOLLOWUP):
                        # Is there an object already in the good or confirmed lists within 2.0 arcsec?
                        message, goodObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup2', queryType = FULL, conn = connection, django = True)
                        message, confirmedObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup1', queryType = FULL, conn = connection, django = True)
@@ -1363,7 +1373,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                            # Object is already in the good or confirmed lists. Please move to attic.
                            request.session['error'] = "WARNING: Duplicate object is already in the Good List. Please go back and move this to the Attic or Garbage."
                            redirect_to = "../../error/"
-                           return HttpResponseRedirect(redirect_to)  
+                           return HttpResponseRedirect(redirect_to)
 
                    # 2018-09-28 KWS Ok - we really need to stop updates happening if processing status is not
                    #                set correctly.
@@ -1394,9 +1404,9 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                    # Register the object on TNS
                    # 2018-05-14 KWS If the previous list was also good (e.g. just adding a comment) don't send a message
                    #                to the TNS daemon.
-                   # 2020-02-28 KWS Don't bother registering an object on TNS if the original list was CONFIRMED and
+                   # 2020-02-28 KWS Don't bother registering an object on TNS if the original list was FOLLOWUP and
                    #                we are moving back to GOOD.
-                   if listId == GOOD and originalListId != GOOD and originalListId != CONFIRMED and dbName == 'atlas4':
+                   if listId == GOOD and originalListId != GOOD and originalListId != FOLLOWUP and dbName == 'atlas4':
                        if settings.DAEMONS['tns']['test']:
                            response = sendMessage(settings.DAEMONS['tns']['host'], settings.DAEMONS['tns']['port'], TNS_MESSAGES['SUBMITTEST'])
                        else:
@@ -1471,8 +1481,8 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
         # 2011-10-04 KWS Added GARBAGE choices
         if listId == EYEBALL or listId == FASTEYE or listId == SMCLMC or listId == AGN:
             form.fields['promote_demote'].choices = EYEBALL_PROMOTION_CHOICES
-        elif listId == CONFIRMED:
-            form.fields['promote_demote'].choices = CONFIRMED_POST_PROMOTION_CHOICES
+        elif listId == FOLLOWUP:
+            form.fields['promote_demote'].choices = FOLLOWUP_POST_PROMOTION_CHOICES
         elif listId == GOOD:
             form.fields['promote_demote'].choices = GOOD_POST_PROMOTION_CHOICES
         elif listId == POSSIBLE:
@@ -1484,7 +1494,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
         elif listId == GARBAGE:
             form.fields['promote_demote'].choices = GARBAGE_CHOICES
         else:
-            form.fields['promote_demote'].choices = CONFIRMED_POST_PROMOTION_CHOICES
+            form.fields['promote_demote'].choices = FOLLOWUP_POST_PROMOTION_CHOICES
 
 
     transient_images = TcsPostageStampImages.objects.filter(image_filename__istartswith = str(transient.id)).exclude(image_filename__istartswith = str(transient.id), image_type__iendswith = 'finder').order_by('-image_filename')
@@ -2958,7 +2968,6 @@ class AtlasDiffObjectsTableGoodOptions(AtlasDiffObjectsTable):
 
     # We want to render the id link as a drop down menu. Do is this way!
     U = tables2.TemplateColumn(getChoiceSelectorTemplate("U", checked = 'checked')['template'], verbose_name="U", orderable=False, attrs=getChoiceSelectorTemplate("U")['attrs'])
-    C = tables2.TemplateColumn(getChoiceSelectorTemplate("C")['template'], verbose_name="C", orderable=False, attrs=getChoiceSelectorTemplate("C")['attrs'])
     P = tables2.TemplateColumn(getChoiceSelectorTemplate("P")['template'], verbose_name="P", orderable=False, attrs=getChoiceSelectorTemplate("P")['attrs'])
     A = tables2.TemplateColumn(getChoiceSelectorTemplate("A")['template'], verbose_name="A", orderable=False, attrs=getChoiceSelectorTemplate("A")['attrs'])
 
@@ -2969,7 +2978,7 @@ class AtlasDiffObjectsTableGoodOptions(AtlasDiffObjectsTable):
         template_name = "bootstrap4_django_tables2_atlas.html"
 
 
-class AtlasDiffObjectsTableConfirmedOptions(AtlasDiffObjectsTable):
+class AtlasDiffObjectsTableFollowupOptions(AtlasDiffObjectsTable):
     """AtlasDiffObjectsTable with buttons (templates in formchoices).
     """
 
@@ -3002,7 +3011,7 @@ class AtlasDiffObjectsTableGarbageOptions(AtlasDiffObjectsTable):
 
 
 AtlasDiffObjectsTables = [AtlasDiffObjectsTableGarbageOptions,
-                          AtlasDiffObjectsTableConfirmedOptions,
+                          AtlasDiffObjectsTableFollowupOptions,
                           AtlasDiffObjectsTableGoodOptions,
                           AtlasDiffObjectsTablePossibleOptions,
                           AtlasDiffObjectsTableEyeballOptions,
@@ -3145,7 +3154,7 @@ def followupQuickView(request, listNumber):
                     fieldCounter = transient.followup_counter
 
 
-                    if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == CONFIRMED):
+                    if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
                         # ASSUMPTION!!  All filenames contain dots and the first part is the field name.
                         surveyField = 'ATLAS'
 
@@ -3753,7 +3762,7 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
                     fieldCounter = transient.followup_counter
 
 
-                    if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == CONFIRMED):
+                    if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
                         # ASSUMPTION!!  All filenames contain dots and the first part is the field name.
                         surveyField = 'ATLAS'
 
