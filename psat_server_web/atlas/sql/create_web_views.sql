@@ -676,6 +676,11 @@ create or replace view atlas_v_followup_gw as select distinct o.followup_id rank
        and e.enclosing_contour < 100
 ;
 
+-- 2023-10-04 KWS Only bring back the last 30 days. Without this restriction the query
+--                returns 2.4 million rows, which takes forever to render inside Django!
+--                Note that only recurrences of objects flagged within the specified
+--                number of days will get reported. Old objects retrospectively promoted
+--                will be missing their recurrence data.
 create or replace view atlas_v_recurrencesddc_pessto as
     select o.followup_id rank,
            o.id,
@@ -693,4 +698,5 @@ create or replace view atlas_v_recurrencesddc_pessto as
        and d.atlas_metadata_id = m.id
        and (o.detection_list_id = 1 or o.detection_list_id = 2)
        and o.atlas_designation is not null
+       and followup_flag_date >= (now() - INTERVAL 30 DAY)
 ;
