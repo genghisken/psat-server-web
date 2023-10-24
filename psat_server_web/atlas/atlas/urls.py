@@ -12,7 +12,7 @@ admin.autodiscover()
 urlpatterns = [
     # 2016-02-24 KWS Introduced the Django Admin URL
     path('admin/', admin.site.urls),
-#    path('', include('atlasapi.urls')),
+    path('', include('atlasapi.urls')),
     # 2016-02-26 KWS Add the authentication URLs
     url(r'^accounts/login/', views.login, name="login"),
     url(r'^accounts/logout/', views.logout, name="logout"),

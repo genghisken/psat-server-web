@@ -30,6 +30,7 @@ setup(
           'mysqlclient',
           'django',
           'django_tables2',
+          'djangorestframework',
           'pyyaml',
           'docopt',
           'python-dotenv',
@@ -44,5 +45,5 @@ setup(
     zip_safe=False
 )
 
-# Add 'djangorestframework' when the code is ready.
+# 2023-10-24 Added 'djangorestframework'.
 

@@ -1,0 +1,72 @@
+import datetime
+import re
+import json
+import requests
+from django.db import IntegrityError
+from django.db import connection
+from datetime import datetime
+from gkutils.commonutils import coneSearchHTM, FULL, QUICK, COUNT, CAT_ID_RA_DEC_COLS, base26, Struct
+from rest_framework import serializers
+import sys
+
+#CAT_ID_RA_DEC_COLS['objects'] = [['objectId', 'ramean', 'decmean'], 1018]
+
+REQUEST_TYPE_CHOICES = (
+    ('count', 'Count'),
+    ('all', 'All'),
+    ('nearest', 'Nearest'),
+)
+
+
+class ConeSerializer(serializers.Serializer):
+    ra = serializers.FloatField(required=True)
+    dec = serializers.FloatField(required=True)
+    radius = serializers.FloatField(required=True)
+    requestType = serializers.ChoiceField(choices=REQUEST_TYPE_CHOICES)
+
+    def save(self):
+
+        ra = self.validated_data['ra']
+        dec = self.validated_data['dec']
+        radius = self.validated_data['radius']
+        requestType = self.validated_data['requestType']
+
+        # Get the authenticated user, if it exists.
+        userId = 'unknown'
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            userId = request.user
+
+        if radius > 1000:
+            replyMessage = "Max radius is 1000 arcsec."
+            info = {"error": replyMessage}
+            return info
+
+        replyMessage = 'No object found ra=%.5f dec=%.5f radius=%.2f' % (ra, dec, radius)
+        info = {"error": replyMessage}
+
+        # Is there an object within RADIUS arcsec of this object? - KWS - need to fix the gkhtm code!!
+        # For ATLAS QUICK does not work because of the `dec` syntax error problem. Use FULL until I figure out what
+        # needs to be fixed.
+        message, results = coneSearchHTM(ra, dec, radius, 'atlas_diff_objects', queryType=FULL, conn=connection, django=True)
+
+        obj = None
+        separation = None
+
+        objectList = []
+        if len(results) > 0:
+            if requestType == "nearest":
+                obj = results[0][1]['id']
+                separation = results[0][0]
+                info = {"object": obj, "separation": separation}
+            elif requestType == "all":
+                for row in results:
+                    objectList.append({"object": row[1]["id"], "separation": row[0]})
+                info = objectList
+            elif requestType == "count":
+                info = {'count': len(results)}
+            else:
+                info = {"error": "Invalid request type"}
+
+        return info
+
