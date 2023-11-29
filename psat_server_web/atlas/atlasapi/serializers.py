@@ -8,6 +8,7 @@ from datetime import datetime
 from gkutils.commonutils import coneSearchHTM, FULL, QUICK, COUNT, CAT_ID_RA_DEC_COLS, base26, Struct
 from rest_framework import serializers
 import sys
+from atlas.apiutils import candidateddcApi, getObjectList
 
 #CAT_ID_RA_DEC_COLS['objects'] = [['objectId', 'ramean', 'decmean'], 1018]
 
@@ -69,4 +70,43 @@ class ConeSerializer(serializers.Serializer):
                 info = {"error": "Invalid request type"}
 
         return info
+
+
+class ObjectsSerializer(serializers.Serializer):
+    objects = serializers.CharField(required=True)
+
+    def save(self):
+        objects = self.validated_data['objects']
+
+        olist = []
+        for tok in objects.split(','):
+            olist.append(tok.strip())
+
+        if len(olist) > 10:
+            return {"info": "Max number of objects for each requests is 10"}
+#        olist = olist[:10] # restrict to 10
+
+        # Get the authenticated user, if it exists.
+        userId = 'unknown'
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            userId = request.user
+
+
+        result = []
+        for candidate in olist:
+            result.append(candidateddcApi(request, candidate))
+        return result
+
+
+class ObjectListSerializer(serializers.Serializer):
+    objectlistid = serializers.IntegerField(required=True)
+
+    def save(self):
+        objectlistid = self.validated_data['objectlistid']
+        request = self.context.get("request")
+
+        objectList = getObjectList(request, objectlistid)
+        return objectList
+
 
