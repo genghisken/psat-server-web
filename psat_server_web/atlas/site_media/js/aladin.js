@@ -9020,6 +9020,14 @@ HpxImageSurvey = (function() {
         "format": "png"
      },
      {
+        "id": "P/DESI-Legacy-Surveys/DR10/color",
+        "url": "https://alasky.cds.unistra.fr/DESI-legacy-surveys/DR10/CDS_P_DESI-Legacy-Surveys_DR10_color",
+        "name": "DESI Legacy Surveys color (g, r, i, z)",
+        "maxOrder": 11,
+        "frame": "equatorial",
+        "format": "png"
+     },
+     {
         "id": "P/Fermi/color",
         "url": "http://alasky.u-strasbg.fr/Fermi/Color",
         "name": "Fermi color",
