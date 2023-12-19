@@ -224,6 +224,20 @@ LC_POINTS_QUERY_ATLAS_DDC = '''\
              and d.deprecated is null
            '''
 
+
+# 2023-12-15 KWS Added MJD cut to where clause. Why bring back more data than we need??
+def mjdWhereClauseddc(mjdThreshold, inequality = '>'):
+    """mjdWhereClause.
+
+    Args:
+        mjdThreshold: MJD before or after which we don't want data
+        inequality: >, >=, <, <= 
+    """
+
+    whereClause = ' and mjd ' + inequality + ' %f' % mjdThreshold
+    return whereClause
+
+
 # 2016-03-02 KWS Changed order by mjd_obs desc to just order by mjd_obs
 def filterWhereClauseddc(filters = FILTERS):
     """filterWhereClauseddc.
@@ -642,6 +656,40 @@ def getLightcurvePoints(candidate, filters=FILTERS, lcQuery=LC_POINTS_QUERY_ATLA
    return filtersList, recurrences
 
 
+# 2023-12-19 KWS Complete rewrite of the above code, which has become too complicated for the API
+def getLightcurvePointsDDCAPI(candidate, filters=FILTERS, lcQuery=LC_POINTS_QUERY_ATLAS_DDC + filterWhereClauseddc(FILTERS), djangoRawObject = None, conn = None, mjdThreshold = None, inequality = '>'):
+
+    if mjdThreshold is not None:
+        lcQuery = LC_POINTS_QUERY_ATLAS_DDC + mjdWhereClauseddc(mjdThreshold, inequality = inequality) + filterWhereClauseddc(FILTERS)
+
+    from gkutils.commonutils import Struct
+
+    recurrences = []
+
+    if djangoRawObject:
+        # Assume a Django query by default
+        recurrences = djangoRawObject.objects.raw(lcQuery, tuple([candidate] + [f for f in filters]))
+    elif conn:
+        # Otherwise try a raw MySQL query if we have a connecton object
+        import MySQLdb
+        try:
+            cursor = conn.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute (lcQuery, tuple([candidate] + [f for f in filters]))
+            results = cursor.fetchall ()
+            cursor.close ()
+            if results:
+                for result in results:
+                    recurrences.append(Struct(**result))
+
+        except MySQLdb.Error as e:
+            print("Error %d: %s" % (e.args[0], e.args[1]))
+            return []
+    else:
+        return []
+
+    return recurrences
+
+
 # 2016-05-04 KWS Code to collect non-detection data. Use recurrences as selected above.
 def getNonDetections(recurrences, filters = FILTERS, ndQuery=ATLAS_METADATA, catalogueName = 'atlas_diff_detections', searchRadius = 200.0, djangoRawObject = None, conn = None, tolerance = 0.0):
     """Get all the non-detections for an ATLAS object.  We do this
@@ -852,6 +900,76 @@ def getNonDetectionsUsingATLASFootprint(recurrences, filters = FILTERS, ndQuery=
     filtersList.append(fullList)
 
     return filtersList, blanks, lastNonDetection
+
+
+# 2023-12-19 KWS Rewritten in simplified form the above code for the API (DDC only).
+def getNonDetectionsUsingATLASFootprintAPI(recurrences, filters = FILTERS, ndQuery=ATLAS_METADATADDC, catalogueName = 'atlas_metadataddc', filterWhereClause = filterWhereClauseddc, searchRadius = ATLAS_CONESEARCH_RADIUS, djangoRawObject = None, conn = None, tolerance = 0.0, mjdThreshold = None, inequality = '>', transient = None):
+    """Get all the non-detections for an ATLAS object.  We do this
+       by cone searching around the object and collecting the unique
+       exposures. The exposures in the lightcurve are then removed
+       and we now have non-detections.  This is database expensive."""
+
+    # If we haven't got any recurrence data (e.g. query done with mjd threshold set),
+    # we can't continue since we don't know how to set the boresight RA and Dec.
+    if not recurrences and transient is None:
+        return []
+    elif not recurrences and transient is not None:
+        averageObjectCoords = {'RA': transient.ra, 'DEC': transient.dec}
+    else:
+        recurrenceCoords = [{"RA": row.ra, "DEC": row.dec} for row in recurrences]
+        averageObjectCoords, rmsScatter = getRecurrenceData(recurrenceCoords)
+
+
+    recurrenceDetections = [r.atlas_metadata_id for r in recurrences]
+
+    from gkutils.commonutils import coneSearchHTM, QUICK, FULL, COUNT, CAT_ID_RA_DEC_COLS, Struct, isObjectInsideATLASFootprint
+
+    message, xmObjects = coneSearchHTM(averageObjectCoords['RA'], averageObjectCoords['DEC'], searchRadius, catalogueName, queryType = FULL, conn = conn, django = True)
+    metadataIds = []
+    uniqueMetadataIds = []
+    if xmObjects:
+        for xm in xmObjects:
+            # Eliminate exposures where the object is outside the ATLAS footprint.
+            inside = isObjectInsideATLASFootprint(averageObjectCoords['RA'], averageObjectCoords['DEC'], xm[1]['ra'], xm[1]['dec'], separation = xm[0])
+            if inside:
+                metadataIds.append(xm[1]['id'])
+        uniqueMetadataIds = list(set(metadataIds))
+
+    # Now remove the known metadata IDs from this unique list.
+
+    filteredMetadataIds = [x for x in uniqueMetadataIds if x not in recurrenceDetections]
+    # ONLY do the query if there was something in the filteredMetadataIds
+
+    if mjdThreshold is not None:
+        refinedNdQuery = ndQuery + metadataWhereClause(filteredMetadataIds) +  mjdWhereClauseddc(mjdThreshold, inequality = inequality) + filterWhereClause(FILTERS)
+    else:
+        refinedNdQuery = ndQuery + metadataWhereClause(filteredMetadataIds) + filterWhereClause(FILTERS)
+
+    blanks = []
+
+    if djangoRawObject:
+        # Assume a Django query by default
+        blanks = djangoRawObject.objects.raw(refinedNdQuery, tuple(filteredMetadataIds + [f for f in filters]))
+    elif conn:
+        # Otherwise try a raw MySQL query if we have a connecton object
+        import MySQLdb
+        try:
+             cursor = conn.cursor(MySQLdb.cursors.DictCursor)
+             cursor.execute (refinedNdQuery, tuple(filteredMetadataIds + [f for f in filters]))
+             results = cursor.fetchall ()
+             cursor.close ()
+             if results:
+                 for result in results:
+                     blanks.append(Struct(**result))
+
+        except MySQLdb.Error as e:
+            print("Error %d: %s" % (e.args[0], e.args[1]))
+            return []
+    else:
+        return []
+
+    return blanks
+
 
 
 # 2014-11-05 KWS Flux query

@@ -74,9 +74,11 @@ class ConeSerializer(serializers.Serializer):
 
 class ObjectsSerializer(serializers.Serializer):
     objects = serializers.CharField(required=True)
+    mjd = serializers.FloatField(required=False, default=None)
 
     def save(self):
         objects = self.validated_data['objects']
+        mjd = self.validated_data['mjd']
 
         olist = []
         for tok in objects.split(','):
@@ -95,7 +97,7 @@ class ObjectsSerializer(serializers.Serializer):
 
         result = []
         for candidate in olist:
-            result.append(candidateddcApi(request, candidate))
+            result.append(candidateddcApi(request, candidate, mjdThreshold=mjd))
         return result
 
 

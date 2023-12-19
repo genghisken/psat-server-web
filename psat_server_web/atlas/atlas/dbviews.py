@@ -21,6 +21,45 @@ class CustomLCPoints(models.Model):
     dec = models.FloatField(db_column='dec')
     atlas_metadata_id = models.IntegerField(db_column='atlas_metadata_id')
 
+# 2023-12-19 KWS Added ALL the detection columns - not just the ones for plotting.
+class CustomLCPoints2(models.Model):
+    """CustomLCPoints2.
+    """
+
+    id = models.IntegerField(primary_key=True, db_column='id')
+    mag = models.FloatField(db_column='mag')
+    magerr = models.FloatField(db_column='magerr')
+    mjd = models.FloatField(db_column='mjd')
+    exptime = models.FloatField(db_column='exptime')
+    filter = models.CharField(max_length=90, db_column='filter')
+    zp = models.FloatField(db_column='zp')
+    expname = models.CharField(max_length=90, db_column='expname')
+    ra = models.FloatField(db_column='ra')
+    dec = models.FloatField(db_column='dec')
+    atlas_metadata_id = models.IntegerField(db_column='atlas_metadata_id')
+    pointing = models.CharField(max_length=90, db_column='pointing')
+    mag5sig = models.FloatField(db_column='mag5sig')
+    x =  models.FloatField(db_column='x')
+    y =  models.FloatField(db_column='y')
+    major = models.FloatField(db_column='major')
+    minor = models.FloatField(db_column='minor')
+    phi = models.FloatField(db_column='phi')
+    det = models.FloatField(db_column='det')
+    chin = models.FloatField(db_column='chin')
+    pvr = models.FloatField(db_column='pvr')
+    ptr = models.FloatField(db_column='ptr')
+    pmv = models.FloatField(db_column='pmv')
+    pkn = models.FloatField(db_column='pkn')
+    pno = models.FloatField(db_column='pno')
+    pbn = models.FloatField(db_column='pbn')
+    pcr = models.FloatField(db_column='pcr')
+    pxt = models.FloatField(db_column='pxt')
+    psc = models.FloatField(db_column='psc')
+    dup = models.FloatField(db_column='dup')
+    wpflx = models.FloatField(db_column='wpflx')
+    dflx = models.FloatField(db_column='dflx')
+
+
 class CustomLCBlanks(models.Model):
     """CustomLCBlanks.
     """
@@ -35,6 +74,22 @@ class CustomLCBlanks(models.Model):
     input = models.CharField(max_length=765, db_column='input')
     reference = models.CharField(max_length=765, db_column='reference')
     pointing = models.CharField(max_length=765, db_column='pointing')
+
+class CustomLCBlanks2(models.Model):
+    """CustomLCBlanks2.
+    """
+
+    id = models.IntegerField(primary_key=True, db_column='id')
+    mjd = models.FloatField(db_column='mjd')
+    exptime = models.FloatField(db_column='exptime')
+    filter = models.CharField(max_length=90, db_column='filter')
+    zp = models.FloatField(db_column='zp')
+    expname = models.CharField(max_length=90, db_column='expname')
+    filename = models.CharField(max_length=765, db_column='filename')
+    input = models.CharField(max_length=765, db_column='input')
+    reference = models.CharField(max_length=765, db_column='reference')
+    pointing = models.CharField(max_length=765, db_column='pointing')
+    mag5sig = models.FloatField(db_column='mag5sig')
 
 class CustomFollowupLCData(models.Model):
     """CustomFollowupLCData.
