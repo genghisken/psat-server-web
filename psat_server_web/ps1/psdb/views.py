@@ -589,10 +589,51 @@ def candidateflot(request, tcs_transient_objects_id):
 
                    # 2011-02-24 KWS Added Observation Status
                    # 2013-10-29 KWS Added date_modified so we can track when update were done.
+                   # 2019-08-07 KWS Grab a PS name from the PS nameserver.
+                   # 2024-01-09 KWS New Pan-STARRS nameserver integration. Also added pso4 database.
+                   #                Code moved up so that the ps1_designation gets written, if allocated.
+
+                   ps1Designation = transient.ps1_designation # (usually None or NULL)
+                   if listId == GOOD and originalListId != GOOD and originalListId != CONFIRMED and (ps1Designation is None or ps1Designation == ''):
+
+                       # Don't use ra_psf, dec_psf - use the mean or median. Pass the localDesignation as an alias.
+                       try:
+                           ra = averageObjectCoords[0]['RA']
+                       except Exception as e:
+                           ra = transient.ra_psf
+
+                       if ra < 0:
+                           ra += 360.0
+                       if ra > 360:
+                           ra -= 360
+
+                       try:
+                           dec = averageObjectCoords[0]['DEC']
+                       except Exception as e:
+                           dec = transient.dec_psf
+
+                       nameData = getLocalObjectName(settings.NAMESERVER_API_URL, settings.NAMESERVER_TOKEN, transient.id, ra, dec, transient.followup_flag_date.strftime("%Y-%m-%d"), dbName, alias = localDesignation)
+                       if nameData:
+                           if nameData['status'] == 201 and nameData['counter'] is not None and nameData['name'] is not None:
+                               sys.stderr.write("\n%s\n" % nameData['info'])
+                               #fieldCounter = nameData['counter']
+                               ps1Designation = nameData['name']
+                           else:
+                               sys.stderr.write("\nStatus = %s. %s\n" % (str(nameData['status']), nameData['info']))
+                               request.session['error'] = "ERROR: Nameserver error. Status = %s. %s" % (str(nameData['status']), nameData['info'])
+                               redirect_to = "../../../error/"
+                               return HttpResponseRedirect(redirect_to)
+                       else:
+                           sys.stderr.write("\nBad response from the nameserver. Something went wrong.\n")
+                           request.session['error'] = "ERROR: Bad response from the Nameserver."
+                           redirect_to = "../../../error/"
+                           return HttpResponseRedirect(redirect_to)
+
                    TcsTransientObjects.objects.filter(pk=tcs_transient_objects_id).update(detection_list_id = listId,
                                                                                             survey_field = surveyField,
                                                                                         followup_counter = fieldCounter,
                                                                                        local_designation = localDesignation,
+                                                                                         ps1_designation = ps1Designation,
                                                                                       observation_status = observationStatus, 
                                                                                            date_modified = datetime.datetime.now()) 
 
@@ -604,21 +645,28 @@ def candidateflot(request, tcs_transient_objects_id):
 
                        objectComment.save()
 
-                   # 2019-08-07 KWS Grab a PS name from the PS nameserver.
-                   if listId == GOOD and originalListId != GOOD and (dbName in ('ps13pi', 'pso3', 'ps23pi', 'ps2o3', 'ps1yse')):
-                       if settings.DAEMONS['psnames']['test']:
-                           response = sendMessage(settings.DAEMONS['psnames']['host'], settings.DAEMONS['psnames']['port'], 'SubmitTest %d' % transient.id)
-                       else:
-                           response = sendMessage(settings.DAEMONS['psnames']['host'], settings.DAEMONS['psnames']['port'], 'Submit %d' % transient.id)
-                       if response:
-                           sys.stderr.write('Received %s\n' % repr(response))
+
+
+
+
+
+
+
+
+                   #    if settings.DAEMONS['psnames']['test']:
+                   #        response = sendMessage(settings.DAEMONS['psnames']['host'], settings.DAEMONS['psnames']['port'], 'SubmitTest %d' % transient.id)
+                   #    else:
+                   #        response = sendMessage(settings.DAEMONS['psnames']['host'], settings.DAEMONS['psnames']['port'], 'Submit %d' % transient.id)
+                   #    if response:
+                   #        sys.stderr.write('Received %s\n' % repr(response))
 
 
                    # 2019-08-07 KWS Register the object on TNS
                    # 2019-08-07 KWS If the previous list was also good (e.g. just adding a comment) don't send a message
                    #                to the TNS daemon. Hard wire the database names so that only the official are allowed
                    #                to request a TNS name.
-                   if listId == GOOD and originalListId != GOOD and (dbName in ('ps13pi', 'pso3', 'ps23pi', 'ps2o3', 'ps1yse')):
+                   # 2024-01-09 KWS Added missing pso4 database.
+                   if listId == GOOD and originalListId != GOOD and (dbName in ('ps13pi', 'pso3', 'pso4', 'ps23pi', 'ps2o3', 'ps1yse')):
                        if settings.DAEMONS['tns']['test']:
                            response = sendMessage(settings.DAEMONS['tns']['host'], settings.DAEMONS['tns']['port'], 'SubmitTest %d' % transient.id)
                        else:
