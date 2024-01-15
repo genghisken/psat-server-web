@@ -12,6 +12,7 @@ from atlas.models import AtlasDetectionsddc
 from django.forms.models import model_to_dict
 from .lightcurvequeries import *
 from .views import followupClassList
+from .views import WebViewUserDefined
 from .views import AtlasDetectionsddcTable
 from .commonqueries import getNonDetectionsUsingATLASFootprint, ATLAS_METADATADDC, filterWhereClauseddc, LC_POINTS_QUERY_ATLAS_DDC, FILTERS, getLightcurvePoints, getLightcurvePointsDDCAPI, getNonDetectionsUsingATLASFootprintAPI
 from .dbviews import CustomLCBlanks, CustomLCPoints, CustomLCPoints2, CustomLCBlanks2
@@ -106,11 +107,22 @@ def candidateddcApi(request, atlas_diff_objects_id, mjdThreshold = None):
     return data
 
 
-def getObjectList(request, listId):
-    querySet = followupClassList[int(listId)].objects.all()
+def getObjectList(request, listId, getCustomList = False):
+
+    querySet = None
+
+    if getCustomList:
+        if listId > 0 and listId <= 100:
+            querySet = WebViewUserDefined.objects.filter(object_group_id = listId)
+    else:
+        # There are currently 11 valid lists.
+        if listId >= 0 and listId <= 11:
+            querySet = followupClassList[int(listId)].objects.all()
+
     objectList = []
 
-    for row in querySet:
-        objectList.append(model_to_dict(row))
+    if querySet is not None:
+        for row in querySet:
+            objectList.append(model_to_dict(row))
 
     return objectList

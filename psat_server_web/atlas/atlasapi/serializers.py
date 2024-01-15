@@ -103,12 +103,14 @@ class ObjectsSerializer(serializers.Serializer):
 
 class ObjectListSerializer(serializers.Serializer):
     objectlistid = serializers.IntegerField(required=True)
+    getcustomlist = serializers.BooleanField(required=False, default = False)
 
     def save(self):
         objectlistid = self.validated_data['objectlistid']
+        getcustomlist = self.validated_data['getcustomlist']
         request = self.context.get("request")
 
-        objectList = getObjectList(request, objectlistid)
+        objectList = getObjectList(request, objectlistid, getCustomList = getcustomlist)
         return objectList
 
 
