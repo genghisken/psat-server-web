@@ -94,3 +94,5 @@ source mjdnow.sql;
 -- 2023-06-02 KWS Added tcs_gravity_alerts table.
 source tcs_gravity_alerts.sql;
 
+-- 2024-01-17 KWS Added new tcs_vra_probabilities table.
+source tcs_vra_probabilities.sql;

@@ -114,3 +114,22 @@ class ObjectListSerializer(serializers.Serializer):
         return objectList
 
 
+# 2024-01-17 KWS Insert a VRA row for an object. For the time being do this one at a time.
+class VRASerializer(serializers.Serializer):
+    objectid = serializers.IntegerField(required=True)
+    preal = serializers.FloatField(required=True)
+    pfast = serializers.FloatField(required=True)
+    pgal = serializers.FloatField(required=True)
+    insertDate = serializers.DateTimeField(required=False, default=datetime.now())
+
+
+    def save(self):
+
+        from django.conf import settings
+        objectId = self.validated_data['objectid']
+        preal = self.validated_data['preal']
+        pfast = self.validated_data['fast']
+        pgal = self.validated_data['pgal']
+        insertDate = self.validated_data['insertDate']
+
+        reply_message = 'Row created.'
