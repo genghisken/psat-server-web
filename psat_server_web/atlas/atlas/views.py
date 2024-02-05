@@ -1602,23 +1602,23 @@ def lightcurveforcedplain(request, tcs_transient_objects_id):
 
     # 2020-06-18 KWS Since we don't calculate flux in uJy natively, do it now.
     for row in forcedPhotometry:
-        apfit = row.expname.apfit
-        if apfit is None:
-            apfit = row.apfit
-        exptime = row.expname.texp
-        if exptime is None:
-            exptime = 30.0
-
-        if row.zp is not None and row.major is not None and row.minor is not None and row.peakfit is not None and row.dpeak is not None and apfit is not None and exptime is not None and row.zp is not None:
-            factor = 10**(-0.4*(row.zp+apfit-23.9))
-            uJy = row.peakfit*row.major*row.minor/exptime*factor
-            duJy = row.dpeak*row.major*row.minor/exptime*factor
-            row.uJy = uJy
-            row.duJy = duJy
-        else:
-            row.uJy = None
-            row.duJy = None
-
+#        apfit = row.expname.apfit
+#        if apfit is None:
+#            apfit = row.apfit
+#        exptime = row.expname.texp
+#        if exptime is None:
+#            exptime = 30.0
+#
+#        if row.zp is not None and row.major is not None and row.minor is not None and row.peakfit is not None and row.dpeak is not None and apfit is not None and exptime is not None and row.zp is not None:
+#            factor = 10**(-0.4*(row.zp+apfit-23.9))
+#            uJy = row.peakfit*row.major*row.minor/exptime*factor
+#            duJy = row.dpeak*row.major*row.minor/exptime*factor
+#            row.uJy = uJy
+#            row.duJy = duJy
+#        else:
+#            row.uJy = None
+#            row.duJy = None
+#
         # 2020-06-26 KWS STOP quoting mags and dmags if snr below snrlimit - just give snrlimit-sigma limiting mag
         if row.snr is not None and row.snrlimit is not None and row.limiting_mag is not None and row.mag is not None and row.dm is not None and row.dpeak is not None and row.peakfit is not None and row.snr < row.snrlimit and not row.limiting_mag:
             row.limiting_mag = 1

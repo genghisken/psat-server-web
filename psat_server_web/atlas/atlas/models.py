@@ -389,6 +389,41 @@ class AtlasForcedPhotometry(models.Model):
     limiting_mag = models.BooleanField(null=True, blank=True)
     redo_photometry = models.BooleanField(null=True, blank=True)
 
+
+    # 2024-02-05 KWS Added uJy and duJy to the model definition, so the flux
+    #                in microjanskys gets returned via the API.
+    @property
+    def uJy(self):
+        exptime = self.expname.texp
+        apfit = self.apfit
+        if apfit is None:
+            apfit = self.expname.apfit
+        if self.zp is not None and self.major is not None and self.minor is not None and self.peakfit is not None and self.dpeak is not None and apfit is not None and exptime is not None and self.zp is not None:
+            factor = 10**(-0.4*(self.zp+apfit-23.9))
+            uJy = self.peakfit*self.major*self.minor/exptime*factor
+        else:
+            uJy = None
+        return uJy
+
+
+    @property
+    def duJy(self):
+        exptime = self.expname.texp
+        apfit = self.apfit
+        if apfit is None:
+            apfit = self.expname.apfit
+        if self.zp is not None and self.major is not None and self.minor is not None and self.peakfit is not None and self.dpeak is not None and apfit is not None and exptime is not None and self.zp is not None:
+            factor = 10**(-0.4*(self.zp+apfit-23.9))
+            duJy = self.dpeak*self.major*self.minor/exptime*factor
+        else:
+            duJy = None
+        return duJy
+
+    @property
+    def texp(self):
+        return self.expname.texp
+
+
     class Meta:
         """Meta.
         """
@@ -1211,10 +1246,12 @@ class TcsVraProbabilities(models.Model):
     pgal = models.FloatField(blank=True, null=True)
     pfast = models.FloatField(blank=True, null=True)
     updated = models.DateTimeField()
+    deprecated = models.BooleanField(null=True, blank=True)
     username = models.CharField(max_length=30, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'tcs_vra_probabilities'
+        unique_together = (('transient_object_id', 'deprecated'),)
 
 
