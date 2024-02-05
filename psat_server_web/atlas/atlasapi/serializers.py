@@ -9,6 +9,11 @@ from gkutils.commonutils import coneSearchHTM, FULL, QUICK, COUNT, CAT_ID_RA_DEC
 from rest_framework import serializers
 import sys
 from atlas.apiutils import candidateddcApi, getObjectList
+from django.core.exceptions import ObjectDoesNotExist
+
+# 2024-01-29 KWS Need the model to do inserts.
+from atlas.models import TcsVraProbabilities
+
 
 #CAT_ID_RA_DEC_COLS['objects'] = [['objectId', 'ramean', 'decmean'], 1018]
 
@@ -115,21 +120,107 @@ class ObjectListSerializer(serializers.Serializer):
 
 
 # 2024-01-17 KWS Insert a VRA row for an object. For the time being do this one at a time.
-class VRASerializer(serializers.Serializer):
+class VRAProbabilitiesSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=True)
     preal = serializers.FloatField(required=True)
     pfast = serializers.FloatField(required=True)
     pgal = serializers.FloatField(required=True)
-    insertDate = serializers.DateTimeField(required=False, default=datetime.now())
+    deprecated = serializers.BooleanField(required=False, default=False)
+    insertdate = serializers.DateTimeField(required=False, default=None)
 
 
     def save(self):
 
         from django.conf import settings
-        objectId = self.validated_data['objectid']
+        objectid = self.validated_data['objectid']
         preal = self.validated_data['preal']
-        pfast = self.validated_data['fast']
+        pfast = self.validated_data['pfast']
         pgal = self.validated_data['pgal']
-        insertDate = self.validated_data['insertDate']
+        insertdate = self.validated_data['insertdate']
+        deprecated = self.validated_data['deprecated']
 
-        reply_message = 'Row created.'
+        insertDate = None
+        if insertdate is not None:
+            insertDate = self.validated_data['insertdate']
+
+        replyMessage = 'Row created.'
+
+        userId = 'unknown'
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            userId = str(request.user)
+
+        if not insertDate:
+            insertDate = datetime.now()
+
+        data = {'transient_object_id_id': objectid,
+                'preal': preal,
+                'pgal': pgal,
+                'pfast': pfast,
+                'updated': insertDate,
+                'deprecated': deprecated,
+                'username': userId}
+
+        # Does the row exist?
+        vra = None
+        try:
+            vra = TcsVraProbabilities.objects.get(transient_object_id_id=objectid, deprecated=deprecated)
+        
+        except ObjectDoesNotExist:
+            sys.stderr.write("\nOBJECT DOES NOT EXIST\n%s %s\n" % (str(objectid), str(deprecated)))
+            pass
+        
+        if vra:
+            sys.stderr.write("\nVRA row EXISTS\n")
+            instance = vra
+        else:
+            instance = TcsVraProbabilities(**data)
+        try:
+
+            if vra is not None:
+                instance.preal = preal
+                instance.pfast = pfast
+                instance.pgal = pgal
+                instance.updated = insertDate
+                i = instance.save()
+            else:
+                i = instance.save()
+    #        if self.instance is not None:
+    #            #self.instance = self.save(self.instance, **data)
+    #            self.instance = self.save()
+    #        else:
+    #            instance = vra.save()
+
+        except IntegrityError as e:
+            replyMessage = 'Duplicate row. Cannot add row.'
+
+        info = { "objectid": objectid, "info": replyMessage }
+        return info
+
+
+    def update(self, instance, validated_data):
+        from django.conf import settings
+        instance.objectid = self.validated_data['objectid']
+        instance.preal = self.validated_data['preal']
+        instance.pfast = self.validated_data['pfast']
+        instance.pgal = self.validated_data['pgal']
+        instance.insertdate = self.validated_data['insertdate']
+        instance.deprecated = self.validated_data['deprecated']
+
+        insertDate = None
+        if insertdate is not None:
+            insertDate = self.validated_data['insertdate']
+
+        replyMessage = 'Row updated.'
+
+        userId = 'unknown'
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            userId = str(request.user)
+
+        if not insertDate:
+            insertDate = datetime.now()
+
+        instance.save()
+        info = { "objectid": objectid, "info": replyMessage }
+        return info

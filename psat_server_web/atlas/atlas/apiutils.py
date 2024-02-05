@@ -67,37 +67,23 @@ def candidateddcApi(request, atlas_diff_objects_id, mjdThreshold = None):
     recsExperiment = getLightcurvePointsDDCAPI(transient.id, djangoRawObject = CustomLCPoints2, lcQuery=LC_POINTS_QUERY_ATLAS_DDC + filterWhereClauseddc(FILTERS), conn = connection, mjdThreshold = mjdThreshold)
     blanksExperiment = getNonDetectionsUsingATLASFootprintAPI(recsExperiment, djangoRawObject = CustomLCBlanks2, ndQuery=ATLAS_METADATADDC, filterWhereClause = filterWhereClauseddc, catalogueName = 'atlas_metadataddc', conn = connection, mjdThreshold = mjdThreshold, transient = transient)
 
-#    dets = AtlasDetectionsddc.objects.filter(atlas_object_id=transient.id)
-#    detTable = AtlasDetectionsddcTable(dets)
 
-#    p, recurrences = getLightcurvePoints(transient.id, djangoRawObject = CustomLCPoints, lcQuery=LC_POINTS_QUERY_ATLAS_DDC + filterWhereClauseddc(FILTERS), conn = connection)
-
-    # The first variable below is the list of nondetections for each filter defined by the FILTERS variable in commonqueries.py. Ken to find out what blanks actually contains, since this is actually the raw query object. Why does it need to return the rawQuery object at all???
-#    nondets, blanks, lastNonDetection = getNonDetectionsUsingATLASFootprint(recurrences, djangoRawObject = CustomLCBlanks, ndQuery=ATLAS_METADATADDC, filterWhereClause = filterWhereClauseddc, catalogueName = 'atlas_metadataddc', conn = connection)
-
-#    tableHeader = ['id','Ra','Dec','Mag','Dmag','X','Y','Major','Minor','Phi','Det','Chin','Pvr','Ptr','Pmv','Pkn','Pno','Pbn','Pcr','Pxt','Psc','Dup','Wpflx','Dflx','Image_group_id','Mjd','Obs','Mag5sig','Atlas_metadata_id','Texp','Filt','Obj','fpRA','fpDec']
-
-#    django_rows = [r for r in detTable.rows]
-
-#    rows = []
-#    for row in django_rows:
-#        rows.append([e for e in row])
-
-#    data = {'detection_table': {k: v for k,v in zip(tableHeader, np.array(rows).T)},
-#            'lcnondets': {k: np.array(v).T for k,v in zip(FILTERS, nondets)},
-#            'fp': [model_to_dict(f) for f in forcedPhotometry],
-#            'object': model_to_dict(transient),
-#            'sherlock_crossmatches': [model_to_dict(s) for s in sx],
-#            'sherlock_classifications': [model_to_dict(s) for s in sc],
-#            'tns_crossmatches': [model_to_dict(t) for t in tnsXMs],
-#            'external_crossmatches': [model_to_dict(e) for e in externalXMs]
-#           }
+    # 2024-02-05 KWS The model_to_dict method doesn't pull out any @property methods
+    #                from the model, so need to iterate through and add them. Since
+    #                we need to iterate anyway, this should not slow things down.
+    forcedWithProperties = []
+    for f in forcedPhotometry:
+        fp = model_to_dict(f)
+        fp['uJy'] = f.uJy
+        fp['duJy'] = f.duJy
+        fp['texp'] = f.texp
+        forcedWithProperties.append(fp)
 
     data = {
             'object': model_to_dict(transient),
             'lc': [model_to_dict(r) for r in recsExperiment],
             'lcnondets': [model_to_dict(b) for b in blanksExperiment],
-            'fp': [model_to_dict(f) for f in forcedPhotometry],
+            'fp': forcedWithProperties,
             'sherlock_crossmatches': [model_to_dict(s) for s in sx],
             'sherlock_classifications': [model_to_dict(s) for s in sc],
             'tns_crossmatches': [model_to_dict(t) for t in tnsXMs],
