@@ -13,6 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 # 2024-01-29 KWS Need the model to do inserts.
 from atlas.models import TcsVraProbabilities
+from atlas.models import AtlasDiffObjects
 
 
 #CAT_ID_RA_DEC_COLS['objects'] = [['objectId', 'ramean', 'decmean'], 1018]
@@ -109,13 +110,20 @@ class ObjectsSerializer(serializers.Serializer):
 class ObjectListSerializer(serializers.Serializer):
     objectlistid = serializers.IntegerField(required=True)
     getcustomlist = serializers.BooleanField(required=False, default = False)
+    datethreshold = serializers.DateTimeField(required=False, default=None)
 
     def save(self):
         objectlistid = self.validated_data['objectlistid']
         getcustomlist = self.validated_data['getcustomlist']
+        datethreshold = self.validated_data['datethreshold']
+
         request = self.context.get("request")
 
-        objectList = getObjectList(request, objectlistid, getCustomList = getcustomlist)
+        dateThreshold = None
+        if datethreshold is not None:
+            dateThreshold = self.validated_data['datethreshold']
+
+        objectList = getObjectList(request, objectlistid, getCustomList = getcustomlist, dateThreshold = dateThreshold)
         return objectList
 
 
@@ -161,17 +169,25 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
                 'deprecated': deprecated,
                 'username': userId}
 
-        # Does the row exist?
+        # Does the objectId actually exit - not allowed to comment on objects that don't exist!
+        # This should really return a 404 message.
+        try:
+            transient = AtlasDiffObjects.objects.get(pk=objectid)
+        except ObjectDoesNotExist as e:
+            replyMessage = 'Object does not exist.'
+            info = { "objectid": objectid, "info": replyMessage }
+            return info
+
+        # Does the VRA row exist?
         vra = None
         try:
             vra = TcsVraProbabilities.objects.get(transient_object_id_id=objectid, deprecated=deprecated)
         
-        except ObjectDoesNotExist:
-            sys.stderr.write("\nOBJECT DOES NOT EXIST\n%s %s\n" % (str(objectid), str(deprecated)))
+        except ObjectDoesNotExist as e:
+            # That's OK - we'll create a new object
             pass
         
         if vra:
-            sys.stderr.write("\nVRA row EXISTS\n")
             instance = vra
         else:
             instance = TcsVraProbabilities(**data)
@@ -185,11 +201,6 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
                 i = instance.save()
             else:
                 i = instance.save()
-    #        if self.instance is not None:
-    #            #self.instance = self.save(self.instance, **data)
-    #            self.instance = self.save()
-    #        else:
-    #            instance = vra.save()
 
         except IntegrityError as e:
             replyMessage = 'Duplicate row. Cannot add row.'
@@ -197,30 +208,3 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
         info = { "objectid": objectid, "info": replyMessage }
         return info
 
-
-    def update(self, instance, validated_data):
-        from django.conf import settings
-        instance.objectid = self.validated_data['objectid']
-        instance.preal = self.validated_data['preal']
-        instance.pfast = self.validated_data['pfast']
-        instance.pgal = self.validated_data['pgal']
-        instance.insertdate = self.validated_data['insertdate']
-        instance.deprecated = self.validated_data['deprecated']
-
-        insertDate = None
-        if insertdate is not None:
-            insertDate = self.validated_data['insertdate']
-
-        replyMessage = 'Row updated.'
-
-        userId = 'unknown'
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            userId = str(request.user)
-
-        if not insertDate:
-            insertDate = datetime.now()
-
-        instance.save()
-        info = { "objectid": objectid, "info": replyMessage }
-        return info

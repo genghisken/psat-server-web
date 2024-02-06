@@ -19,6 +19,7 @@ from .dbviews import CustomLCBlanks, CustomLCPoints, CustomLCPoints2, CustomLCBl
 
 from .views import LC_LIMITS, LC_LIMITS_MD
 import numpy as np
+import sys
 
 def candidateddcApi(request, atlas_diff_objects_id, mjdThreshold = None):
     """candidateddcApi.
@@ -93,17 +94,25 @@ def candidateddcApi(request, atlas_diff_objects_id, mjdThreshold = None):
     return data
 
 
-def getObjectList(request, listId, getCustomList = False):
+def getObjectList(request, listId, getCustomList = False, dateThreshold = None):
 
     querySet = None
 
     if getCustomList:
         if listId > 0 and listId <= 100:
-            querySet = WebViewUserDefined.objects.filter(object_group_id = listId)
+            if dateThreshold is not None:
+                sys.stderr.write("\nDATE THRESHOLD = %s\n" % dateThreshold)
+                querySet = WebViewUserDefined.objects.filter(object_group_id = listId, followup_flag_date__gt = dateThreshold)
+            else:
+                querySet = WebViewUserDefined.objects.filter(object_group_id = listId)
     else:
         # There are currently 11 valid lists.
         if listId >= 0 and listId <= 11:
-            querySet = followupClassList[int(listId)].objects.all()
+            if dateThreshold is not None:
+                sys.stderr.write("\nDATE THRESHOLD = %s\n" % dateThreshold)
+                querySet = followupClassList[int(listId)].objects.filter(followup_flag_date__gt = dateThreshold)
+            else:
+                querySet = followupClassList[int(listId)].objects.all()
 
     objectList = []
 
