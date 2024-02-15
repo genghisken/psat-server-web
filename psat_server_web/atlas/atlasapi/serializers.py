@@ -9,6 +9,7 @@ from gkutils.commonutils import coneSearchHTM, FULL, QUICK, COUNT, CAT_ID_RA_DEC
 from rest_framework import serializers
 import sys
 from atlas.apiutils import candidateddcApi, getObjectList
+from atlas.apiutils import getVRAProbabilitiesList
 from django.core.exceptions import ObjectDoesNotExist
 
 # 2024-01-29 KWS Need the model to do inserts.
@@ -207,4 +208,27 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
 
         info = { "objectid": objectid, "info": replyMessage }
         return info
+
+
+
+class VRAProbabilitiesListSerializer(serializers.Serializer):
+    objects = serializers.CharField(required=False, default=None)
+    deprecated = serializers.BooleanField(required=False, default=False)
+    datethreshold = serializers.DateTimeField(required=False, default='1970-01-01')
+
+    def save(self):
+        objects = self.validated_data['objects']
+        datethreshold = self.validated_data['datethreshold']
+        deprecated = self.validated_data['deprecated']
+
+        request = self.context.get("request")
+
+        olist = []
+
+        if objects is not None:
+            for tok in objects.split(','):
+                olist.append(tok.strip())
+
+        vraProbabilitiesList = getVRAProbabilitiesList(request, objects = olist, deprecated = deprecated, dateThreshold = datethreshold)
+        return vraProbabilitiesList
 

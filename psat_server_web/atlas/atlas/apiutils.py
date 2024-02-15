@@ -9,6 +9,7 @@ from atlas.models import SherlockCrossmatches
 from atlas.models import TcsObjectComments
 from atlas.models import TcsCrossMatchesExternal
 from atlas.models import AtlasDetectionsddc
+from atlas.models import TcsVraProbabilities
 from django.forms.models import model_to_dict
 from .lightcurvequeries import *
 from .views import followupClassList
@@ -20,6 +21,7 @@ from .dbviews import CustomLCBlanks, CustomLCPoints, CustomLCPoints2, CustomLCBl
 from .views import LC_LIMITS, LC_LIMITS_MD
 import numpy as np
 import sys
+from django.core.exceptions import ObjectDoesNotExist
 
 def candidateddcApi(request, atlas_diff_objects_id, mjdThreshold = None):
     """candidateddcApi.
@@ -101,7 +103,6 @@ def getObjectList(request, listId, getCustomList = False, dateThreshold = None):
     if getCustomList:
         if listId > 0 and listId <= 100:
             if dateThreshold is not None:
-                sys.stderr.write("\nDATE THRESHOLD = %s\n" % dateThreshold)
                 querySet = WebViewUserDefined.objects.filter(object_group_id = listId, followup_flag_date__gt = dateThreshold)
             else:
                 querySet = WebViewUserDefined.objects.filter(object_group_id = listId)
@@ -109,7 +110,6 @@ def getObjectList(request, listId, getCustomList = False, dateThreshold = None):
         # There are currently 11 valid lists.
         if listId >= 0 and listId <= 11:
             if dateThreshold is not None:
-                sys.stderr.write("\nDATE THRESHOLD = %s\n" % dateThreshold)
                 querySet = followupClassList[int(listId)].objects.filter(followup_flag_date__gt = dateThreshold)
             else:
                 querySet = followupClassList[int(listId)].objects.all()
@@ -121,3 +121,32 @@ def getObjectList(request, listId, getCustomList = False, dateThreshold = None):
             objectList.append(model_to_dict(row))
 
     return objectList
+
+
+def getVRAProbabilitiesList(request, objects = [], deprecated = False, dateThreshold = None):
+
+    vraProbabilitiesList = []
+
+    # If we specify objects then ignore any thresholds. Deprecated flag is common to all objects.
+    # If you don't want a common deprecated flag, then request objects one at a time!
+    if len(objects) > 0:
+        for objectid in objects:
+            try:
+                oid = int(objectid)
+            except ValueError as e:
+                continue
+
+            try:
+                vra = TcsVraProbabilities.objects.get(transient_object_id_id=oid, deprecated=deprecated)
+                vraProbabilitiesList.append(model_to_dict(vra))
+            except ObjectDoesNotExist as e:
+                # Silent fail. No objects returned if the object does not exist.
+                pass
+    else:
+        querySet = TcsVraProbabilities.objects.filter(updated__gte=dateThreshold)
+        #querySet = TcsVraProbabilities.objects.all()
+        if querySet is not None:
+            for vra in querySet:
+                vraProbabilitiesList.append(model_to_dict(vra))
+
+    return vraProbabilitiesList
