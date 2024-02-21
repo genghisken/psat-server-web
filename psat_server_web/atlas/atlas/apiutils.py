@@ -123,12 +123,12 @@ def getObjectList(request, listId, getCustomList = False, dateThreshold = None):
     return objectList
 
 
-def getVRAProbabilitiesList(request, objects = [], deprecated = False, dateThreshold = None):
+def getVRAProbabilitiesList(request, objects = [], debug = False, dateThreshold = None):
 
     vraProbabilitiesList = []
 
     # If we specify objects then ignore any thresholds. Deprecated flag is common to all objects.
-    # If you don't want a common deprecated flag, then request objects one at a time!
+    # If you don't want a common debug flag, then request objects one at a time!
     if len(objects) > 0:
         for objectid in objects:
             try:
@@ -137,13 +137,15 @@ def getVRAProbabilitiesList(request, objects = [], deprecated = False, dateThres
                 continue
 
             try:
-                vra = TcsVraProbabilities.objects.get(transient_object_id_id=oid, deprecated=deprecated)
-                vraProbabilitiesList.append(model_to_dict(vra))
+                querySet = TcsVraProbabilities.objects.filter(transient_object_id_id=oid, debug=debug)
+                if querySet is not None:
+                    for vra in querySet:
+                        vraProbabilitiesList.append(model_to_dict(vra))
             except ObjectDoesNotExist as e:
                 # Silent fail. No objects returned if the object does not exist.
                 pass
     else:
-        querySet = TcsVraProbabilities.objects.filter(updated__gte=dateThreshold)
+        querySet = TcsVraProbabilities.objects.filter(timestamp__gte=dateThreshold)
         #querySet = TcsVraProbabilities.objects.all()
         if querySet is not None:
             for vra in querySet:

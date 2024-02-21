@@ -1245,13 +1245,13 @@ class TcsVraProbabilities(models.Model):
     preal = models.FloatField(blank=True, null=True)
     pgal = models.FloatField(blank=True, null=True)
     pfast = models.FloatField(blank=True, null=True)
-    updated = models.DateTimeField()
-    deprecated = models.BooleanField(null=True, blank=True)
+    timestamp = models.DateTimeField()
+    apiusername = models.CharField(max_length=30, blank=True, null=True)
     username = models.CharField(max_length=30, blank=True, null=True)
+    debug = models.BooleanField(null=True, blank=True)
 
     class Meta:
         managed = False
         db_table = 'tcs_vra_probabilities'
-        unique_together = (('transient_object_id', 'deprecated'),)
 
 

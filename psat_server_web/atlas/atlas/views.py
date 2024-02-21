@@ -33,6 +33,9 @@ from atlas.models import TcsGravityEventAnnotations
 from atlas.models import SherlockClassifications
 from atlas.models import SherlockCrossmatches
 from atlas.models import TcsObjectComments
+# 2024-02-21 KWS Added TcsVraProbabilities. This table will be populated
+#                as a result of user actions.
+from atlas.models import TcsVraProbabilities
 # 2019-06-06 KWS Get the new diff stack forced photometry data
 from atlas.models import AtlasStackedForcedPhotometry
 from atlas.dbviews import *
@@ -1056,6 +1059,66 @@ def candidate(request, atlas_diff_objects_id):
 
     return render(request, 'atlas/candidate.html',{'transient' : transient, 'table': table, 'images': transient_images, 'form' : form, 'avg_coords': avgCoords, 'lcdata': lcData, 'lcdataforced': lcDataForced, 'lclimits': lcLimits, 'recurrencedata': recurrenceData, 'conesearchold': xmresults['oldDBXmList'], 'olddburl': xmresults['oldDBURL'], 'externalXMs': externalXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'fpData': fpData, 'sc': sc, 'gw': gw, 'comments': existingComments})
 
+# 2024-02-21 KWS Added new addVraRow function which gets called every time a user decides to move an object
+def addVraRow(objectid, originalListId, destinationListId, username, settings):
+    """Add a row to the virtual research assistant table. Rules are as follows:
+       If object was trashed, set preal = 0.0 (user thinks it's not real)
+       If object is good, set preal = 1.0, pgal = 0.0 (user thinks it's extragalactic)
+       If object is attic or high proper motion star, set preal = 1.0, pgal = 0.0 (use thinks it's real, but probably galactic)
+       If object is possible, set preal = 0.5 (user doesn't know what to do with the object)
+       If object was recovered from garbage, set preal = pgal = pfast = None.
+
+    Args:
+        objectid:
+        originalListId:
+        destinationListId:
+        username:
+        settings:
+    """
+
+    preal = None
+    pgal = None
+    pfast = None
+    timestamp = datetime.datetime.now()
+
+    try:
+        debug = settings.VRA_DEBUG
+    except:
+        debug = True
+
+    if originalListId == destinationListId:
+        return
+
+    if destinationListId in [GOOD, ATTIC, HPMSTAR]:
+        preal = 1.0
+    elif destinationListId in [POSSIBLE]:
+        preal = 0.5
+    elif destinationListId in [GARBAGE]:
+        preal = 0.0
+
+    if destinationListId in [ATTIC, HPMSTAR]:
+        pgal = 1.0
+    elif destinationListId in [GOOD]:
+        pgal = 0.0
+
+    # If something is fished out of the trash to the eyeball list, the values of preal, pgal and pfast will be set to None.
+
+    data = {'transient_object_id_id': objectid,
+            'preal': preal,
+            'pgal': pgal,
+            'pfast': pfast,
+            'timestamp': timestamp,
+            'debug': debug,
+            'username': username}
+
+    instance = TcsVraProbabilities(**data)
+    try:
+        i = instance.save()
+    except:
+        pass
+
+    return
+
 
 # 2017-06-16 KWS New DDC format candidate method
 @login_required
@@ -1400,6 +1463,9 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                                                                        username = request.user.username)
 
                        objectComment.save()
+
+                   if settings.VRA_ADD_ROW:
+                       addVraRow(transient.id, originalListId, listId, request.user.username, settings)
 
                    # Register the object on TNS
                    # 2018-05-14 KWS If the previous list was also good (e.g. just adding a comment) don't send a message
@@ -3227,6 +3293,10 @@ def followupQuickView(request, listNumber):
                         if e[0] == 1062: # Duplicate Key error
                             pass # Do nothing - will eventually raise some errors on the form
 
+                    if settings.VRA_ADD_ROW:
+                        originalListId = transient.detection_list_id.id
+                        addVraRow(transient.id, originalListId, listId, request.user.username, settings)
+
 
     else:
         if objectName:
@@ -3834,6 +3904,10 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
                     except IntegrityError as e:
                         if e[0] == 1062: # Duplicate Key error
                             pass # Do nothing - will eventually raise some errors on the form
+
+                    if settings.VRA_ADD_ROW:
+                        originalListId = transient.detection_list_id.id
+                        addVraRow(transient.id, originalListId, listId, request.user.username, settings)
 
 
     else:

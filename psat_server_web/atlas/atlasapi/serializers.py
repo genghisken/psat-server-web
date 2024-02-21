@@ -134,7 +134,7 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
     preal = serializers.FloatField(required=True)
     pfast = serializers.FloatField(required=True)
     pgal = serializers.FloatField(required=True)
-    deprecated = serializers.BooleanField(required=False, default=False)
+    debug = serializers.BooleanField(required=False, default=False)
     insertdate = serializers.DateTimeField(required=False, default=None)
 
 
@@ -146,7 +146,7 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
         pfast = self.validated_data['pfast']
         pgal = self.validated_data['pgal']
         insertdate = self.validated_data['insertdate']
-        deprecated = self.validated_data['deprecated']
+        debug = self.validated_data['debug']
 
         insertDate = None
         if insertdate is not None:
@@ -166,9 +166,9 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
                 'preal': preal,
                 'pgal': pgal,
                 'pfast': pfast,
-                'updated': insertDate,
-                'deprecated': deprecated,
-                'username': userId}
+                'timestamp': insertDate,
+                'debug': debug,
+                'apiusername': userId}
 
         # Does the objectId actually exit - not allowed to comment on objects that don't exist!
         # This should really return a 404 message.
@@ -179,32 +179,32 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
             info = { "objectid": objectid, "info": replyMessage }
             return info
 
-        # Does the VRA row exist?
-        vra = None
-        try:
-            vra = TcsVraProbabilities.objects.get(transient_object_id_id=objectid, deprecated=deprecated)
+        ## Does the VRA row exist?
+        #vra = None
+        #try:
+        #    vra = TcsVraProbabilities.objects.get(transient_object_id_id=objectid, debug=debug)
         
-        except ObjectDoesNotExist as e:
-            # That's OK - we'll create a new object
-            pass
+        #except ObjectDoesNotExist as e:
+        #    # That's OK - we'll create a new object
+        #    pass
         
-        if vra:
-            instance = vra
-        else:
-            instance = TcsVraProbabilities(**data)
-        try:
+        #if vra:
+        #    instance = vra
+        #else:
+        instance = TcsVraProbabilities(**data)
+        #try:
 
-            if vra is not None:
-                instance.preal = preal
-                instance.pfast = pfast
-                instance.pgal = pgal
-                instance.updated = insertDate
-                i = instance.save()
-            else:
-                i = instance.save()
+        #    if vra is not None:
+        #        instance.preal = preal
+        #        instance.pfast = pfast
+        #        instance.pgal = pgal
+        #        instance.timestamp = insertDate
+        #        i = instance.save()
+        #    else:
+        i = instance.save()
 
-        except IntegrityError as e:
-            replyMessage = 'Duplicate row. Cannot add row.'
+        #except IntegrityError as e:
+        #    replyMessage = 'Duplicate row. Cannot add row.'
 
         info = { "objectid": objectid, "info": replyMessage }
         return info
@@ -213,13 +213,13 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
 
 class VRAProbabilitiesListSerializer(serializers.Serializer):
     objects = serializers.CharField(required=False, default=None)
-    deprecated = serializers.BooleanField(required=False, default=False)
+    debug = serializers.BooleanField(required=False, default=False)
     datethreshold = serializers.DateTimeField(required=False, default='1970-01-01')
 
     def save(self):
         objects = self.validated_data['objects']
         datethreshold = self.validated_data['datethreshold']
-        deprecated = self.validated_data['deprecated']
+        debug = self.validated_data['debug']
 
         request = self.context.get("request")
 
@@ -229,6 +229,6 @@ class VRAProbabilitiesListSerializer(serializers.Serializer):
             for tok in objects.split(','):
                 olist.append(tok.strip())
 
-        vraProbabilitiesList = getVRAProbabilitiesList(request, objects = olist, deprecated = deprecated, dateThreshold = datethreshold)
+        vraProbabilitiesList = getVRAProbabilitiesList(request, objects = olist, debug = debug, dateThreshold = datethreshold)
         return vraProbabilitiesList
 
