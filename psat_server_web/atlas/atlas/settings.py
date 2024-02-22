@@ -100,7 +100,7 @@ DUSTMAP_LOCATION = os.environ.get('DJANGO_DUSTMAP_LOCATION')
 
 # 2024-02-21 KWS Added new Virtual Research Assistant settings.
 VRA_ADD_ROW = True
-VRA_DEBUG = True
+VRA_DEBUG = False
 
 # 2021-05-06 KWS New settings means that if we edit a static file we MUST rerun the collectstatic
 #                code to deploy the modified file.

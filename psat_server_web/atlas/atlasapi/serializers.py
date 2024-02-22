@@ -9,11 +9,11 @@ from gkutils.commonutils import coneSearchHTM, FULL, QUICK, COUNT, CAT_ID_RA_DEC
 from rest_framework import serializers
 import sys
 from atlas.apiutils import candidateddcApi, getObjectList
-from atlas.apiutils import getVRAProbabilitiesList
+from atlas.apiutils import getVRAScoresList
 from django.core.exceptions import ObjectDoesNotExist
 
 # 2024-01-29 KWS Need the model to do inserts.
-from atlas.models import TcsVraProbabilities
+from atlas.models import TcsVraScores
 from atlas.models import AtlasDiffObjects
 
 
@@ -129,11 +129,12 @@ class ObjectListSerializer(serializers.Serializer):
 
 
 # 2024-01-17 KWS Insert a VRA row for an object. For the time being do this one at a time.
-class VRAProbabilitiesSerializer(serializers.Serializer):
+# 2024-02-21 KWS Changed required to False for all three prob values.
+class VRAScoresSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=True)
-    preal = serializers.FloatField(required=True)
-    pfast = serializers.FloatField(required=True)
-    pgal = serializers.FloatField(required=True)
+    preal = serializers.FloatField(required=False, default=None)
+    pfast = serializers.FloatField(required=False, default=None)
+    pgal = serializers.FloatField(required=False, default=None)
     debug = serializers.BooleanField(required=False, default=False)
     insertdate = serializers.DateTimeField(required=False, default=None)
 
@@ -182,7 +183,7 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
         ## Does the VRA row exist?
         #vra = None
         #try:
-        #    vra = TcsVraProbabilities.objects.get(transient_object_id_id=objectid, debug=debug)
+        #    vra = TcsVraScores.objects.get(transient_object_id_id=objectid, debug=debug)
         
         #except ObjectDoesNotExist as e:
         #    # That's OK - we'll create a new object
@@ -191,7 +192,7 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
         #if vra:
         #    instance = vra
         #else:
-        instance = TcsVraProbabilities(**data)
+        instance = TcsVraScores(**data)
         #try:
 
         #    if vra is not None:
@@ -211,7 +212,7 @@ class VRAProbabilitiesSerializer(serializers.Serializer):
 
 
 
-class VRAProbabilitiesListSerializer(serializers.Serializer):
+class VRAScoresListSerializer(serializers.Serializer):
     objects = serializers.CharField(required=False, default=None)
     debug = serializers.BooleanField(required=False, default=False)
     datethreshold = serializers.DateTimeField(required=False, default='1970-01-01')
@@ -229,6 +230,6 @@ class VRAProbabilitiesListSerializer(serializers.Serializer):
             for tok in objects.split(','):
                 olist.append(tok.strip())
 
-        vraProbabilitiesList = getVRAProbabilitiesList(request, objects = olist, debug = debug, dateThreshold = datethreshold)
-        return vraProbabilitiesList
+        vraScoresList = getVRAScoresList(request, objects = olist, debug = debug, dateThreshold = datethreshold)
+        return vraScoresList
 

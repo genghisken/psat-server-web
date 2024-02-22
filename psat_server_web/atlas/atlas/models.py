@@ -1238,8 +1238,8 @@ class AtlasHeatmaps(models.Model):
         unique_together = (('site', 'region'),)
 
 
-# 2024-01-17 KWS Added new tcs_vra_probabilities table for the Virtual Research Assistant.
-class TcsVraProbabilities(models.Model):
+# 2024-01-17 KWS Added new tcs_vra_scores table for the Virtual Research Assistant.
+class TcsVraScores(models.Model):
     id = models.BigAutoField(primary_key=True)
     transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
     preal = models.FloatField(blank=True, null=True)
@@ -1252,6 +1252,6 @@ class TcsVraProbabilities(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'tcs_vra_probabilities'
+        db_table = 'tcs_vra_scores'
 
 

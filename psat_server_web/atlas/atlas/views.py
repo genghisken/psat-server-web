@@ -33,9 +33,9 @@ from atlas.models import TcsGravityEventAnnotations
 from atlas.models import SherlockClassifications
 from atlas.models import SherlockCrossmatches
 from atlas.models import TcsObjectComments
-# 2024-02-21 KWS Added TcsVraProbabilities. This table will be populated
+# 2024-02-21 KWS Added TcsVraScores. This table will be populated
 #                as a result of user actions.
-from atlas.models import TcsVraProbabilities
+from atlas.models import TcsVraScores
 # 2019-06-06 KWS Get the new diff stack forced photometry data
 from atlas.models import AtlasStackedForcedPhotometry
 from atlas.dbviews import *
@@ -1111,7 +1111,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
             'debug': debug,
             'username': username}
 
-    instance = TcsVraProbabilities(**data)
+    instance = TcsVraScores(**data)
     try:
         i = instance.save()
     except:

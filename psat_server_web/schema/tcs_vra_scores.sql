@@ -1,7 +1,7 @@
--- 2024-01-17 KWS New virtual research assistant probabilities table.
-drop table if exists `tcs_vra_probabilities`;
+-- 2024-01-17 KWS New virtual research assistant scores table.
+drop table if exists `tcs_vra_scores`;
 
-create table `tcs_vra_probabilities` (
+create table `tcs_vra_scores` (
 `id` bigint unsigned not null auto_increment,  -- autoincrementing detection id
 `transient_object_id` bigint(20) unsigned NOT NULL,
 `preal` float,

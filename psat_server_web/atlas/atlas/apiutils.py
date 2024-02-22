@@ -9,7 +9,7 @@ from atlas.models import SherlockCrossmatches
 from atlas.models import TcsObjectComments
 from atlas.models import TcsCrossMatchesExternal
 from atlas.models import AtlasDetectionsddc
-from atlas.models import TcsVraProbabilities
+from atlas.models import TcsVraScores
 from django.forms.models import model_to_dict
 from .lightcurvequeries import *
 from .views import followupClassList
@@ -123,9 +123,9 @@ def getObjectList(request, listId, getCustomList = False, dateThreshold = None):
     return objectList
 
 
-def getVRAProbabilitiesList(request, objects = [], debug = False, dateThreshold = None):
+def getVRAScoresList(request, objects = [], debug = False, dateThreshold = None):
 
-    vraProbabilitiesList = []
+    vraScoresList = []
 
     # If we specify objects then ignore any thresholds. Deprecated flag is common to all objects.
     # If you don't want a common debug flag, then request objects one at a time!
@@ -137,18 +137,18 @@ def getVRAProbabilitiesList(request, objects = [], debug = False, dateThreshold 
                 continue
 
             try:
-                querySet = TcsVraProbabilities.objects.filter(transient_object_id_id=oid, debug=debug)
+                querySet = TcsVraScores.objects.filter(transient_object_id_id=oid, debug=debug)
                 if querySet is not None:
                     for vra in querySet:
-                        vraProbabilitiesList.append(model_to_dict(vra))
+                        vraScoresList.append(model_to_dict(vra))
             except ObjectDoesNotExist as e:
                 # Silent fail. No objects returned if the object does not exist.
                 pass
     else:
-        querySet = TcsVraProbabilities.objects.filter(timestamp__gte=dateThreshold)
-        #querySet = TcsVraProbabilities.objects.all()
+        querySet = TcsVraScores.objects.filter(timestamp__gte=dateThreshold)
+        #querySet = TcsVraScores.objects.all()
         if querySet is not None:
             for vra in querySet:
-                vraProbabilitiesList.append(model_to_dict(vra))
+                vraScoresList.append(model_to_dict(vra))
 
-    return vraProbabilitiesList
+    return vraScoresList

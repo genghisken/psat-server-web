@@ -2,13 +2,13 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from .serializers import ConeSerializer, ObjectsSerializer, ObjectListSerializer, VRAProbabilitiesSerializer, VRAProbabilitiesListSerializer
+from .serializers import ConeSerializer, ObjectsSerializer, ObjectListSerializer, VRAScoresSerializer, VRAScoresListSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .query_auth import QueryAuthentication
 from django.core.exceptions import ObjectDoesNotExist
 # 2024-01-29 KWS Need the model to do inserts.
-from atlas.models import TcsVraProbabilities
+from atlas.models import TcsVraScores
 import sys
 
 def retcode(message):
@@ -72,7 +72,7 @@ class ObjectListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class VRAProbabilitiesView(APIView):
+class VRAScoresView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -80,7 +80,7 @@ class VRAProbabilitiesView(APIView):
         return Response({"Error": "GET is not implemented for this service."})
 
     def post(self, request, format=None):
-        serializer = VRAProbabilitiesSerializer(data=request.data, context={'request': request})
+        serializer = VRAScoresSerializer(data=request.data, context={'request': request})
 
         if serializer.is_valid():
             message = serializer.save()
@@ -89,19 +89,19 @@ class VRAProbabilitiesView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class VRAProbabilitiesListView(APIView):
+class VRAScoresListView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = VRAProbabilitiesListSerializer(data=request.GET, context={'request': request})
+        serializer = VRAScoresListSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, format=None):
-        serializer = VRAProbabilitiesListSerializer(data=request.data, context={'request': request})
+        serializer = VRAScoresListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
             return Response(message, status=retcode(message))
