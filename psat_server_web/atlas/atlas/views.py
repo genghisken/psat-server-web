@@ -1065,6 +1065,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
        If object was trashed, set preal = 0.0 (user thinks it's not real)
        If object is good, set preal = 1.0, pgal = 0.0 (user thinks it's extragalactic)
        If object is attic or high proper motion star, set preal = 1.0, pgal = 0.0 (use thinks it's real, but probably galactic)
+       If object is followup, set preal = 1.0, pgal = 0.0 and pfast = 0.5
        If object is possible, set preal = 0.5 (user doesn't know what to do with the object)
        If object was recovered from garbage, set preal = pgal = pfast = None.
 
@@ -1089,7 +1090,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
     if originalListId == destinationListId:
         return
 
-    if destinationListId in [GOOD, ATTIC, HPMSTAR]:
+    if destinationListId in [GOOD, ATTIC, HPMSTAR, FOLLOWUP]:
         preal = 1.0
     elif destinationListId in [POSSIBLE]:
         preal = 0.5
@@ -1098,8 +1099,12 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
 
     if destinationListId in [ATTIC, HPMSTAR]:
         pgal = 1.0
-    elif destinationListId in [GOOD]:
+    elif destinationListId in [GOOD, FOLLOWUP]:
         pgal = 0.0
+
+    if destinationListId in [FOLLOWUP]:
+        pfast = 0.5
+    
 
     # If something is fished out of the trash to the eyeball list, the values of preal, pgal and pfast will be set to None.
 
