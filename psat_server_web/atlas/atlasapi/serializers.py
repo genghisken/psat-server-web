@@ -216,11 +216,13 @@ class VRAScoresListSerializer(serializers.Serializer):
     objects = serializers.CharField(required=False, default=None)
     debug = serializers.BooleanField(required=False, default=False)
     datethreshold = serializers.DateTimeField(required=False, default='1970-01-01')
+    idthreshold = serializers.IntegerField(required=False, default=0)
 
     def save(self):
         objects = self.validated_data['objects']
         datethreshold = self.validated_data['datethreshold']
         debug = self.validated_data['debug']
+        idthreshold = self.validated_data['idthreshold']
 
         request = self.context.get("request")
 
@@ -230,6 +232,6 @@ class VRAScoresListSerializer(serializers.Serializer):
             for tok in objects.split(','):
                 olist.append(tok.strip())
 
-        vraScoresList = getVRAScoresList(request, objects = olist, debug = debug, dateThreshold = datethreshold)
+        vraScoresList = getVRAScoresList(request, objects = olist, debug = debug, dateThreshold = datethreshold, idThreshold = idthreshold)
         return vraScoresList
 

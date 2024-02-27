@@ -123,7 +123,7 @@ def getObjectList(request, listId, getCustomList = False, dateThreshold = None):
     return objectList
 
 
-def getVRAScoresList(request, objects = [], debug = False, dateThreshold = None):
+def getVRAScoresList(request, objects = [], debug = False, dateThreshold = None, idThreshold = 0):
 
     vraScoresList = []
 
@@ -145,7 +145,7 @@ def getVRAScoresList(request, objects = [], debug = False, dateThreshold = None)
                 # Silent fail. No objects returned if the object does not exist.
                 pass
     else:
-        querySet = TcsVraScores.objects.filter(timestamp__gte=dateThreshold)
+        querySet = TcsVraScores.objects.filter(pk__gte=idThreshold).filter(timestamp__gte=dateThreshold)
         #querySet = TcsVraScores.objects.all()
         if querySet is not None:
             for vra in querySet:
