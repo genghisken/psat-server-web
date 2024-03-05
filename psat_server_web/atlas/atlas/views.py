@@ -1064,7 +1064,8 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
     """Add a row to the virtual research assistant table. Rules are as follows:
        If object was trashed, set preal = 0.0 (user thinks it's not real)
        If object is good, set preal = 1.0, pgal = 0.0 (user thinks it's extragalactic)
-       If object is attic or high proper motion star, set preal = 1.0, pgal = 0.0 (use thinks it's real, but probably galactic)
+       If object is attic, set preal = 1.0, pgal = 1.0 (user thinks it's real, but probably galactic)
+       If object is high proper motion star, set preal = 0.0, pgal = 1.0 (user thinks flux is real, but caused by proper motion, not change in brightness) 
        If object is followup, set preal = 1.0, pgal = 0.0 and pfast = 0.5
        If object is possible, set preal = 0.5 (user doesn't know what to do with the object)
        If object was recovered from garbage, set preal = pgal = pfast = None.
@@ -1090,11 +1091,11 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
     if originalListId == destinationListId:
         return
 
-    if destinationListId in [GOOD, ATTIC, HPMSTAR, FOLLOWUP]:
+    if destinationListId in [GOOD, ATTIC, FOLLOWUP]:
         preal = 1.0
     elif destinationListId in [POSSIBLE]:
         preal = 0.5
-    elif destinationListId in [GARBAGE]:
+    elif destinationListId in [GARBAGE, HPMSTAR]:
         preal = 0.0
 
     if destinationListId in [ATTIC, HPMSTAR]:
