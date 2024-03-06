@@ -922,9 +922,15 @@ def getNonDetectionsUsingATLASFootprintAPI(recurrences, filters = FILTERS, ndQue
 
     recurrenceDetections = [r.atlas_metadata_id for r in recurrences]
 
-    from gkutils.commonutils import coneSearchHTM, QUICK, FULL, COUNT, CAT_ID_RA_DEC_COLS, Struct, isObjectInsideATLASFootprint
+    from gkutils.commonutils import coneSearchHTMWithExtraWhereClause, QUICK, FULL, COUNT, CAT_ID_RA_DEC_COLS, Struct, isObjectInsideATLASFootprint
 
-    message, xmObjects = coneSearchHTM(averageObjectCoords['RA'], averageObjectCoords['DEC'], searchRadius, catalogueName, queryType = FULL, conn = conn, django = True)
+    # TODO Include time threshold actually in the cone search. Fundamental change to the cone search code.
+    # 2024-03-06 KWS Inject additional SQL into the cone search (requires gkutils >= 0.3.0)
+    mjdWhereClause = ''
+    if mjdThreshold is not None:
+        mjdWhereClause = " AND mjd > %f" % mjdThreshold
+
+    message, xmObjects = coneSearchHTMWithExtraWhereClause(averageObjectCoords['RA'], averageObjectCoords['DEC'], searchRadius, catalogueName, queryType = FULL, conn = conn, django = True, extraWhereClause = mjdWhereClause)
     metadataIds = []
     uniqueMetadataIds = []
     if xmObjects:
@@ -940,10 +946,11 @@ def getNonDetectionsUsingATLASFootprintAPI(recurrences, filters = FILTERS, ndQue
     filteredMetadataIds = [x for x in uniqueMetadataIds if x not in recurrenceDetections]
     # ONLY do the query if there was something in the filteredMetadataIds
 
-    if mjdThreshold is not None:
-        refinedNdQuery = ndQuery + metadataWhereClause(filteredMetadataIds) +  mjdWhereClauseddc(mjdThreshold, inequality = inequality) + filterWhereClause(FILTERS)
-    else:
-        refinedNdQuery = ndQuery + metadataWhereClause(filteredMetadataIds) + filterWhereClause(FILTERS)
+    # TODO Can remove this IF statement if the cone search with mjdThreshold works.
+    #if mjdThreshold is not None:
+    #    refinedNdQuery = ndQuery + metadataWhereClause(filteredMetadataIds) +  mjdWhereClauseddc(mjdThreshold, inequality = inequality) + filterWhereClause(FILTERS)
+    #else:
+    refinedNdQuery = ndQuery + metadataWhereClause(filteredMetadataIds) + filterWhereClause(FILTERS)
 
     blanks = []
 
