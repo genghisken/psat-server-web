@@ -947,6 +947,10 @@ def getNonDetectionsUsingATLASFootprintAPI(recurrences, filters = FILTERS, ndQue
     # Now remove the known metadata IDs from this unique list.
 
     filteredMetadataIds = [x for x in uniqueMetadataIds if x not in recurrenceDetections]
+    if len(filteredMetadataIds) == 0:
+        # 2024-03-07 KWS We have a list of IDs but they are all detections, hence got deleted above!
+        return []
+
     # ONLY do the query if there was something in the filteredMetadataIds
 
     # TODO Can remove this IF statement if the cone search with mjdThreshold works.
