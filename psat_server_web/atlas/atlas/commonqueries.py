@@ -940,6 +940,9 @@ def getNonDetectionsUsingATLASFootprintAPI(recurrences, filters = FILTERS, ndQue
             if inside:
                 metadataIds.append(xm[1]['id'])
         uniqueMetadataIds = list(set(metadataIds))
+    else:
+        # 2024-03-07 KWS Now that we have an MJD cut, this raises the possibility of having nothing in the non-detections list.
+        return []
 
     # Now remove the known metadata IDs from this unique list.
 
