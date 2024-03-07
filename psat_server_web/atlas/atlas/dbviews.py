@@ -22,6 +22,7 @@ class CustomLCPoints(models.Model):
     atlas_metadata_id = models.IntegerField(db_column='atlas_metadata_id')
 
 # 2023-12-19 KWS Added ALL the detection columns - not just the ones for plotting.
+# 2024-03-07 KWS Added date_inserted column.
 class CustomLCPoints2(models.Model):
     """CustomLCPoints2.
     """
@@ -58,6 +59,7 @@ class CustomLCPoints2(models.Model):
     dup = models.FloatField(db_column='dup')
     wpflx = models.FloatField(db_column='wpflx')
     dflx = models.FloatField(db_column='dflx')
+    date_inserted = models.DateTimeField(db_column='date_inserted')
 
 
 class CustomLCBlanks(models.Model):
@@ -75,6 +77,7 @@ class CustomLCBlanks(models.Model):
     reference = models.CharField(max_length=765, db_column='reference')
     pointing = models.CharField(max_length=765, db_column='pointing')
 
+# 2024-03-07 KWS Added date_inserted column.
 class CustomLCBlanks2(models.Model):
     """CustomLCBlanks2.
     """
@@ -90,6 +93,7 @@ class CustomLCBlanks2(models.Model):
     reference = models.CharField(max_length=765, db_column='reference')
     pointing = models.CharField(max_length=765, db_column='pointing')
     mag5sig = models.FloatField(db_column='mag5sig')
+    date_inserted = models.DateTimeField(db_column='date_inserted')
 
 class CustomFollowupLCData(models.Model):
     """CustomFollowupLCData.

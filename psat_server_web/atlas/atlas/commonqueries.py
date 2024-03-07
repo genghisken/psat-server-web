@@ -171,6 +171,7 @@ def metadataWhereClause(metadataIds):
 
 
 # 2017-06-16 KWS Updated query for DDC format schema.
+# 2024-03-07 KWS Added date_inserted.
 LC_POINTS_QUERY_ATLAS_DDC = '''\
           select o.id,
                  d.ra,
@@ -214,7 +215,8 @@ LC_POINTS_QUERY_ATLAS_DDC = '''\
                  d.psc,
                  d.dup,
                  d.wpflx,
-                 d.dflx 
+                 d.dflx,
+                 d.date_inserted 
             from atlas_diff_objects o
             join atlas_detectionsddc d
               on (d.atlas_object_id = o.id)
@@ -266,7 +268,8 @@ ATLAS_METADATADDC = '''
                  input,
                  reference,
                  obj pointing,
-                 mag5sig
+                 mag5sig,
+                 date_inserted
             from atlas_metadataddc
           '''
 
