@@ -67,8 +67,8 @@ def processSearchForm(searchText, getAssociatedData = False, ddc = False, getNon
              searchRadius = 4.0
              if coords['radius']:
                  searchRadius = float(coords['radius'])
-                 if searchRadius > 99.0:
-                      searchRadius = 99.0
+                 if searchRadius > 300.0:
+                      searchRadius = 300.0
          
              message, xmObjects = coneSearchHTM(coords['ra'], coords['dec'], searchRadius, 'atlas_diff_objects', queryType = FULL, conn = connection, django = True)
              for xm in xmObjects:
