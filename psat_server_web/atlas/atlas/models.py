@@ -1255,3 +1255,13 @@ class TcsVraScores(models.Model):
         db_table = 'tcs_vra_scores'
 
 
+# 2024-04-16 KWS Added new tcs_vra_scores table for the Virtual Research Assistant.
+class TcsVraTodo(models.Model):
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE, primary_key=True)
+    timestamp = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'tcs_vra_todo'
+
+

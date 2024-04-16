@@ -96,3 +96,6 @@ source tcs_gravity_alerts.sql;
 
 -- 2024-01-17 KWS Added new tcs_vra_probabilities table.
 source tcs_vra_scores.sql;
+
+-- 2024-04-16 KWS Added new tcs_vra_todo table.
+source tcs_vra_todo.sql;

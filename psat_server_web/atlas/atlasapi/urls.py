@@ -9,5 +9,6 @@ urlpatterns = [
     path('api/objectlist/',            views.ObjectListView.as_view()),
     path('api/vrascores/',             views.VRAScoresView.as_view()),
     path('api/vrascoreslist/',         views.VRAScoresListView.as_view()),
+    path('api/vratodo/',               views.VRATodoView.as_view()),
     path('api/auth-token/',            obtain_auth_token, name='auth_token'),
 ]

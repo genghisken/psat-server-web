@@ -15,6 +15,7 @@ from django.core.exceptions import ObjectDoesNotExist
 # 2024-01-29 KWS Need the model to do inserts.
 from atlas.models import TcsVraScores
 from atlas.models import AtlasDiffObjects
+from atlas.models import TcsVraTodo
 
 
 #CAT_ID_RA_DEC_COLS['objects'] = [['objectId', 'ramean', 'decmean'], 1018]
@@ -234,4 +235,53 @@ class VRAScoresListSerializer(serializers.Serializer):
 
         vraScoresList = getVRAScoresList(request, objects = olist, debug = debug, dateThreshold = datethreshold, idThreshold = idthreshold)
         return vraScoresList
+
+
+# 2024-02-21 KWS Changed required to False for all three prob values.
+class VRATodoSerializer(serializers.Serializer):
+    objectid = serializers.IntegerField(required=True)
+    insertdate = serializers.DateTimeField(required=False, default=None)
+
+    import sys
+
+    def save(self):
+
+        from django.conf import settings
+        objectid = self.validated_data['objectid']
+        insertdate = self.validated_data['insertdate']
+
+        insertDate = None
+        if insertdate is not None:
+            insertDate = self.validated_data['insertdate']
+
+        replyMessage = 'Row created.'
+
+        if not insertDate:
+            insertDate = datetime.now()
+
+        data = {'transient_object_id_id': objectid,
+                'timestamp': insertDate}
+
+        # Does the objectId actually exit - not allowed to comment on objects that don't exist!
+        # This should really return a 404 message.
+        try:
+            transient = AtlasDiffObjects.objects.get(pk=objectid)
+        except ObjectDoesNotExist as e:
+            replyMessage = 'Object does not exist.'
+            info = { "objectid": objectid, "info": replyMessage }
+            return info
+
+        try:
+            instance = TcsVraTodo(**data)
+            i = instance.save(force_insert=True)
+            # NOTE: Inserting an object by setting the primary key actually REPLACES the object. Do we want this behaviour??
+            #       The integrity error below never happens because I've now set the model with primary_key=True.
+            #       To fix this I've added force_insert = True above.
+        except IntegrityError as e:
+            replyMessage = 'Duplicate row. Cannot add row.'
+
+        info = { "objectid": objectid, "info": replyMessage }
+        return info
+
+
 

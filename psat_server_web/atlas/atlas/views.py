@@ -36,6 +36,8 @@ from atlas.models import TcsObjectComments
 # 2024-02-21 KWS Added TcsVraScores. This table will be populated
 #                as a result of user actions.
 from atlas.models import TcsVraScores
+# 2024-04-16 KWS Added TcsVraTodo. Remove entry from this table if a human has made a decision about an object.
+from atlas.models import TcsVraTodo
 # 2019-06-06 KWS Get the new diff stack forced photometry data
 from atlas.models import AtlasStackedForcedPhotometry
 from atlas.dbviews import *
@@ -1078,6 +1080,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
         settings:
     """
 
+    import sys
     preal = None
     pgal = None
     pfast = None
@@ -1120,7 +1123,13 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
     instance = TcsVraScores(**data)
     try:
         i = instance.save()
-    except:
+
+        # 2024-04-16 KWS Added code to remove the object from the tcs_vra_todo table if it exists.
+        vraTodoRow = TcsVraTodo.objects.get(pk=objectid)
+        if vraTodoRow:
+            vraTodoRow.delete()
+    except Exception as e:
+        sys.stderr.write("\n%s\n" % str(e))
         pass
 
     return
