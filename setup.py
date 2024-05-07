@@ -31,6 +31,7 @@ setup(
           'django<4.2',
           'django_tables2',
           'djangorestframework',
+          'mod-wsgi',
           'pyyaml',
           'docopt',
           'python-dotenv',

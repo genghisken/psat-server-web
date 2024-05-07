@@ -10,6 +10,7 @@ from atlas.models import TcsObjectComments
 from atlas.models import TcsCrossMatchesExternal
 from atlas.models import AtlasDetectionsddc
 from atlas.models import TcsVraScores
+from atlas.models import TcsVraTodo
 from django.forms.models import model_to_dict
 from .lightcurvequeries import *
 from .views import followupClassList
@@ -152,3 +153,35 @@ def getVRAScoresList(request, objects = [], debug = False, dateThreshold = None,
                 vraScoresList.append(model_to_dict(vra))
 
     return vraScoresList
+
+
+# 2024-05-07 KWS Added getVRATodoList
+def getVRATodoList(request, objects = [], dateThreshold = None, idThreshold = 0):
+
+    vraTodoList = []
+
+    # If we specify objects then ignore any thresholds. Deprecated flag is common to all objects.
+    if len(objects) > 0:
+        for objectid in objects:
+            try:
+                oid = int(objectid)
+            except ValueError as e:
+                continue
+
+            try:
+                querySet = TcsVraTodo.objects.filter(transient_object_id_id=oid)
+                if querySet is not None:
+                    for vra in querySet:
+                        vraTodoList.append(model_to_dict(vra))
+            except ObjectDoesNotExist as e:
+                # Silent fail. No objects returned if the object does not exist.
+                pass
+    else:
+        querySet = TcsVraTodo.objects.filter(pk__gte=idThreshold).filter(timestamp__gte=dateThreshold)
+        #querySet = TcsVraTodo.objects.all()
+        if querySet is not None:
+            for vra in querySet:
+                vraTodoList.append(model_to_dict(vra))
+
+    return vraTodoList
+

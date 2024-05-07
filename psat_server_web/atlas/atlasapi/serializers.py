@@ -10,6 +10,7 @@ from rest_framework import serializers
 import sys
 from atlas.apiutils import candidateddcApi, getObjectList
 from atlas.apiutils import getVRAScoresList
+from atlas.apiutils import getVRATodoList
 from django.core.exceptions import ObjectDoesNotExist
 
 # 2024-01-29 KWS Need the model to do inserts.
@@ -283,5 +284,26 @@ class VRATodoSerializer(serializers.Serializer):
         info = { "objectid": objectid, "info": replyMessage }
         return info
 
+
+class VRATodoListSerializer(serializers.Serializer):
+    objects = serializers.CharField(required=False, default=None)
+    datethreshold = serializers.DateTimeField(required=False, default='1970-01-01')
+    idthreshold = serializers.IntegerField(required=False, default=0)
+
+    def save(self):
+        objects = self.validated_data['objects']
+        datethreshold = self.validated_data['datethreshold']
+        idthreshold = self.validated_data['idthreshold']
+
+        request = self.context.get("request")
+
+        olist = []
+
+        if objects is not None:
+            for tok in objects.split(','):
+                olist.append(tok.strip())
+
+        vraTodoList = getVRATodoList(request, objects = olist, dateThreshold = datethreshold, idThreshold = idthreshold)
+        return vraTodoList
 
 
