@@ -17,6 +17,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from atlas.models import TcsVraScores
 from atlas.models import AtlasDiffObjects
 from atlas.models import TcsVraTodo
+from atlas.models import TcsObjectGroups
+from atlas.models import TcsObjectGroupDefinitions
 
 
 #CAT_ID_RA_DEC_COLS['objects'] = [['objectId', 'ramean', 'decmean'], 1018]
@@ -306,4 +308,54 @@ class VRATodoListSerializer(serializers.Serializer):
         vraTodoList = getVRATodoList(request, objects = olist, dateThreshold = datethreshold, idThreshold = idthreshold)
         return vraTodoList
 
+
+# 2024-02-21 KWS Changed required to False for all three prob values.
+class TcsObjectGroupsSerializer(serializers.Serializer):
+    objectid = serializers.IntegerField(required=True)
+    objectgroupid = serializers.IntegerField(required=True)
+
+    import sys
+
+    def save(self):
+
+        from django.conf import settings
+        objectid = self.validated_data['objectid']
+        objectGroupId = self.validated_data['objectGroupId']
+
+        replyMessage = 'Row created.'
+
+        if not insertDate:
+            insertDate = datetime.now()
+
+        # This is what gets inserted into the database.
+        data = {'transient_object_id_id': objectid,
+                'object_group_id': objectGroupId}
+
+        # Does the objectId actually exit - not allowed to comment on objects that don't exist!
+        # This should really return a 404 message.
+        try:
+            transient = AtlasDiffObjects.objects.get(pk=objectid)
+        except ObjectDoesNotExist as e:
+            replyMessage = 'Object does not exist.'
+            info = { "objectid": objectid, "info": replyMessage }
+            return info
+
+        try:
+            group = TcsObjectGroupDefinitions.objects.get(pk=objectGroupId)
+        except ObjectDoesNotExist as e:
+            replyMessage = 'Object group ID does not exist.'
+            info = { "objectgroupid": objectGroupId, "info": replyMessage }
+            return info
+
+        try:
+            instance = TcsObjectGroups(**data)
+            i = instance.save(force_insert=True)
+            # NOTE: Inserting an object by setting the primary key actually REPLACES the object. Do we want this behaviour??
+            #       The integrity error below never happens because I've now set the model with primary_key=True.
+            #       To fix this I've added force_insert = True above.
+        except IntegrityError as e:
+            replyMessage = 'Duplicate row. Cannot add row.'
+
+        info = { "objectgroupid": objectid, "info": replyMessage }
+        return info
 

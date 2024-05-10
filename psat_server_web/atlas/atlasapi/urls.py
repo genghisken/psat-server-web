@@ -11,5 +11,6 @@ urlpatterns = [
     path('api/vrascoreslist/',         views.VRAScoresListView.as_view()),
     path('api/vratodo/',               views.VRATodoView.as_view()),
     path('api/vratodolist/',           views.VRATodoListView.as_view()),
+    path('api/objectgroups/',          views.TcsObjectGroupsView.as_view()),
     path('api/auth-token/',            obtain_auth_token, name='auth_token'),
 ]
