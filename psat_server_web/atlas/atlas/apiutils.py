@@ -11,6 +11,7 @@ from atlas.models import TcsCrossMatchesExternal
 from atlas.models import AtlasDetectionsddc
 from atlas.models import TcsVraScores
 from atlas.models import TcsVraTodo
+from atlas.models import TcsObjectGroups
 from django.forms.models import model_to_dict
 from .lightcurvequeries import *
 from .views import followupClassList
@@ -184,4 +185,23 @@ def getVRATodoList(request, objects = [], dateThreshold = None, idThreshold = 0)
                 vraTodoList.append(model_to_dict(vra))
 
     return vraTodoList
+
+
+# 2024-05-07 KWS Added getVRATodoList
+def getCustomListObjects(request, objectid = None, objectgroupid = None):
+
+    customListObjects = []
+
+    if objectid is None and objectgroupid is not None:
+        querySet = TcsObjectGroups.objects.filter(object_group_id = objectgroupid)
+    elif objectid is not None and objectgroupid is None:
+        querySet = TcsObjectGroups.objects.filter(transient_object_id__id = objectid)
+    else:
+        querySet = TcsObjectGroups.objects.all()
+
+    if querySet is not None:
+        for row in querySet:
+            customListObjects.append(model_to_dict(row))
+
+    return customListObjects
 

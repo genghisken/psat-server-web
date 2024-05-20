@@ -12,5 +12,7 @@ urlpatterns = [
     path('api/vratodo/',               views.VRATodoView.as_view()),
     path('api/vratodolist/',           views.VRATodoListView.as_view()),
     path('api/objectgroups/',          views.TcsObjectGroupsView.as_view()),
+    path('api/objectgroupslist/',      views.TcsObjectGroupsListView.as_view()),
+    path('api/objectgroupsdelete/',    views.TcsObjectGroupsDeleteView.as_view()),
     path('api/auth-token/',            obtain_auth_token, name='auth_token'),
 ]
