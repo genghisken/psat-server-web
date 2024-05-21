@@ -24,6 +24,7 @@ _ignore_*
 # Setuptools distribution folder.
 /dist/
 build
+/static/
 
 # Python egg metadata, regenerated from source files by setuptools.
 /*.egg-info
