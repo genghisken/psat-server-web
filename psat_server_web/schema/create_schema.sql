@@ -99,3 +99,9 @@ source tcs_vra_scores.sql;
 
 -- 2024-04-16 KWS Added new tcs_vra_todo table.
 source tcs_vra_todo.sql;
+
+-- 2024-05-14 KWS Added new atlas_detectionsnnc table.
+source atlas_detectionsnnc.sql;
+
+-- 2024-05-22 KWS Added tcs_vra_rank table.
+source tcs_vra_rank.sql;

@@ -192,7 +192,7 @@
   <td><img id="stampimages" src="{{ STATIC_URL }}images/data/{{ dbname }}/{{ row.data.images_id.whole_mjd }}/{{ row.data.images_id.diff }}.jpeg" alt="triplet" title="{{ image.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="200" /></td>
   {% endif %}
 {% if not public %}
-  <td>{{ row.data.realbogus_factor|floatformat:2 }}</td>
+  <td>{{ row.data.vra|floatformat:2 }}</td>
   <td>{{ row.data.rb_pix|floatformat:2 }}</td>
 {% endif %}
   <td>{{ row.data.images_id.mjd_obs|floatformat:5 }}</td>

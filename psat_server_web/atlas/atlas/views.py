@@ -420,8 +420,8 @@ class WebViewUserDefinedTable(tables2.Table):
     separation = tables2.Column(visible=False, verbose_name="Separation (arcsec)")
     object_group_id = tables2.Column(visible=False)
     detection_list_id = tables2.Column(accessor='detection_list_id.name', verbose_name="List")
-    realbogus_factor = tables2.Column(verbose_name="RB Factor")
-    rb_pix = tables2.Column(verbose_name="RB Factor 2")
+    vra = tables2.Column(verbose_name="VRA")
+    rb_pix = tables2.Column(verbose_name="RB Pix")
     date_modified = tables2.Column(visible=False)
     external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
     discovery_target = tables2.Column(visible=False)
@@ -481,8 +481,8 @@ class WebViewUserDefinedTable(tables2.Table):
         object_definition = getFlagDefs(value, FLAGS, delimiter = ' ')
         return object_definition
 
-    def render_realbogus_factor(self, value):
-        """render_realbogus_factor.
+    def render_vra(self, value):
+        """render_vra.
 
         Args:
             value:
@@ -2138,8 +2138,8 @@ class FollowupRawTable(tables2.Table):
     catalogue_object_id = tables2.Column(visible=False, verbose_name="Nearest Object")
     followup_flag_date = tables2.Column(verbose_name="Flag Date")
     separation = tables2.Column(visible=False, verbose_name="Separation (arcsec)")
-    realbogus_factor = tables2.Column(verbose_name="RB Factor")
-    rb_pix = tables2.Column(verbose_name="RB Factor 2")
+    vra = tables2.Column(verbose_name="VRA")
+    rb_pix = tables2.Column(verbose_name="RB Pix")
 #    external_crossmatches = tables2.Column(verbose_name="External Crossmatches", sortable=False)
     external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
     discovery_target = tables2.Column(visible=False)
@@ -2347,8 +2347,8 @@ class WebViewFollowupTransientsTable(tables2.Table):
     catalogue_object_id = tables2.Column(visible=False, verbose_name="Nearest Object")
     followup_flag_date = tables2.Column(verbose_name="Flag Date")
     separation = tables2.Column(visible=False, verbose_name="Separation (arcsec)")
-    realbogus_factor = tables2.Column(verbose_name="RB Factor")
-    rb_pix = tables2.Column(verbose_name="RB Factor 2")
+    vra = tables2.Column(verbose_name="VRA")
+    rb_pix = tables2.Column(verbose_name="RB Pix")
     date_modified = tables2.Column(visible=False)
     external_crossmatches = tables2.Column(verbose_name="External Crossmatches")
     discovery_target = tables2.Column(visible=False)
@@ -2392,8 +2392,8 @@ class WebViewFollowupTransientsTable(tables2.Table):
         object_definition = getFlagDefs(value, FLAGS, delimiter = ' ')
         return object_definition
 
-    def render_realbogus_factor(self, value):
-        """render_realbogus_factor.
+    def render_vra(self, value):
+        """render_vra.
 
         Args:
             value:
@@ -2600,8 +2600,8 @@ class TcsLatestObjectStatsTable(tables2.Table):
     observation_status = tables2.Column(accessor="id.observation_status", verbose_name="Spectral Type", default='')
     object_classification = tables2.Column(visible=False, accessor="id.object_classification", verbose_name="Machine Classification")
     followup_flag_date = tables2.Column(accessor="id.followup_flag_date", verbose_name="Flag Date")
-    realbogus_factor = tables2.Column(accessor="id.realbogus_factor", verbose_name="RB Factor")
-    rb_pix = tables2.Column(accessor="id.rb_pix", verbose_name="RB Factor 2")
+    vra = tables2.Column(accessor="id.vra", verbose_name="VRA")
+    rb_pix = tables2.Column(accessor="id.rb_pix", verbose_name="RB Pix")
     date_modified = tables2.Column(accessor="id.date_modified", verbose_name="Date Modified")
     target = tables2.Column(accessor="id.images_id.target", default='')
     ref = tables2.Column(accessor="id.images_id.ref", default='')
@@ -2639,8 +2639,8 @@ class TcsLatestObjectStatsTable(tables2.Table):
         object_definition = getFlagDefs(value, FLAGS, delimiter = ' ')
         return object_definition
 
-    def render_realbogus_factor(self, value):
-        """render_realbogus_factor.
+    def render_vra(self, value):
+        """render_vra.
 
         Args:
             value:
@@ -2929,8 +2929,8 @@ class AtlasDiffObjectsTable(tables2.Table):
 
     date_modified = tables2.Column(accessor="date_modified", visible=False)
     mjd_obs = tables2.Column(accessor='images_id__mjd_obs', verbose_name='Recent Triplet MJD', visible = False)
-    realbogus_factor = tables2.Column(accessor='realbogus_factor', verbose_name='RB (DEW)')
-    rb_pix = tables2.Column(accessor="rb_pix", verbose_name='RB (TF)')
+    vra = tables2.Column(accessor='vra', verbose_name='VRA')
+    rb_pix = tables2.Column(accessor="rb_pix", verbose_name='RB Pix')
     detection_list_id = tables2.Column(accessor="detection_list_id", visible=False)
 
     # Added these methods in place of using @property
@@ -2954,8 +2954,8 @@ class AtlasDiffObjectsTable(tables2.Table):
         dec_in_sex = dec_to_sex (value)
         return dec_in_sex
 
-    def render_realbogus_factor(self, value):
-        """render_realbogus_factor.
+    def render_vra(self, value):
+        """render_vra.
 
         Args:
             value:
@@ -3113,7 +3113,7 @@ class AtlasDiffObjectsTablePublic(AtlasDiffObjectsTable):
     """
 
     current_trend = tables2.Column(accessor='current_trend', verbose_name='Trend', visible=False)
-    realbogus_factor = tables2.Column(accessor='realbogus_factor', verbose_name='RB Factor', visible=False)
+    vra = tables2.Column(accessor='vra', verbose_name='VRA', visible=False)
 
 
 

@@ -12,6 +12,7 @@ from atlas.apiutils import candidateddcApi, getObjectList
 from atlas.apiutils import getVRAScoresList
 from atlas.apiutils import getVRATodoList
 from atlas.apiutils import getCustomListObjects
+from atlas.apiutils import getVRARankList
 from django.core.exceptions import ObjectDoesNotExist
 
 # 2024-01-29 KWS Need the model to do inserts.
@@ -20,7 +21,7 @@ from atlas.models import AtlasDiffObjects
 from atlas.models import TcsVraTodo
 from atlas.models import TcsObjectGroups
 from atlas.models import TcsObjectGroupDefinitions
-
+from atlas.models import TcsVraRank
 
 #CAT_ID_RA_DEC_COLS['objects'] = [['objectId', 'ramean', 'decmean'], 1018]
 
@@ -417,4 +418,77 @@ class TcsObjectGroupsListSerializer(serializers.Serializer):
 
         customListObjects = getCustomListObjects(request, objectid, objectGroupId)
         return customListObjects
+
+
+# 2024-05-22 KWS Added VRARank and VRARankList Serializers.
+class VRARankSerializer(serializers.Serializer):
+    objectid = serializers.IntegerField(required=True)
+    rank = serializers.FloatField(required=True)
+    insertdate = serializers.DateTimeField(required=False, default=None)
+
+    import sys
+
+    def save(self):
+
+        from django.conf import settings
+        objectid = self.validated_data['objectid']
+        insertdate = self.validated_data['insertdate']
+        rank = self.validated_data['rank']
+
+        insertDate = None
+        if insertdate is not None:
+            insertDate = self.validated_data['insertdate']
+
+        replyMessage = 'Row created.'
+
+        if not insertDate:
+            insertDate = datetime.now()
+
+        data = {'transient_object_id_id': objectid,
+                'rank': rank,
+                'timestamp': insertDate}
+
+        # Does the objectId actually exit - not allowed to comment on objects that don't exist!
+        # This should really return a 404 message.
+        try:
+            transient = AtlasDiffObjects.objects.get(pk=objectid)
+        except ObjectDoesNotExist as e:
+            replyMessage = 'Object does not exist.'
+            info = { "objectid": objectid, "info": replyMessage }
+            return info
+
+        try:
+            instance = TcsVraRank(**data)
+            # Do not use force_insert=True here. We really want to update any existing row
+            # or insert if the row doesn't exist.
+            i = instance.save()
+
+        except IntegrityError as e:
+            # Should never happen!
+            sys.stderr.write(str(e))
+            replyMessage = 'Duplicate row. Cannot add row.'
+
+        info = { "objectid": objectid, "info": replyMessage }
+        return info
+
+
+class VRARankListSerializer(serializers.Serializer):
+    objects = serializers.CharField(required=False, default=None)
+    datethreshold = serializers.DateTimeField(required=False, default='1970-01-01')
+
+    def save(self):
+        objects = self.validated_data['objects']
+        datethreshold = self.validated_data['datethreshold']
+
+        request = self.context.get("request")
+
+        olist = []
+
+        if objects is not None:
+            for tok in objects.split(','):
+                olist.append(tok.strip())
+
+        vraRankList = getVRARankList(request, objects = olist, dateThreshold = datethreshold)
+        return vraRankList
+
 

@@ -208,7 +208,7 @@ class AtlasDiffObjects(models.Model):
     current_trend = models.CharField(max_length=40, blank=True)
     local_comments = models.CharField(max_length=765, blank=True)
     ndetections = models.IntegerField(blank=True, null=True)
-    realbogus_factor = models.FloatField(blank=True, null=True)
+    vra = models.FloatField(blank=True, null=True, db_column='realbogus_factor')
     rb_pix = models.FloatField(blank=True, null=True, db_column='zooniverse_score')
 
     class Meta:
@@ -1264,4 +1264,14 @@ class TcsVraTodo(models.Model):
         managed = False
         db_table = 'tcs_vra_todo'
 
+
+# 2024-04-16 KWS Added new tcs_vra_scores table for the Virtual Research Assistant.
+class TcsVraRank(models.Model):
+    transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE, primary_key=True)
+    rank = models.FloatField(blank=True, null=True)
+    timestamp = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'tcs_vra_rank'
 

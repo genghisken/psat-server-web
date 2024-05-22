@@ -331,23 +331,24 @@ def filterGetParameters(request, queryFilter, prefix = ''):
 
 
     # 2021-11-19 KWS Added realbogus_factor
-    realBogus = None
-    realBogusParameter = 'realbogus_factor'
+    # 2024-05-21 KWS Changed to vra
+    VRA = None
+    VRAParameter = 'vra'
     for suffix in ['__lt', '__lte', '__gt', '__gte', '']:
-        realBogusParameter = 'realbogus_factor' + suffix
-        realBogus = request.GET.get(realBogusParameter)
-        if realBogus is not None:
+        VRAParameter = 'vra' + suffix
+        VRA = request.GET.get(VRAParameter)
+        if VRA is not None:
             break
 
     try:
-        realBogus = float(realBogus)
+        VRA = float(VRA)
     except ValueError as e:
-        realBogus = None
+        VRA = None
     except TypeError as e:
-        realBogus = None
+        VRA = None
 
-    if realBogus:
-        queryFilter[prefix + realBogusParameter] = realBogus
+    if VRA:
+        queryFilter[prefix + VRAParameter] = VRA
 
 
     otherDesignation = None

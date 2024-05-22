@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from .serializers import ConeSerializer, ObjectsSerializer, ObjectListSerializer, VRAScoresSerializer, VRAScoresListSerializer, VRATodoSerializer, VRATodoListSerializer, TcsObjectGroupsSerializer, TcsObjectGroupsDeleteSerializer, TcsObjectGroupsListSerializer
+from .serializers import ConeSerializer, ObjectsSerializer, ObjectListSerializer, VRAScoresSerializer, VRAScoresListSerializer, VRATodoSerializer, VRATodoListSerializer, TcsObjectGroupsSerializer, TcsObjectGroupsDeleteSerializer, TcsObjectGroupsListSerializer, VRARankSerializer, VRARankListSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .query_auth import QueryAuthentication
@@ -193,10 +193,48 @@ class TcsObjectGroupsDeleteView(APIView):
         if serializer.is_valid():
             message = serializer.save()
     
-        if "deleted" in message:
-            return Response(message, status=status.HTTP_204_NO_CONTENT)
-        elif "does not exist" in message:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if "deleted" in message['info']:
+            # No point returning the message info. 204s will drop the message content anyway.
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        elif "does not exist" in message['info']:
+            return Response(message, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# 2024-05-22 KWS Added VRARankView. NOTE: Add code to read the reply message and generate a sensible HTTP response
+#                appropriate to the circumstances. E.g. if object is not found generate a 404, etc.
+class VRARankView(APIView):
+    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"Error": "GET is not implemented for this service."})
+
+    def post(self, request, format=None):
+        serializer = VRARankSerializer(data=request.data, context={'request': request})
+    
+        if serializer.is_valid():
+            message = serializer.save()
+    
+            return Response(message, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+# 2024-05-22 KWS Added VRARankListView.
+class VRARankListView(APIView):
+    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = VRARankListSerializer(data=request.GET, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, format=None):
+        serializer = VRARankListSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

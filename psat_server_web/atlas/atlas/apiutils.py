@@ -12,6 +12,7 @@ from atlas.models import AtlasDetectionsddc
 from atlas.models import TcsVraScores
 from atlas.models import TcsVraTodo
 from atlas.models import TcsObjectGroups
+from atlas.models import TcsVraRank
 from django.forms.models import model_to_dict
 from .lightcurvequeries import *
 from .views import followupClassList
@@ -187,7 +188,7 @@ def getVRATodoList(request, objects = [], dateThreshold = None, idThreshold = 0)
     return vraTodoList
 
 
-# 2024-05-07 KWS Added getVRATodoList
+# 2024-05-20 KWS Added getCustomListObjects
 def getCustomListObjects(request, objectid = None, objectgroupid = None):
 
     customListObjects = []
@@ -205,3 +206,32 @@ def getCustomListObjects(request, objectid = None, objectgroupid = None):
 
     return customListObjects
 
+# 2024-05-07 KWS Added getVRARankList
+def getVRARankList(request, objects = [], dateThreshold = None, idThreshold = 0):
+
+    vraRankList = []
+
+    # If we specify objects then ignore any thresholds. Deprecated flag is common to all objects.
+    if len(objects) > 0:
+        for objectid in objects:
+            try:
+                oid = int(objectid)
+            except ValueError as e:
+                continue
+
+            try:
+                querySet = TcsVraRank.objects.filter(transient_object_id_id=oid)
+                if querySet is not None:
+                    for vra in querySet:
+                        vraRankList.append(model_to_dict(vra))
+            except ObjectDoesNotExist as e:
+                # Silent fail. No objects returned if the object does not exist.
+                pass
+    else:
+        querySet = TcsVraRank.objects.filter(pk__gte=idThreshold).filter(timestamp__gte=dateThreshold)
+        #querySet = TcsVraRank.objects.all()
+        if querySet is not None:
+            for vra in querySet:
+                vraRankList.append(model_to_dict(vra))
+
+    return vraRankList
