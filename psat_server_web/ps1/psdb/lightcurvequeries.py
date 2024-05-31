@@ -394,7 +394,7 @@ def getRecurrenceDataForPlotting(candidate, primRA, primDEC, secRA = None, secDE
         # Add an anchor tag so that we can click on the legend to go to the new object.
         # This should really be done inside the javascript itself, but it's hard to know
         # which label to add a tag to, hence it's done here.
-        objectName = '<a href="../' + str(secId) + '/">' + str(secName) + '</a>'
+        objectName = '<a href="../../candidate/' + str(secId) + '/">' + str(secName) + '</a>'
         meanCoordsLabel = 'mean coords'
         meanCoordsDisplay = False
     else:
