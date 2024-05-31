@@ -43,6 +43,7 @@ urlpatterns = [
 
     url(r'^psdb/followup/(?P<listNumber>\d+)/$', views.followupListNew, name="followuplist"),
     url(r'^psdb/followup_quickview/(?P<listNumber>\d+)/$', views.followupQuickView, name='followupquickview'),
+    url(r'^psdb/followup_quickview_bs/(?P<listNumber>\d+)/$', views.followupQuickViewBootstrapPlotly, name='followupquickviewbootstrapplotly'),
     url(r'^psdb/followup_quickview/$', views.followupAllQuickView),
 
 # Geojson view of the supernovae

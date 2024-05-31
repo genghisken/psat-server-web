@@ -71,7 +71,7 @@ from django.contrib import auth
 from django.template.context_processors import csrf
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, filterGetGWParameters, getDjangoTables2ImageTemplate, SHOW_LC_DATA_LIMIT
+from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, filterGetGWParameters, getDjangoTables2ImageTemplate, SHOW_LC_DATA_LIMIT, getNearbyObjectsForScatterPlot
 
 # 2022-11-16 KWS If the Lasair API is unreachable we should catch the connection error.
 from requests.exceptions import ConnectionError as RequestsConnectionError
@@ -1455,7 +1455,7 @@ class TcsTransientObjectsTable(tables2.Table):
     """TcsTransientObjectsTable.
     """
 
-    IMAGE_TEMPLATE = """<img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ record.images_id.whole_mjd }}/{{ record.images_id.%s }}.jpeg" alt="triplet" title="{{ record.images_id.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="300" />""" % 'diff'
+    IMAGE_TEMPLATE = """<img id="stampimages" src="{{ MEDIA_URL }}images/data/{{ dbname }}/{{ record.tcs_images_id.whole_mjd }}/{{ record.tcs_images_id.%s }}.jpeg" alt="triplet" title="{{ record.tcs_images_id.pss_filename }}" onerror="this.src='{{ STATIC_URL }}images/image_not_available.jpeg';" height="300" />""" % 'diff'
 
     id = tables2.Column(accessor="id", visible=False)
     followup_id = tables2.LinkColumn('candidate', accessor='followup_id', verbose_name="Followup ID", args=[A('id')])
@@ -2552,7 +2552,7 @@ def searchResults(request):
 
     public = False
     dbName = settings.DATABASES['default']['NAME'].replace('_django', '')
-    if 'atlaspublic' in dbName or 'kws' in dbName:
+    if 'public' in dbName or 'kws' in dbName:
         public = True
 
     searchText = None
@@ -2670,6 +2670,276 @@ def searchResults(request):
     return render(request, 'psdb/search_results_plotly.html', {'subdata': subdata, 'connection': connection, 'form_searchobject' : form, 'dbname': dbName, 'public': public, 'searchText': searchText, 'nobjects': nobjects, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT})
 
 
+# 2024-05-30 KWS New version of the Pan-STARRS quickview pages, using plotly and bootstrap.
+@login_required
+def followupQuickViewBootstrapPlotly(request, listNumber):
+    """followupQuickViewBootstrapPlotly.
+
+    Args:
+        request:
+        listNumber:
+    """
+    from django.db import connection
+    import sys
+
+    # 2018-07-05 KWS Pagination loses the rest of the GET parameters. Pass them!
+    #                Hideous hack!
+    getvars = request.GET.copy()
+    urlsuffix=''
+    for k,v in list(getvars.items()):
+        if k != 'page':
+            urlsuffix += "&%s=%s" % (k,v)
+
+    detectionListRow = get_object_or_404(TcsDetectionLists, pk=listNumber)
+    listHeader = detectionListRow.description
+
+    # We just want to pass the list Id to the HTML page, if it exists
+    list_id = None
+
+    try:
+        list_id = int(listNumber)
+    except ValueError as e:
+        pass
+
+
+    public = False
+    dbName = settings.DATABASES['default']['NAME'].replace('_django', '')
+    if 'public' in dbName or 'kws' in dbName:
+        public = True
+
+    searchText = None
+    try:
+        searchText = request.session['searchText']
+    except KeyError as e:
+        searchText = None
+
+    getNonDets = True
+    try:
+        getNonDets = bool(int(request.GET.get('nondets')))
+        request.session['getNonDets'] = getNonDets
+    except ValueError as e:
+        getNonDets = True
+    except TypeError as e:
+        getNonDets = True
+
+    getNearbyDets = True
+    try:
+        getNearbyDets = bool(int(request.GET.get('nearbydets')))
+        request.session['getNearbyDets'] = getNearbyDets
+    except ValueError as e:
+        getNearbyDets = True
+    except TypeError as e:
+        getNearbyDets = True
+
+
+    queryFilter = {'detection_list_id': listNumber, 'tcs_images_id__isnull': False}
+    # 2019-04-16 KWS Get the GW Event name. We will do a "like" query
+    #                on this, so we can grab multiple events if necessary.
+    queryFilterGW = filterGetGWParameters(request, {})
+
+    queryFilter = filterGetParameters(request, queryFilter)
+
+    # 2017-10-17 default Pages
+    nobjects = 50
+    nobjects = request.GET.get('nobjects', '50')
+    try:
+        nobjects = int(nobjects)
+    except ValueError as e:
+        nobjects = 50
+
+    sort = request.GET.get('sort', '-rank').split(',')
+
+    # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
+    processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
+    processingStatus = None
+    processingStartTime = None
+    if len(processingStatusData) == 1:
+        processingStatus = processingStatusData[0].status
+        processingStartTime = processingStatusData[0].started
+
+    objectName = None
+
+    # Dummy form search object
+    formSearchObject = SearchForObjectForm()
+
+    coneSearchRadius = 3.6
+
+    if request.method == 'POST':
+        if 'find_object' in request.POST:
+            formSearchObject = SearchForObjectForm(request.POST)
+            if formSearchObject.is_valid(): # All validation rules pass
+                objectName = formSearchObject.cleaned_data['searchText']
+            # Processing is done in the searchResults method
+        else:
+            # We're using the submit form for the object updates
+            objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter)
+            
+            # 2019-07-31 KWS Rattle through all the objects to see if we have any
+            #                associated with a specified GW event.
+            if queryFilterGW:
+                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
+                gwTaggedObjects = [x.transient_object_id_id for x in gw]
+                if len(gwTaggedObjects) == 0:
+                    # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
+                    gwTaggedObjects = [1]
+                objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter).filter(id__in=gwTaggedObjects)
+
+            for key, value in list(request.POST.items()):
+                if '_promote_demote' in key and value != 'U':
+
+                    id = int(key.replace('_promote_demote', ''))
+
+                    transient = TcsTransientObjects.objects.get(pk=id)
+                    originallistId = transient.detection_list_id.id
+
+                    # Override the listId with the value from the form if it exists
+
+                    listId = PROMOTE_DEMOTE[value]
+                    if listId < 0:
+                        listId = originallistId
+
+                    localDesignation = transient.local_designation
+                    surveyField = transient.survey_field
+                    fieldCounter = transient.followup_counter
+
+
+                    if not localDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == CONFIRMED):
+                        # ASSUMPTION!!  All filenames contain dots and the first part is the field name.
+                        surveyField = transient.tcs_cmf_metadata_id.filename.split('.')[0].upper()
+
+                        try:
+                           fieldCode = settings.SURVEY_FIELDS[surveyField]
+                        except KeyError:
+                           # Can't find the field, so record the code as 'XX'
+                           fieldCode = 'XX'
+
+                        # Let's assume that there's no field counters table.  Let's try and calculate
+                        # what the number should be from the data.
+
+                        followupFlagDate = transient.followup_flag_date
+                        if followupFlagDate is None:
+                           objectFlagMonth = datetime.date.today().month
+                           objectFlagYear = datetime.date.today().year
+                        else:
+                           objectFlagMonth = followupFlagDate.month
+                           objectFlagYear = followupFlagDate.year
+
+                        fieldCounter = TcsTransientObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField).aggregate(Max('followup_counter'))['followup_counter__max']
+                        if fieldCounter is None:
+                           # This is the first time we've used the counter
+                           fieldCounter = 1
+                        else:
+                           fieldCounter += 1
+
+                        localDesignation = '%d%s%s%s' % (objectFlagYear - 2010, MONTHS[objectFlagMonth - 1], fieldCode, base26(fieldCounter))
+
+                    try:
+                        # 2011-02-24 KWS Added Observation Status
+                        # 2013-10-29 KWS Added date_modified so we can track when bulk updates were done.
+                        TcsTransientObjects.objects.filter(pk=int(key.replace('_promote_demote', ''))).update(detection_list_id = listId,
+                                                                                                                   survey_field = surveyField,
+                                                                                                               followup_counter = fieldCounter,
+                                                                                                              local_designation = localDesignation,
+                                                                                                                  date_modified = datetime.datetime.now()) 
+                    except IntegrityError as e:
+                        if e[0] == 1062: # Duplicate Key error
+                            pass # Do nothing - will eventually raise some errors on the form
+
+                    #if settings.VRA_ADD_ROW:
+                    #    originalListId = transient.detection_list_id.id
+                    #    addVraRow(transient.id, originalListId, listId, request.user.username, settings)
+
+
+    else:
+        if objectName:
+            formSearchObject = SearchForObjectForm(initial={'searchText': objectName})
+
+        objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter)
+
+        # 2019-07-31 KWS Rattle through all the objects to see if we have any
+        #                associated with a specified GW event.
+        if queryFilterGW:
+            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
+            gwTaggedObjects = [x.transient_object_id_id for x in gw]
+            if len(gwTaggedObjects) == 0:
+                # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
+                gwTaggedObjects = [1]
+            objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter).filter(id__in=gwTaggedObjects)
+
+        #formClassifyObject = ClassifyForm(table)
+
+    fgss = False
+    import sys
+    if objectsQueryset.count() > 0:
+        if objectsQueryset[0].tcs_cmf_metadata_id.filename.split('.')[0].upper() == 'FGSS':
+            fgss = True
+            table = TcsTransientObjectsTableFGSS(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+        else:
+            try:
+                if int(list_id) in (0,1,2,3,4,5,6,7,8):
+                    table = TcsTransientObjectsTables[list_id](objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+                else:
+                    table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+            except ValueError as e:
+                table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+    else:
+        table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+
+    # Paginate the results. Completely bypass Django tables.
+    paginator = Paginator(objectsQueryset, nobjects)
+    page = request.GET.get('page')
+    try:
+        subdata = paginator.page(page)
+
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        subdata = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        subdata = paginator.page(paginator.num_pages)
+
+    # Collect the lightcurve and recurrence plot information.  We might want to disable this
+    # when collecting information for more than 'n' objects (e.g. 100), since this is very
+    # expensive for a browser to render.
+
+    if nobjects <= SHOW_LC_DATA_LIMIT:
+        for row in subdata:
+            # 2018-06-22 KWS Go and get lightcurves of all the objects in the list. This could take a while
+            #                NOTE: We should cache the lightcurves in a table, and update them every time
+            #                      someone clicks on the candidate page as well as during post ingest cutting.
+            #lcPoints, lcBlanks, plotLabels, lcLimits = getLCData(row.id, conn = connection, ddc = ddc, getNonDetections = getNonDets)
+            try:
+                detectionLimits = LC_LIMITS[dbName]
+            except KeyError as e:
+                # Default detections limits for medium deep
+                detectionLimits = LC_LIMITS_MD
+
+            lcPoints, lcBlanks, lcNonDetections, followupDetectionData, followupDetectionDataBlanks, plotLabels, lcLimits, colourPlotData, colourPlotLimits, colourPlotLabels = getAllLCData(row.id, getFollowupData = True, limits = detectionLimits)
+            row.lc = [lcPoints, lcBlanks, plotLabels]
+            row.lcLimits = lcLimits
+
+            #recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter = getRecurrenceDataForPlotting(recurrences, row.ra, row.dec, objectColour = 20)
+            recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter = getRecurrenceDataForPlotting(row.id, row.ra_psf, row.dec_psf, objectColour = 20)
+            if getNearbyDets:
+                xmRecs = getNearbyObjectsForScatterPlot(row.id, row.ra_psf, row.dec_psf)
+                recurrencePlotData += xmRecs[0]
+                recurrencePlotLabels += xmRecs[1]
+                averageObjectCoords += xmRecs[2]
+                rmsScatter += xmRecs[3]
+            row.recurrenceData = [recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter]
+
+            # 2018-08-16 KWS Pick up the Sherlock Crossmatches.
+            sxm = SherlockCrossmatches.objects.filter(transient_object_id = row.id).order_by('rank')
+            row.sxm = sxm
+
+            # 2021-08-01 KWS Get user comments. We can display these on the quickview page as well.
+            comments = TcsObjectComments.objects.filter(transient_object_id = row.id).order_by('date_inserted')
+            row.comments = comments
+
+            sc = SherlockClassifications.objects.filter(transient_object_id_id = row.id)
+            row.sc = sc
+
+    return render(request, 'psdb/search_results_plotly.html', {'subdata': subdata, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'processingStatus': processingStatus, 'nobjects': nobjects, 'public': public, 'searchText': searchText, 'urlsuffix': urlsuffix, 'classifyform': True, 'displayagns': settings.DISPLAY_AGNS, 'connection': connection, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT})
 
 
 @login_required
@@ -2706,3 +2976,4 @@ def astronote(request, tcs_transient_objects_id):
 
     #return render(request, 'psdb/fasttrackastronote.txt',{'transient': transient, 'sxm': sxm, 'stats': stats}, content_type="text/plain")
     return render(request, 'psdb/fasttrackastronote.txt', {'transient': transient, 'sxm': sxm, 'stats': stats}, content_type="text/plain")
+

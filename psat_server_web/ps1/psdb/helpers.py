@@ -4,7 +4,7 @@
 
 from psdb.models import TcsTransientObjects
 from psdb.models import TcsImages, TcsLatestObjectStats
-from gkutils.commonutils import getObjectNamePortion, getCoordsAndSearchRadius, coneSearchHTM, FULL, Struct, ra_to_sex, dec_to_sex
+from gkutils.commonutils import getObjectNamePortion, getCoordsAndSearchRadius, coneSearchHTM, FULL, Struct, ra_to_sex, dec_to_sex, CAT_ID_RA_DEC_COLS
 from django.db.models import Q    # Need Q objects for OR query
 import sys
 
