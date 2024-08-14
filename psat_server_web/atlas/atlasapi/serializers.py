@@ -142,7 +142,7 @@ class VRAScoresSerializer(serializers.Serializer):
     pgal = serializers.FloatField(required=False, default=None)
     pfast = serializers.FloatField(required=False, default=None)
     # 2024-08-14 KWS Added 3 new values to the form for Rank.
-    rank = serializers.FloatField(required=False, default=None)
+    rank = serializers.FloatField(required=True)
     rank_alt1 = serializers.FloatField(required=False, default=None)
     rank_alt2 = serializers.FloatField(required=False, default=None)
     debug = serializers.BooleanField(required=False, default=False)
@@ -434,8 +434,8 @@ class TcsObjectGroupsListSerializer(serializers.Serializer):
 class VRARankSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=True)
     rank = serializers.FloatField(required=True)
-    rank_alt1 = serializers.FloatField(required=True)
-    rank_alt2= serializers.FloatField(required=True)
+    rank_alt1 = serializers.FloatField(required=False, default=None)
+    rank_alt2= serializers.FloatField(required=False, default=None)
     insertdate = serializers.DateTimeField(required=False, default=None)
 
     import sys
