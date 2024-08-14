@@ -139,8 +139,12 @@ class ObjectListSerializer(serializers.Serializer):
 class VRAScoresSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=True)
     preal = serializers.FloatField(required=False, default=None)
-    pfast = serializers.FloatField(required=False, default=None)
     pgal = serializers.FloatField(required=False, default=None)
+    pfast = serializers.FloatField(required=False, default=None)
+    # 2024-08-14 KWS Added 3 new values to the form for Rank.
+    rank = serializers.FloatField(required=False, default=None)
+    rank_alt1 = serializers.FloatField(required=False, default=None)
+    rank_alt2 = serializers.FloatField(required=False, default=None)
     debug = serializers.BooleanField(required=False, default=False)
     insertdate = serializers.DateTimeField(required=False, default=None)
 
@@ -150,8 +154,11 @@ class VRAScoresSerializer(serializers.Serializer):
         from django.conf import settings
         objectid = self.validated_data['objectid']
         preal = self.validated_data['preal']
-        pfast = self.validated_data['pfast']
         pgal = self.validated_data['pgal']
+        pfast = self.validated_data['pfast']
+        rank = self.validated_data['rank']
+        rank_alt1 = self.validated_data['rank_alt1']
+        rank_alt2 = self.validated_data['rank_alt2']
         insertdate = self.validated_data['insertdate']
         debug = self.validated_data['debug']
 
@@ -173,6 +180,9 @@ class VRAScoresSerializer(serializers.Serializer):
                 'preal': preal,
                 'pgal': pgal,
                 'pfast': pfast,
+                'rank': rank,
+                'rank_alt1': rank_alt1,
+                'rank_alt2': rank_alt2,
                 'timestamp': insertDate,
                 'debug': debug,
                 'apiusername': userId}
@@ -424,6 +434,8 @@ class TcsObjectGroupsListSerializer(serializers.Serializer):
 class VRARankSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=True)
     rank = serializers.FloatField(required=True)
+    rank_alt1 = serializers.FloatField(required=True)
+    rank_alt2= serializers.FloatField(required=True)
     insertdate = serializers.DateTimeField(required=False, default=None)
 
     import sys
@@ -434,6 +446,8 @@ class VRARankSerializer(serializers.Serializer):
         objectid = self.validated_data['objectid']
         insertdate = self.validated_data['insertdate']
         rank = self.validated_data['rank']
+        rank_alt1 = self.validated_data['rank_alt1']
+        rank_alt2 = self.validated_data['rank_alt2']
 
         insertDate = None
         if insertdate is not None:
@@ -446,6 +460,8 @@ class VRARankSerializer(serializers.Serializer):
 
         data = {'transient_object_id_id': objectid,
                 'rank': rank,
+                'rank_alt1': rank_alt1,
+                'rank_alt2': rank_alt2,
                 'timestamp': insertDate}
 
         # Does the objectId actually exit - not allowed to comment on objects that don't exist!
