@@ -63,8 +63,9 @@ else
     mkdir -p APACHEPATH
 fi
 
-mod_wsgi-express setup-server --working-directory atlas --url-alias $PREFIX/static static --url-alias $PREFIX/media media --application-type module atlas.wsgi --server-root $APACHEPATH --port $PORT --mount-point $PREFIX
-
+CMD="mod_wsgi-express setup-server --working-directory atlas --url-alias $PREFIX/static static --url-alias $PREFIX/media media --application-type module atlas.wsgi --server-root $APACHEPATH --port $PORT --mount-point $PREFIX"
+echo $CMD
+$CMD
 
 export PYTHONPATH=$(pwd)
 $APACHEPATH/apachectl start

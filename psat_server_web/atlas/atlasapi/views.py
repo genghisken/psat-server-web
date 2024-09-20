@@ -1,16 +1,19 @@
+import sys
+
 from django.shortcuts import get_object_or_404, render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from .serializers import ConeSerializer, ObjectsSerializer, ObjectListSerializer, VRAScoresSerializer, VRAScoresListSerializer, VRATodoSerializer, VRATodoListSerializer, TcsObjectGroupsSerializer, TcsObjectGroupsDeleteSerializer, TcsObjectGroupsListSerializer, VRARankSerializer, VRARankListSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .query_auth import QueryAuthentication
-from django.core.exceptions import ObjectDoesNotExist
 # 2024-01-29 KWS Need the model to do inserts.
-from atlas.models import TcsVraScores
+from django.core.exceptions import ObjectDoesNotExist
+
 from atlas.models import TcsObjectGroups
-import sys
+from atlas.models import TcsVraScores
+from .serializers import ConeSerializer, ObjectsSerializer, ObjectListSerializer, VRAScoresSerializer, VRAScoresListSerializer, VRATodoSerializer, VRATodoListSerializer, TcsObjectGroupsSerializer, TcsObjectGroupsDeleteSerializer, TcsObjectGroupsListSerializer, VRARankSerializer, VRARankListSerializer
+from .query_auth import QueryAuthentication
+from .permissions import IsApprovedUser
 
 def retcode(message):
     if 'error' in message: return status.HTTP_400_BAD_REQUEST
@@ -18,7 +21,7 @@ def retcode(message):
 
 class ConeView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         serializer = ConeSerializer(data=request.GET, context={'request': request})
@@ -37,7 +40,7 @@ class ConeView(APIView):
 
 class ObjectsView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         serializer = ObjectsSerializer(data=request.GET, context={'request': request})
@@ -56,7 +59,7 @@ class ObjectsView(APIView):
 
 class ObjectListView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         serializer = ObjectListSerializer(data=request.GET, context={'request': request})
@@ -75,7 +78,7 @@ class ObjectListView(APIView):
 
 class VRAScoresView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -92,7 +95,7 @@ class VRAScoresView(APIView):
 
 class VRAScoresListView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         serializer = VRAScoresListSerializer(data=request.GET, context={'request': request})
@@ -112,7 +115,7 @@ class VRAScoresListView(APIView):
 #                appropriate to the circumstances. E.g. if object is not found generate a 404, etc.
 class VRATodoView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -129,7 +132,7 @@ class VRATodoView(APIView):
 # 2024-05-07 KWS Added VRATodoListView.
 class VRATodoListView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         serializer = VRATodoListSerializer(data=request.GET, context={'request': request})
@@ -147,7 +150,7 @@ class VRATodoListView(APIView):
 
 class TcsObjectGroupsView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -163,7 +166,7 @@ class TcsObjectGroupsView(APIView):
 
 class TcsObjectGroupsListView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         serializer = TcsObjectGroupsListSerializer(data=request.GET, context={'request': request})
@@ -182,7 +185,7 @@ class TcsObjectGroupsListView(APIView):
 
 class TcsObjectGroupsDeleteView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -205,7 +208,7 @@ class TcsObjectGroupsDeleteView(APIView):
 #                appropriate to the circumstances. E.g. if object is not found generate a 404, etc.
 class VRARankView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -222,7 +225,7 @@ class VRARankView(APIView):
 # 2024-05-22 KWS Added VRARankListView.
 class VRARankListView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         serializer = VRARankListSerializer(data=request.GET, context={'request': request})
