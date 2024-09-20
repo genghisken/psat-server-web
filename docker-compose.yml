@@ -1,0 +1,66 @@
+services:
+  db: 
+    image: mariadb:latest
+    hostname: db
+    ports:
+      - 3306:3306
+    volumes:
+      - ./docker/my.cnf:/etc/mysql/my.cnf
+      # - db_data:/var/lib/mysql
+      # - ./data/db_data:/var/db_data
+      - ./data/init.sql:/docker-entrypoint-initdb.d/1.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MARAIDB_DATABASE: ${MYSQL_DATABASE}
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
+
+  adminer:
+    depends_on:
+      - db
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  atlas-web:
+    build: .
+    command: sh -c "python manage.py collectstatic --noinput && python manage.py migrate --noinput && ./generate_mod_wsgi_apachectl.sh && sleep infinity"
+    hostname: psat-server-web
+    restart: always
+    volumes:
+      - ./data/db_data:/images 
+    #   - .:/app
+    ports:
+      - 8086:8086
+    depends_on:
+      - db
+    environment:
+      - WSGI_PREFIX=/atlas
+      - DJANGO_MYSQL_DBNAME=${MYSQL_DATABASE}
+      - DJANGO_MYSQL_DBUSER=${DJANGO_MYSQL_DBUSER}
+      - DJANGO_MYSQL_DBPASS=${MYSQL_PASSWORD}
+      - DJANGO_MYSQL_DBHOST=db
+      - DJANGO_MYSQL_DBPORT=3306
+      - DJANGO_SECRET_KEY=secret
+      - DJANGO_TNS_DAEMON_SERVER=psat-server-web
+      - DJANGO_TNS_DAEMON_PORT=8001
+      - DJANGO_MPC_DAEMON_SERVER=psat-server-web
+      - DJANGO_MPC_DAEMON_PORT=8002
+      - DJANGO_NAME_DEAMON_SERVER=psat-server-web
+      - DJANGO_NAME_DEAMON_PORT=8003
+      - DJANGO_NAMESERVER_MULTIPLIER=10000000
+      - DJANGO_NAMESERVER_TOKEN=''
+      - DJANGO_NAMESERVER_API_URL=''
+      - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
+      - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
+
+
+volumes:
+  db_data:
+     
