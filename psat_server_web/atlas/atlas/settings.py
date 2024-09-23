@@ -179,3 +179,5 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 ]
 
+# Token expiry time in days, default 1 day (24*60*60 seconds)
+TOKEN_EXPIRY = int(os.environ.get("API_TOKEN_EXPIRY") or 86400) # seconds
