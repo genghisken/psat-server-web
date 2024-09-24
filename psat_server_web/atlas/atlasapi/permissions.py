@@ -9,5 +9,4 @@ class IsApprovedUser(BasePermission):
         # Only allow POST if the user is authenticated, active, and staff
         return (request.user 
                 and request.user.is_authenticated 
-                and request.user.is_active 
                 and request.user.is_staff)
