@@ -13,6 +13,7 @@ from atlas.apiutils import getVRAScoresList
 from atlas.apiutils import getVRATodoList
 from atlas.apiutils import getCustomListObjects
 from atlas.apiutils import getVRARankList
+from atlas.apiutils import getExternalCrossmatchesList
 from django.core.exceptions import ObjectDoesNotExist
 
 # 2024-01-29 KWS Need the model to do inserts.
@@ -22,6 +23,7 @@ from atlas.models import TcsVraTodo
 from atlas.models import TcsObjectGroups
 from atlas.models import TcsObjectGroupDefinitions
 from atlas.models import TcsVraRank
+from atlas.models import TcsCrossMatchesExternal
 
 #CAT_ID_RA_DEC_COLS['objects'] = [['objectId', 'ramean', 'decmean'], 1018]
 
@@ -507,4 +509,24 @@ class VRARankListSerializer(serializers.Serializer):
         vraRankList = getVRARankList(request, objects = olist, dateThreshold = datethreshold)
         return vraRankList
 
+# 2024-09-24 KWS Added tcs_cross_matches_external viewer. We want to extract any ATLAS objects associated
+#                with any named external courses.
+
+class ExternalCrossmatchesListSerializer(serializers.Serializer):
+    # We could send ATLAS IDs or any external crossmatch IDs, like TNS names.
+    externalObjects = serializers.CharField(required=False, default=None)
+
+    def save(self):
+        externalObjects = self.validated_data['externalObjects']
+
+        request = self.context.get("request")
+
+        olist = []
+
+        if externalObjects is not None:
+            for tok in externalObjects.split(','):
+                olist.append(tok.strip())
+
+        externalCrossmatchesList = getExternalCrossmatchesList(request, externalObjects = olist)
+        return externalCrossmatchesList
 
