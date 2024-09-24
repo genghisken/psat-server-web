@@ -559,7 +559,7 @@ class ObjectsDetectionListSerializer(serializers.Serializer):
             insertDate = datetime.now()
 
         data = {'atlas_object_id': objectid,
-                'detection_list_id': objectlist
+                'detection_list_id': objectlist,
                 'date_modified': insertDate}
 
         # Does the objectId actually exit - not allowed to comment on objects that don't exist!
