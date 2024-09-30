@@ -572,7 +572,14 @@ class ObjectDetectionListSerializer(serializers.Serializer):
 
         try:
             for key, value in data.items():
-                setattr(transient, key, value)
+                sys.stderr.write("\nkey=%s\n" % key)
+                sys.stderr.write("\nvalue=%s\n" % value)
+                if key=='detection_list_id_id' and value not in (3,4):
+                    replyMessage = 'Error updating row.'
+                    info = { "objectid": objectid, "info": replyMessage }
+                    return info
+                else:
+                    setattr(transient, key, value)
             transient.save()
 
         except IntegrityError as e:
