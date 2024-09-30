@@ -859,7 +859,7 @@ def candidate(request, atlas_diff_objects_id):
 
                 # 2010-12-02 KWS Added check for atlasDesignation.  Don't choose a new designation
                 # if we already have one.
-                if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
+                if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
                     surveyField = 'ATLAS'
 
                     try:
@@ -1373,7 +1373,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
 
                 # 2010-12-02 KWS Added check for atlasDesignation.  Don't choose a new designation
                 # if we already have one.
-                if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
+                if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
                     surveyField = 'ATLAS'
 
                     try:
@@ -3235,7 +3235,7 @@ def followupQuickView(request, listNumber):
                     fieldCounter = transient.followup_counter
 
 
-                    if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
+                    if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
                         # ASSUMPTION!!  All filenames contain dots and the first part is the field name.
                         surveyField = 'ATLAS'
 
@@ -3847,7 +3847,7 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
                     fieldCounter = transient.followup_counter
 
 
-                    if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
+                    if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
                         # ASSUMPTION!!  All filenames contain dots and the first part is the field name.
                         surveyField = 'ATLAS'
 
