@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from atlas.models import TcsObjectGroups
 from atlas.models import TcsVraScores
-from .serializers import ConeSerializer, ObjectsSerializer, ObjectListSerializer, VRAScoresSerializer, VRAScoresListSerializer, VRATodoSerializer, VRATodoListSerializer, TcsObjectGroupsSerializer, TcsObjectGroupsDeleteSerializer, TcsObjectGroupsListSerializer, VRARankSerializer, VRARankListSerializer, ExternalCrossmatchesListSerializer
+from .serializers import ConeSerializer, ObjectsSerializer, ObjectListSerializer, VRAScoresSerializer, VRAScoresListSerializer, VRATodoSerializer, VRATodoListSerializer, TcsObjectGroupsSerializer, TcsObjectGroupsDeleteSerializer, TcsObjectGroupsListSerializer, VRARankSerializer, VRARankListSerializer, ExternalCrossmatchesListSerializer, ObjectDetectionListSerializer
 from .query_auth import QueryAuthentication
 from .permissions import IsApprovedUser
 
@@ -241,11 +241,11 @@ class VRARankListView(APIView):
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            
-# 2024-05-22 KWS Added ExternalCrossmatchesListView.
+
+# 2024-09-24 KWS Added ExternalCrossmatchesListView.
 class ExternalCrossmatchesListView(APIView):
     authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         serializer = ExternalCrossmatchesListSerializer(data=request.GET, context={'request': request})
@@ -256,6 +256,26 @@ class ExternalCrossmatchesListView(APIView):
 
     def post(self, request, format=None):
         serializer = ExternalCrossmatchesListSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# 2024-09-24 KWS Added ExternalCrossmatchesListView.
+class ObjectDetectionListView(APIView):
+    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
+
+    def get(self, request):
+        serializer = ObjectDetectionListSerializer(data=request.GET, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, format=None):
+        serializer = ObjectDetectionListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
             return Response(message, status=retcode(message))

@@ -1126,7 +1126,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
 
         # 2024-04-16 KWS Added code to remove the object from the tcs_vra_todo table if it exists.
         vraTodoRow = TcsVraTodo.objects.get(pk=objectid)
-        if vraTodoRow:
+        if vraTodoRow and destinationListId not in [POSSIBLE]:
             vraTodoRow.delete()
     except Exception as e:
         sys.stderr.write("\n%s\n" % str(e))

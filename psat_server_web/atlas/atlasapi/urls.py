@@ -17,5 +17,6 @@ urlpatterns = [
     path('api/vrarank/',               views.VRARankView.as_view()),
     path('api/vraranklist/',           views.VRARankListView.as_view()),
     path('api/externalxmlist/',        views.ExternalCrossmatchesListView.as_view()),
+    path('api/objectdetectionlist/',   views.ObjectDetectionListView.as_view()),
     path('api/auth-token/',            obtain_auth_token, name='auth_token'),
 ]
