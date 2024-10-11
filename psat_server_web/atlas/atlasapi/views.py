@@ -22,7 +22,8 @@ from .serializers import (
     TcsObjectGroupsDeleteSerializer, 
     TcsObjectGroupsListSerializer, 
     VRARankSerializer, 
-    VRARankListSerializer
+    VRARankListSerializer, 
+    ExternalCrossmatchesListSerializer,
 )
 from .authentication import QueryAuthentication, ExpiringTokenAuthentication
 from .permissions import IsApprovedUser
@@ -268,6 +269,26 @@ class VRARankListView(APIView):
 
     def post(self, request, format=None):
         serializer = VRARankListSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            
+# 2024-05-22 KWS Added ExternalCrossmatchesListView.
+class ExternalCrossmatchesListView(APIView):
+    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = ExternalCrossmatchesListSerializer(data=request.GET, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, format=None):
+        serializer = ExternalCrossmatchesListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
             return Response(message, status=retcode(message))

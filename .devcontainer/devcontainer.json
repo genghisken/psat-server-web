@@ -1,0 +1,23 @@
+{
+    "name": "psat-server-web",
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.debugpy",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint"
+            ],
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash",
+                "python.languageServer": "Pylance",
+                "python.testing.pytestEnabled": true
+            }
+        }
+    }
+}

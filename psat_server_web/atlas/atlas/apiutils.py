@@ -235,3 +235,19 @@ def getVRARankList(request, objects = [], dateThreshold = None, idThreshold = 0)
                 vraRankList.append(model_to_dict(vra))
 
     return vraRankList
+
+
+# 2024-09-24 KWS Added getExternalCrossmatches
+def getExternalCrossmatchesList(request, externalObjects = []):
+
+    externalCrossmatchesList = []
+
+    for xm in externalObjects:
+        miniList = []
+        querySet = TcsCrossMatchesExternal.objects.filter(external_designation=xm)
+        if querySet is not None:
+            for x in querySet:
+                miniList.append(model_to_dict(x))
+            externalCrossmatchesList.append(miniList)
+
+    return externalCrossmatchesList

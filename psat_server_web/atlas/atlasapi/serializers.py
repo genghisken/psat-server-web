@@ -13,6 +13,7 @@ from atlas.apiutils import getVRAScoresList
 from atlas.apiutils import getVRATodoList
 from atlas.apiutils import getCustomListObjects
 from atlas.apiutils import getVRARankList
+from atlas.apiutils import getExternalCrossmatchesList
 from django.core.exceptions import ObjectDoesNotExist
 
 # 2024-01-29 KWS Need the model to do inserts.
@@ -22,6 +23,7 @@ from atlas.models import TcsVraTodo
 from atlas.models import TcsObjectGroups
 from atlas.models import TcsObjectGroupDefinitions
 from atlas.models import TcsVraRank
+from atlas.models import TcsCrossMatchesExternal
 
 #CAT_ID_RA_DEC_COLS['objects'] = [['objectId', 'ramean', 'decmean'], 1018]
 
@@ -139,8 +141,12 @@ class ObjectListSerializer(serializers.Serializer):
 class VRAScoresSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=True)
     preal = serializers.FloatField(required=False, default=None)
-    pfast = serializers.FloatField(required=False, default=None)
     pgal = serializers.FloatField(required=False, default=None)
+    pfast = serializers.FloatField(required=False, default=None)
+    # 2024-08-14 KWS Added 3 new values to the form for Rank.
+    rank = serializers.FloatField(required=True)
+    rank_alt1 = serializers.FloatField(required=False, default=None)
+    rank_alt2 = serializers.FloatField(required=False, default=None)
     debug = serializers.BooleanField(required=False, default=False)
     insertdate = serializers.DateTimeField(required=False, default=None)
 
@@ -150,8 +156,11 @@ class VRAScoresSerializer(serializers.Serializer):
         from django.conf import settings
         objectid = self.validated_data['objectid']
         preal = self.validated_data['preal']
-        pfast = self.validated_data['pfast']
         pgal = self.validated_data['pgal']
+        pfast = self.validated_data['pfast']
+        rank = self.validated_data['rank']
+        rank_alt1 = self.validated_data['rank_alt1']
+        rank_alt2 = self.validated_data['rank_alt2']
         insertdate = self.validated_data['insertdate']
         debug = self.validated_data['debug']
 
@@ -173,6 +182,9 @@ class VRAScoresSerializer(serializers.Serializer):
                 'preal': preal,
                 'pgal': pgal,
                 'pfast': pfast,
+                'rank': rank,
+                'rank_alt1': rank_alt1,
+                'rank_alt2': rank_alt2,
                 'timestamp': insertDate,
                 'debug': debug,
                 'apiusername': userId}
@@ -424,6 +436,8 @@ class TcsObjectGroupsListSerializer(serializers.Serializer):
 class VRARankSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=True)
     rank = serializers.FloatField(required=True)
+    rank_alt1 = serializers.FloatField(required=False, default=None)
+    rank_alt2= serializers.FloatField(required=False, default=None)
     insertdate = serializers.DateTimeField(required=False, default=None)
 
     import sys
@@ -434,6 +448,8 @@ class VRARankSerializer(serializers.Serializer):
         objectid = self.validated_data['objectid']
         insertdate = self.validated_data['insertdate']
         rank = self.validated_data['rank']
+        rank_alt1 = self.validated_data['rank_alt1']
+        rank_alt2 = self.validated_data['rank_alt2']
 
         insertDate = None
         if insertdate is not None:
@@ -446,6 +462,8 @@ class VRARankSerializer(serializers.Serializer):
 
         data = {'transient_object_id_id': objectid,
                 'rank': rank,
+                'rank_alt1': rank_alt1,
+                'rank_alt2': rank_alt2,
                 'timestamp': insertDate}
 
         # Does the objectId actually exit - not allowed to comment on objects that don't exist!
@@ -491,4 +509,77 @@ class VRARankListSerializer(serializers.Serializer):
         vraRankList = getVRARankList(request, objects = olist, dateThreshold = datethreshold)
         return vraRankList
 
+# 2024-09-24 KWS Added tcs_cross_matches_external viewer. We want to extract any ATLAS objects associated
+#                with any named external courses.
+
+class ExternalCrossmatchesListSerializer(serializers.Serializer):
+    # We could send ATLAS IDs or any external crossmatch IDs, like TNS names.
+    externalObjects = serializers.CharField(required=False, default=None)
+
+    def save(self):
+        externalObjects = self.validated_data['externalObjects']
+
+        request = self.context.get("request")
+
+        olist = []
+
+        if externalObjects is not None:
+            for tok in externalObjects.split(','):
+                olist.append(tok.strip())
+
+        externalCrossmatchesList = getExternalCrossmatchesList(request, externalObjects = olist)
+        return externalCrossmatchesList
+
+# 2024-09-24 KWS Added new serializer to updated the detection_list_id of an object in order
+#                to be able to "snooze" and "unsnooze" it. We'll use the possible list as
+#                snooze list.
+class ObjectsDetectionListSerializer(serializers.Serializer):
+    objectid = serializers.IntegerField(required=True)
+    # Only allow the object list to be updated
+    objectlist = serializers.IntegerField(required=True)
+    # Updates the date_modified field for an object too.
+    insertdate = serializers.DateTimeField(required=False, default=None)
+
+    import sys
+
+    def save(self):
+
+        from django.conf import settings
+        objectid = self.validated_data['objectid']
+        objectlist = self.validated_data['objectlist']
+        insertdate = self.validated_data['insertdate']
+
+        insertDate = None
+        if insertdate is not None:
+            insertDate = self.validated_data['insertdate']
+
+        replyMessage = 'Row created.'
+
+        if not insertDate:
+            insertDate = datetime.now()
+
+        data = {'atlas_object_id': objectid,
+                'detection_list_id': objectlist,
+                'date_modified': insertDate}
+
+        # Does the objectId actually exit - not allowed to comment on objects that don't exist!
+        # This should really return a 404 message.
+        try:
+            transient = AtlasDiffObjects.objects.get(pk=objectid)
+        except ObjectDoesNotExist as e:
+            replyMessage = 'Object does not exist.'
+            info = { "objectid": objectid, "info": replyMessage }
+            return info
+
+        try:
+            instance = TcsVraTodo(**data)
+            i = instance.save(force_insert=True)
+            # NOTE: Inserting an object by setting the primary key actually REPLACES the object. Do we want this behaviour??
+            #       The integrity error below never happens because I've now set the model with primary_key=True.
+            #       To fix this I've added force_insert = True above.
+        except IntegrityError as e:
+            replyMessage = 'Duplicate row. Cannot add row.'
+
+        info = { "objectid": objectid, "info": replyMessage }
+        return info
 

@@ -4,6 +4,8 @@
 
 from psdb.models import TcsTransientObjects
 from psdb.models import TcsImages, TcsLatestObjectStats
+from psdb.models import TcsTransientReobservations
+from psdb.lightcurvequeries import getRecurrenceDataForPlotting
 from gkutils.commonutils import getObjectNamePortion, getCoordsAndSearchRadius, coneSearchHTM, FULL, Struct, ra_to_sex, dec_to_sex, CAT_ID_RA_DEC_COLS
 from django.db.models import Q    # Need Q objects for OR query
 import sys
@@ -84,7 +86,7 @@ def processSearchForm(searchText, getAssociatedData = False, getNonDets = False,
     return results
 
 
-def getNearbyObjectsForScatterPlot(candidate, ra, dec, coneSearchRadius = 8.0):
+def getNearbyObjectsForScatterPlot(candidate, ra, dec, coneSearchRadius = 4.0):
     """getNearbyObjectsForScatterPlot.
 
     Args:
@@ -136,8 +138,7 @@ def getNearbyObjectsForScatterPlot(candidate, ra, dec, coneSearchRadius = 8.0):
                 # Add the recurrence from the objects table!
                 xmRecurrences.append({"RA": xmra, "DEC": xmdec})
 
-
-                xmrecurrencePlotData, xmrecurrencePlotLabels, xmaverageObjectCoords, xmrmsScatter = getRecurrenceDataForPlotting(xmRecurrences, ra, dec, secRA = xmra, secDEC = xmdec, secId = xmid, secName = xmName, objectColour = 23)
+                xmrecurrencePlotData, xmrecurrencePlotLabels, xmaverageObjectCoords, xmrmsScatter = getRecurrenceDataForPlotting(candidate, ra, dec, secRA = xmra, secDEC = xmdec, secId = xmid, secName = xmName, objectColour = 23)
                 recurrencePlotData += xmrecurrencePlotData
                 recurrencePlotLabels += xmrecurrencePlotLabels
                 averageObjectCoords += xmaverageObjectCoords

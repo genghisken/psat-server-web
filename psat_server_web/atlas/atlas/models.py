@@ -1245,6 +1245,9 @@ class TcsVraScores(models.Model):
     preal = models.FloatField(blank=True, null=True)
     pgal = models.FloatField(blank=True, null=True)
     pfast = models.FloatField(blank=True, null=True)
+    rank = models.FloatField(blank=True, null=True)
+    rank_alt1 = models.FloatField(blank=True, null=True)
+    rank_alt2 = models.FloatField(blank=True, null=True)
     timestamp = models.DateTimeField()
     apiusername = models.CharField(max_length=30, blank=True, null=True)
     username = models.CharField(max_length=30, blank=True, null=True)
@@ -1269,6 +1272,8 @@ class TcsVraTodo(models.Model):
 class TcsVraRank(models.Model):
     transient_object_id = models.ForeignKey(AtlasDiffObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE, primary_key=True)
     rank = models.FloatField(blank=True, null=True)
+    rank_alt1 = models.FloatField(blank=True, null=True)
+    rank_alt2 = models.FloatField(blank=True, null=True)
     timestamp = models.DateTimeField()
 
     class Meta:

@@ -28,10 +28,10 @@ var jsrecurrencelimitsglobal = new Object();
 {% for row in subdata %}
 var jsrecurrencedata = new Array();
 var jsrecurrencelabels = new Array();
-var jsrecurrencelimits = { "xmin": -8.0,  // arcsec
-                           "xmax": 8.0,
-                           "ymin": -8.0,
-                           "ymax": 8.0 };
+var jsrecurrencelimits = { "xmin": -3.0,  // arcsec
+                           "xmax": 3.0,
+                           "ymin": -3.0,
+                           "ymax": 3.0 };
 
 {% for recurrencepoints in row.recurrenceData.0 %}
   jsrecurrencedata.push({{recurrencepoints}});

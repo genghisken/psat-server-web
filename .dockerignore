@@ -1,0 +1,8 @@
+# Ignore all docker-related files to prevent the image from rebuilding
+# unnecessarily (as we're copying the entire directory into the image)
+Dockerfile
+docker-compose.yml
+.env
+.dockerignore
+data/
+.devcontainer/
