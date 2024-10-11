@@ -18,9 +18,16 @@ class ExpiringTokenAuthentication(TokenAuthentication):
     def authenticate_credentials(self, key):
         user, token = super().authenticate_credentials(key)
         
+        # Retrieve the user's group and get the token expiration time from the group profile
+        if user.groups.exists():
+            group_profile = user.groups.first().profile
+            token_expiration_time = group_profile.token_expiration_time.total_seconds()
+        else:
+            raise AuthenticationFailed('User is not assigned to any group.')
+        
         # Calculate the token's age and compare it to the expiration setting
         token_age = (now() - token.created).total_seconds()
-        if token_age > settings.TOKEN_EXPIRY:
+        if token_age > token_expiration_time:
             raise AuthenticationFailed('Token has expired.')
         
         return user, token

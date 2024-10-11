@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.exceptions import AuthenticationFailed
 
 # 2024-01-29 KWS Need the model to do inserts.
 from atlas.models import TcsObjectGroups, TcsVraScores
@@ -40,16 +41,27 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
 
+        # Get the expiration time from the user's group profile
+        if user.groups.exists():
+            group_profile = user.groups.first().profile
+            token_expiration_time = group_profile.token_expiration_time.total_seconds()
+        else:
+            raise AuthenticationFailed('User is not assigned to any group.')
+        
         # Check if token is expired based on `created` field and the setting
         token_age = (now() - token.created).total_seconds()
-        if token_age > settings.TOKEN_EXPIRY:
+        if token_age > token_expiration_time:
             # If expired, delete the token and create a new one
             token.delete()
             token = Token.objects.create(user=user)
+            # Update the token age for return
+            token_age = (now() - token.created).total_seconds()
+            created = True
 
         return Response({
             'token': token.key,
-            'expires_in': settings.TOKEN_EXPIRY - (now() - token.created).total_seconds()
+            'expires_in': token_expiration_time - token_age,
+            'refreshed': created,
         })
 
 class ConeView(APIView):
@@ -277,8 +289,8 @@ class VRARankListView(APIView):
             
 # 2024-05-22 KWS Added ExternalCrossmatchesListView.
 class ExternalCrossmatchesListView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
         serializer = ExternalCrossmatchesListSerializer(data=request.GET, context={'request': request})
