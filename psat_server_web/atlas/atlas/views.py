@@ -1176,6 +1176,30 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
         sys.stderr.write('Lasair Error\n')
         sys.stderr.write('%s\n' % str(e))
         
+    # 2024-10-15 KWS Talk to the ATLAS API. Are there any ATLAS objects nearby?
+    sys.path.append('../../common')
+    from psat_api_client import PSATAPIError, psat_client as psat
+    
+    # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
+    #                version v0.0.5+. This should help if Lasair goes offline for any
+    #                reason. But extra (Requests)ConnectionError catch needed.
+    P = psat(settings.PANSTARRS_TOKEN, endpoint = settings.PANSTARRS_BASE_URL + '/api/', timeout = 2.0)
+
+    panstarrsCrossmatches = None
+    try:           
+        panstarrsCrossmatches = P.cone(transient.ra, transient.dec, 2.0, requestType='all')
+    except RequestsConnectionError as e:
+        # If the API URL is incorrect or times out we will get a connection error.
+        sys.stderr.write('Pan-STARRS API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except RequestsConnectionTimeoutError as e:
+        # If the API times out, we will get a timeout error.
+        sys.stderr.write('Pan-STARRS API Timeout Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except PSATAPIError as e:
+        sys.stderr.write('Pan-STARRS Error\n')
+        sys.stderr.write('%s\n' % str(e))
+
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
     processingStatus = None
@@ -1635,7 +1659,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
 
     recurrenceData = [recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter]
 
-    return render(request, 'atlas/' + template_name,{'transient' : transient, 'table': table, 'images': transient_images, 'form' : form, 'avg_coords': avgCoords, 'lcdata': lcData, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedstackflux': lcDataForcedStackFlux, 'lclimits': lcLimits, 'recurrencedata': recurrenceData, 'conesearchold': xmresults['oldDBXmList'], 'olddburl': xmresults['oldDBURL'], 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'fpData': fpData, 'sc': sc, 'gw': gw, 'comments': existingComments, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches})
+    return render(request, 'atlas/' + template_name,{'transient' : transient, 'table': table, 'images': transient_images, 'form' : form, 'avg_coords': avgCoords, 'lcdata': lcData, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedstackflux': lcDataForcedStackFlux, 'lclimits': lcLimits, 'recurrencedata': recurrenceData, 'conesearchold': xmresults['oldDBXmList'], 'olddburl': xmresults['oldDBURL'], 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'fpData': fpData, 'sc': sc, 'gw': gw, 'comments': existingComments, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'panstarrsCrossmatches': panstarrsCrossmatches, 'panstarrsBaseURL': settings.PANSTARRS_BASE_URL})
 
 
 def lightcurveplain(request, tcs_transient_objects_id):

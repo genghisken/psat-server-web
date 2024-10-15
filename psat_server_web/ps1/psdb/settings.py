@@ -103,6 +103,9 @@ LASAIR_TOKEN = os.environ.get('DJANGO_LASAIR_TOKEN')
 NAMESERVER_TOKEN = os.environ.get('DJANGO_NAMESERVER_TOKEN')
 NAMESERVER_API_URL = os.environ.get('DJANGO_NAMESERVER_API_URL')
 NAMESERVER_MULTIPLIER = os.environ.get('DJANGO_NAMESERVER_MULTIPLIER')
+# Introduce ATLAS API
+ATLAS_TOKEN = os.environ.get('DJANGO_ATLAS_TOKEN')
+ATLAS_BASE_URL = os.environ.get('DJANGO_ATLAS_BASE_URL')
 
 DISPLAY_AGNS = os.environ.get('DJANGO_DISPLAY_AGNS') in ('true', '1', 't', 'True', 'TRUE', 'T')
 
@@ -169,6 +172,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'psdb.urls'
 
+# 2024-09-19 KWS Added Django Rest Framework
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -179,4 +183,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'psdb',
     'django_tables2',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]

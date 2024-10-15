@@ -70,19 +70,20 @@ class ConeSerializer(serializers.Serializer):
         separation = None
 
         objectList = []
-        if len(results) > 0:
-            if requestType == "nearest":
+        if requestType == "nearest":
+            if len(results) > 0:
                 obj = results[0][1]['id']
                 separation = results[0][0]
-                info = {"object": obj, "separation": separation}
-            elif requestType == "all":
-                for row in results:
-                    objectList.append({"object": row[1]["id"], "separation": row[0]})
-                info = objectList
-            elif requestType == "count":
-                info = {'count': len(results)}
+                objName = results[0][1]['atlas_designation']
+                info = {"object": obj, "separation": separation, "objectname": objName}
             else:
-                info = {"error": "Invalid request type"}
+                info = {}
+        if requestType == "all":
+            for row in results:
+                objectList.append({"object": row[1]["id"], "separation": row[0], "objectname": row[1]["atlas_designation"]})
+            info = objectList
+        if requestType == "count":
+            info = {'count': len(results)}
 
         return info
 
