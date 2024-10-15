@@ -46,7 +46,8 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
             group_profile = user.groups.first().profile
             token_expiration_time = group_profile.token_expiration_time.total_seconds()
         else:
-            raise AuthenticationFailed('User is not assigned to any group.')
+            # If the user is not assigned to a group, use the default setting
+            token_expiration_time = settings.TOKEN_EXPIRY
         
         # Check if token is expired based on `created` field and the setting
         token_age = (now() - token.created).total_seconds()
