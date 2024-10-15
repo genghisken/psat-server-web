@@ -10,6 +10,7 @@ admin.autodiscover()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('psdbapi.urls')),
 
     # 2016-07-07 KWS Add the authentication URLs
     url(r'^accounts/login/', views.login, name="login"),
