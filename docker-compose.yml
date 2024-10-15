@@ -5,16 +5,17 @@ services:
     ports:
       - 3306:3306
     volumes:
+    # Mount in the custom my.cnf file and run the init.sql script to create the
+    # database and user upon first run. The init.sql script will be provided by 
+    # one of the development team. 
       - ./docker/my.cnf:/etc/mysql/my.cnf
-      # - db_data:/var/lib/mysql
-      # - ./data/db_data:/var/db_data
       - ./data/init.sql:/docker-entrypoint-initdb.d/1.sql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MARAIDB_DATABASE: ${MYSQL_DATABASE}
+      MARIADB_DATABASE: ${MYSQL_DATABASE}
     healthcheck:
       test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
       timeout: 20s
@@ -30,19 +31,25 @@ services:
 
   atlas-web:
     build: .
+    image: local/psat-server-web
+      # Commands for running migrations, which are only needed when database
+      # schema changes. The first time running the migrations will need to be 
+      # done manually with a --force flag to ensure only the modifications get 
+      # properly migrated. 
+      # && python manage.py makemigrations atlas --noinput 
+      # && python manage.py migrate atlas --noinput 
     command: >
       sh -c "python manage.py collectstatic --noinput
+      && ./generate_mod_wsgi_apachectl.sh 
       && sleep infinity"
-      # && python manage.py makemigrations 
-      # && python manage.py migrate --noinput 
-      # && ./generate_mod_wsgi_apachectl.sh 
     hostname: psat-server-web
     restart: always
     volumes:
+    # Mount the code directories into the image to allow for live code changes
       - ./data/db_data:/images 
       - ./psat_server_web/atlas/atlasapi:/app/psat_server_web/atlas/atlasapi
       - ./psat_server_web/atlas/atlas:/app/psat_server_web/atlas/atlas
-    #   - .:/app
+      - ./psat_server_web/atlas/tests:/app/psat_server_web/atlas/tests
     ports:
       - 8086:8086
     depends_on:
@@ -67,7 +74,4 @@ services:
       - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
       - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
 
-
-volumes:
-  db_data:
      
