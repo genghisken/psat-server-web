@@ -481,7 +481,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
         {% for row in atlasCrossmatches %}
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <h3><a href="{{ atlasBaseURL }}/candidate/{{ row.object }}/">{% if row.objectname %}{{ row.objectname }}{% else %}{{ row.object }}{% endif %}</a></h3>
+          <h3><a href="{{ atlasBaseURL }}/candidate/{{ row.object }}/">{% if row.objectname %}{{ row.objectname }}{% else %}ATLAS object{% endif %}</a></h3>
         </div>
 
         {% if row.separation %}

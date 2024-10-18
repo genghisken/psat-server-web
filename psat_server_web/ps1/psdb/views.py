@@ -376,57 +376,7 @@ def candidateflot(request, tcs_transient_objects_id):
     #                the short term.  May consider doing it longer term.
     from django.db import connection
 
-    # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
-    from lasair import LasairError, lasair_client as lasair
-
     transient = get_object_or_404(TcsTransientObjects, pk=tcs_transient_objects_id)
-
-    token = settings.LASAIR_TOKEN
-    # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
-    #                version v0.0.5+. This should help if Lasair goes offline for any
-    #                reason. But extra (Requests)ConnectionError catch needed.
-    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api', timeout = 2.0)
-
-    lasairZTFCrossmatches = None
-    try:
-        lasairZTFCrossmatches = L.cone(transient.ra_psf, transient.dec_psf, 2.0, requestType='all')
-    except RequestsConnectionError as e:
-        # If the API URL is incorrect or times out we will get a connection error.
-        sys.stderr.write('Lasair API Connection Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except RequestsConnectionTimeoutError as e:
-        # If the API times out, we will get a timeout error.
-        sys.stderr.write('Lasair API Timeout Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except LasairError as e:
-        sys.stderr.write('Lasair Error\n')
-        sys.stderr.write('%s\n' % str(e))
-        
-
-    # 2024-10-15 KWS Talk to the ATLAS API. Are there any ATLAS objects nearby?
-    sys.path.append('../../common')
-    from psat_api_client import PSATAPIError, psat_client as psat
-
-    # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
-    #                version v0.0.5+. This should help if Lasair goes offline for any
-    #                reason. But extra (Requests)ConnectionError catch needed.
-    A = psat(settings.ATLAS_TOKEN, endpoint = settings.ATLAS_BASE_URL + '/api/', timeout = 2.0)
-
-    atlasCrossmatches = None
-    try:
-        atlasCrossmatches = A.cone(transient.ra_psf, transient.dec_psf, 2.0, requestType='all')
-    except RequestsConnectionError as e:
-        # If the API URL is incorrect or times out we will get a connection error.
-        sys.stderr.write('ATLAS API Connection Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except RequestsConnectionTimeoutError as e:
-        # If the API times out, we will get a timeout error.
-        sys.stderr.write('ATLAS API Timeout Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except PSATAPIError as e:
-        sys.stderr.write('ATLAS Error\n')
-        sys.stderr.write('%s\n' % str(e))
-
 
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
@@ -835,6 +785,53 @@ def candidateflot(request, tcs_transient_objects_id):
     avgCoords = {'ra': avgRa, 'dec': avgDec, 'ra_sex': avgRaSex, 'dec_sex': avgDecSex, 'ra_in_hours': ra_in_decimal_hours(avgRa)}
 
     galactic = transform([avgCoords['ra'], avgCoords['dec']], J2000toGalactic)
+
+    # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
+    from lasair import LasairError, lasair_client as lasair
+
+    # 2024-10-18 KWS Moved the code down to after the average RA and Dec are calculated
+    #                so we don't need to calculate it twice.
+    token = settings.LASAIR_TOKEN
+    # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
+    #                version v0.0.5+. This should help if Lasair goes offline for any
+    #                reason. But extra (Requests)ConnectionError catch needed.
+    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api', timeout = 2.0)
+
+    lasairZTFCrossmatches = None
+    try:
+        lasairZTFCrossmatches = L.cone(avgCoords['ra'], avgCoords['dec'], 2.0, requestType='all')
+    except RequestsConnectionError as e:
+        # If the API URL is incorrect or times out we will get a connection error.
+        sys.stderr.write('Lasair API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except RequestsConnectionTimeoutError as e:
+        # If the API times out, we will get a timeout error.
+        sys.stderr.write('Lasair API Timeout Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except LasairError as e:
+        sys.stderr.write('Lasair Error\n')
+        sys.stderr.write('%s\n' % str(e))
+        
+    # 2024-10-15 KWS Talk to the ATLAS API. Are there any ATLAS objects nearby?
+    sys.path.append('../../common')
+    from psat_api_client import PSATAPIError, psat_client as psat
+
+    A = psat(settings.ATLAS_TOKEN, endpoint = settings.ATLAS_BASE_URL + '/api/', timeout = 2.0)
+
+    atlasCrossmatches = None
+    try:
+        atlasCrossmatches = A.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
+    except RequestsConnectionError as e:
+        # If the API URL is incorrect or times out we will get a connection error.
+        sys.stderr.write('ATLAS API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except RequestsConnectionTimeoutError as e:
+        # If the API times out, we will get a timeout error.
+        sys.stderr.write('ATLAS API Timeout Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except PSATAPIError as e:
+        sys.stderr.write('ATLAS Error\n')
+        sys.stderr.write('%s\n' % str(e))
 
 
     coneSearchRadius = 4.0   # arcsec
