@@ -63,6 +63,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('DJANGO_MYSQL_DBPASS'),
         'HOST': os.environ.get('DJANGO_MYSQL_DBHOST'),
         'PORT': int(os.environ.get('DJANGO_MYSQL_DBPORT')),
+        'TEST': {
+            'NAME': os.environ.get('DJANGO_MYSQL_TESTDBNAME'),
+        }
     }
 }
 
@@ -182,3 +185,5 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 ]
 
+# Token expiry time in days, default 1 day (24*60*60 seconds)
+TOKEN_EXPIRY = int(os.environ.get("API_TOKEN_EXPIRY") or 86400) # seconds

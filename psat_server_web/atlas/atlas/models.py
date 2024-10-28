@@ -10,8 +10,42 @@
 import sys
 
 from django.db import models
-
+from django.conf import settings
+from django.db import models
+from django.utils.timezone import now, timedelta
+from django.contrib.auth.models import Group
+from rest_framework.authtoken.models import Token
 from gkutils.commonutils import FLAGS, PROCESSING_FLAGS, getFlagDefs, ra_to_sex, dec_to_sex, getDateFractionMJD, getMJDFromSqlDate
+
+class GroupProfile(models.Model):
+    """GroupProfile.
+    
+    Extension of the Group model to store additional information, such as token 
+    expiration time.
+    """
+    id = models.AutoField(primary_key=True)
+    group = models.OneToOneField(
+        Group, 
+        on_delete=models.CASCADE, 
+        related_name='profile'
+    )
+    token_expiration_time = models.DurationField(
+        help_text='in days, default 1 day (24*60*60 seconds)',
+        default=timedelta(days=1)
+        )
+    description = models.TextField(
+        blank=True,
+        help_text='What is the group for?'
+    )
+    
+    class Meta:
+        """Meta.
+        """
+        app_label = 'atlas'
+        managed = True
+        verbose_name = 'Group Profile'
+        verbose_name_plural = 'Group Profiles'
+        db_table = 'auth_group_profile'
 
 
 class TcsDetectionLists(models.Model):

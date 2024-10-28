@@ -1,26 +1,73 @@
-import sys
-
 from django.shortcuts import get_object_or_404, render
+from django.conf import settings
+from django.utils.timezone import now
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
-# 2024-01-29 KWS Need the model to do inserts.
-from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.exceptions import AuthenticationFailed
 
-from atlas.models import TcsObjectGroups
-from atlas.models import TcsVraScores
-from .serializers import ConeSerializer, ObjectsSerializer, ObjectListSerializer, VRAScoresSerializer, VRAScoresListSerializer, VRATodoSerializer, VRATodoListSerializer, TcsObjectGroupsSerializer, TcsObjectGroupsDeleteSerializer, TcsObjectGroupsListSerializer, VRARankSerializer, VRARankListSerializer, ExternalCrossmatchesListSerializer, ObjectDetectionListSerializer
-from .query_auth import QueryAuthentication
+# 2024-01-29 KWS Need the model to do inserts.
+from atlas.models import TcsObjectGroups, TcsVraScores
+from .serializers import (
+    ConeSerializer, 
+    ObjectsSerializer, 
+    ObjectListSerializer, 
+    VRAScoresSerializer, 
+    VRAScoresListSerializer, 
+    VRATodoSerializer, 
+    VRATodoListSerializer, 
+    TcsObjectGroupsSerializer, 
+    TcsObjectGroupsDeleteSerializer, 
+    TcsObjectGroupsListSerializer, 
+    VRARankSerializer, 
+    VRARankListSerializer, 
+    ExternalCrossmatchesListSerializer,
+    ObjectDetectionListSerializer,
+)
+from .authentication import QueryAuthentication, ExpiringTokenAuthentication
 from .permissions import IsApprovedUser
 
 def retcode(message):
     if 'error' in message: return status.HTTP_400_BAD_REQUEST
     else:                  return status.HTTP_200_OK
+    
+class ObtainExpiringAuthToken(ObtainAuthToken):
+   
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+
+        # Get the expiration time from the user's group profile
+        if user.groups.exists():
+            group_profile = user.groups.first().profile
+            token_expiration_time = group_profile.token_expiration_time.total_seconds()
+        else:
+            # If the user is not assigned to a group, use the default setting
+            token_expiration_time = settings.TOKEN_EXPIRY
+        
+        # Check if token is expired based on `created` field and the setting
+        token_age = (now() - token.created).total_seconds()
+        if token_age > token_expiration_time:
+            # If expired, delete the token and create a new one
+            token.delete()
+            token = Token.objects.create(user=user)
+            # Update the token age for return
+            token_age = (now() - token.created).total_seconds()
+            created = True
+
+        return Response({
+            'token': token.key,
+            'expires_in': token_expiration_time - token_age,
+            'refreshed': created,
+        })
 
 class ConeView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -39,7 +86,7 @@ class ConeView(APIView):
 
 
 class ObjectsView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -58,7 +105,7 @@ class ObjectsView(APIView):
 
 
 class ObjectListView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -77,7 +124,7 @@ class ObjectListView(APIView):
 
 
 class VRAScoresView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -94,7 +141,7 @@ class VRAScoresView(APIView):
 
 
 class VRAScoresListView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -114,7 +161,7 @@ class VRAScoresListView(APIView):
 # 2024-04-16 KWS Added VRATodoView. NOTE: Add code to read the reply message and generate a sensible HTTP response
 #                appropriate to the circumstances. E.g. if object is not found generate a 404, etc.
 class VRATodoView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -131,7 +178,7 @@ class VRATodoView(APIView):
             
 # 2024-05-07 KWS Added VRATodoListView.
 class VRATodoListView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -149,7 +196,7 @@ class VRATodoListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TcsObjectGroupsView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -165,7 +212,7 @@ class TcsObjectGroupsView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TcsObjectGroupsListView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -184,7 +231,7 @@ class TcsObjectGroupsListView(APIView):
 
 
 class TcsObjectGroupsDeleteView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -207,7 +254,7 @@ class TcsObjectGroupsDeleteView(APIView):
 # 2024-05-22 KWS Added VRARankView. NOTE: Add code to read the reply message and generate a sensible HTTP response
 #                appropriate to the circumstances. E.g. if object is not found generate a 404, etc.
 class VRARankView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -224,7 +271,7 @@ class VRARankView(APIView):
             
 # 2024-05-22 KWS Added VRARankListView.
 class VRARankListView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -244,7 +291,7 @@ class VRARankListView(APIView):
 
 # 2024-09-24 KWS Added ExternalCrossmatchesListView.
 class ExternalCrossmatchesListView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
@@ -264,7 +311,7 @@ class ExternalCrossmatchesListView(APIView):
 
 # 2024-09-24 KWS Added ExternalCrossmatchesListView.
 class ObjectDetectionListView(APIView):
-    authentication_classes = [TokenAuthentication, QueryAuthentication]
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
 
     def get(self, request):
