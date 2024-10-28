@@ -25,9 +25,9 @@ SITE_ID = 1
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 # 2021-08-21 KWS Need to set this to None, otherwise default is 1000.
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
@@ -63,6 +63,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('DJANGO_MYSQL_DBPASS'),
         'HOST': os.environ.get('DJANGO_MYSQL_DBHOST'),
         'PORT': int(os.environ.get('DJANGO_MYSQL_DBPORT')),
+        'TEST': {
+            'NAME': os.environ.get('DJANGO_MYSQL_TESTDBNAME'),
+        }
     }
 }
 
