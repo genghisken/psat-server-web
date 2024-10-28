@@ -25,6 +25,7 @@ from .serializers import (
     VRARankSerializer, 
     VRARankListSerializer, 
     ExternalCrossmatchesListSerializer,
+    ObjectDetectionListSerializer,
 )
 from .authentication import QueryAuthentication, ExpiringTokenAuthentication
 from .permissions import IsApprovedUser
@@ -287,8 +288,8 @@ class VRARankListView(APIView):
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            
-# 2024-05-22 KWS Added ExternalCrossmatchesListView.
+
+# 2024-09-24 KWS Added ExternalCrossmatchesListView.
 class ExternalCrossmatchesListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&IsApprovedUser]
@@ -302,6 +303,26 @@ class ExternalCrossmatchesListView(APIView):
 
     def post(self, request, format=None):
         serializer = ExternalCrossmatchesListSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# 2024-09-24 KWS Added ExternalCrossmatchesListView.
+class ObjectDetectionListView(APIView):
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
+    permission_classes = [IsAuthenticated&IsApprovedUser]
+
+    def get(self, request):
+        serializer = ObjectDetectionListSerializer(data=request.GET, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, format=None):
+        serializer = ObjectDetectionListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
             return Response(message, status=retcode(message))

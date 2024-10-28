@@ -70,19 +70,20 @@ class ConeSerializer(serializers.Serializer):
         separation = None
 
         objectList = []
-        if len(results) > 0:
-            if requestType == "nearest":
+        if requestType == "nearest":
+            if len(results) > 0:
                 obj = results[0][1]['id']
                 separation = results[0][0]
-                info = {"object": obj, "separation": separation}
-            elif requestType == "all":
-                for row in results:
-                    objectList.append({"object": row[1]["id"], "separation": row[0]})
-                info = objectList
-            elif requestType == "count":
-                info = {'count': len(results)}
+                objName = results[0][1]['atlas_designation']
+                info = {"object": obj, "separation": separation, "objectname": objName}
             else:
-                info = {"error": "Invalid request type"}
+                info = {}
+        if requestType == "all":
+            for row in results:
+                objectList.append({"object": row[1]["id"], "separation": row[0], "objectname": row[1]["atlas_designation"]})
+            info = objectList
+        if requestType == "count":
+            info = {'count': len(results)}
 
         return info
 
@@ -533,7 +534,7 @@ class ExternalCrossmatchesListSerializer(serializers.Serializer):
 # 2024-09-24 KWS Added new serializer to updated the detection_list_id of an object in order
 #                to be able to "snooze" and "unsnooze" it. We'll use the possible list as
 #                snooze list.
-class ObjectsDetectionListSerializer(serializers.Serializer):
+class ObjectDetectionListSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=True)
     # Only allow the object list to be updated
     objectlist = serializers.IntegerField(required=True)
@@ -558,8 +559,7 @@ class ObjectsDetectionListSerializer(serializers.Serializer):
         if not insertDate:
             insertDate = datetime.now()
 
-        data = {'atlas_object_id': objectid,
-                'detection_list_id': objectlist,
+        data = {'detection_list_id_id': objectlist,
                 'date_modified': insertDate}
 
         # Does the objectId actually exit - not allowed to comment on objects that don't exist!
@@ -572,13 +572,19 @@ class ObjectsDetectionListSerializer(serializers.Serializer):
             return info
 
         try:
-            instance = TcsVraTodo(**data)
-            i = instance.save(force_insert=True)
-            # NOTE: Inserting an object by setting the primary key actually REPLACES the object. Do we want this behaviour??
-            #       The integrity error below never happens because I've now set the model with primary_key=True.
-            #       To fix this I've added force_insert = True above.
+            for key, value in data.items():
+                sys.stderr.write("\nkey=%s\n" % key)
+                sys.stderr.write("\nvalue=%s\n" % value)
+                if key=='detection_list_id_id' and value not in (3,4):
+                    replyMessage = 'Error updating row.'
+                    info = { "objectid": objectid, "info": replyMessage }
+                    return info
+                else:
+                    setattr(transient, key, value)
+            transient.save()
+
         except IntegrityError as e:
-            replyMessage = 'Duplicate row. Cannot add row.'
+            replyMessage = 'Error updating row.'
 
         info = { "objectid": objectid, "info": replyMessage }
         return info

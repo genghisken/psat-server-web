@@ -30,6 +30,9 @@
 # export DJANGO_NAMESERVER_API_URL=''
 # export DJANGO_NAMESERVER_TOKEN=''
 # export DJANGO_NAMESERVER_MULTIPLIER=10000000
+#
+# export DJANGO_PANSTARRS_TOKEN=''
+# export DJANGO_PANSTARRS_BASE_URL=''
 
 
 if [ -f ~/.config/django/django_env_$CONDA_DEFAULT_ENV ]; then chmod 600 ~/.config/django/django_env_$CONDA_DEFAULT_ENV; source ~/.config/django/django_env_$CONDA_DEFAULT_ENV; fi

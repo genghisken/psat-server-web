@@ -859,7 +859,7 @@ def candidate(request, atlas_diff_objects_id):
 
                 # 2010-12-02 KWS Added check for atlasDesignation.  Don't choose a new designation
                 # if we already have one.
-                if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
+                if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
                     surveyField = 'ATLAS'
 
                     try:
@@ -1126,7 +1126,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
 
         # 2024-04-16 KWS Added code to remove the object from the tcs_vra_todo table if it exists.
         vraTodoRow = TcsVraTodo.objects.get(pk=objectid)
-        if vraTodoRow:
+        if vraTodoRow and destinationListId not in [POSSIBLE]:
             vraTodoRow.delete()
     except Exception as e:
         sys.stderr.write("\n%s\n" % str(e))
@@ -1148,34 +1148,9 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     from django.db import connection
     import sys
 
-    # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
-    from lasair import LasairError, lasair_client as lasair
-
     transient = get_object_or_404(AtlasDiffObjects, pk=atlas_diff_objects_id)
 
-    token = settings.LASAIR_TOKEN
-    # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
-    #                version v0.0.5+. This should help if Lasair goes offline for any
-    #                reason. But extra (Requests)ConnectionError catch needed.
-    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api', timeout = 2.0)
 
-    lasairZTFCrossmatches = None
-
-    # If Lasair connectivity problems arise, comment out the following 4 lines.
-    try:
-        lasairZTFCrossmatches = L.cone(transient.ra, transient.dec, 2.0, requestType='all')
-    except RequestsConnectionError as e:
-        # If the API URL is incorrect or times out we will get a connection error.
-        sys.stderr.write('Lasair API Connection Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except RequestsConnectionTimeoutError as e:
-        # If the API times out, we will get a timeout error.
-        sys.stderr.write('Lasair API Timeout Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except LasairError as e:
-        sys.stderr.write('Lasair Error\n')
-        sys.stderr.write('%s\n' % str(e))
-        
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
     processingStatus = None
@@ -1317,6 +1292,54 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     if detectionList:
         listId = detectionList.id
 
+    # 2024-10-18 KWS Moved to down below where the average coordinates are calculated so we can use them.
+    # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
+    from lasair import LasairError, lasair_client as lasair
+
+    token = settings.LASAIR_TOKEN
+    # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
+    #                version v0.0.5+. This should help if Lasair goes offline for any
+    #                reason. But extra (Requests)ConnectionError catch needed.
+    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api', timeout = 2.0)
+
+    lasairZTFCrossmatches = None
+
+    # If Lasair connectivity problems arise, comment out the following 4 lines.
+    try:
+        lasairZTFCrossmatches = L.cone(avgCoords['ra'], avgCoords['dec'], 2.0, requestType='all')
+    except RequestsConnectionError as e:
+        # If the API URL is incorrect or times out we will get a connection error.
+        sys.stderr.write('Lasair API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except RequestsConnectionTimeoutError as e:
+        # If the API times out, we will get a timeout error.
+        sys.stderr.write('Lasair API Timeout Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except LasairError as e:
+        sys.stderr.write('Lasair Error\n')
+        sys.stderr.write('%s\n' % str(e))
+        
+    # 2024-10-15 KWS Talk to the ATLAS API. Are there any ATLAS objects nearby?
+    sys.path.append('../../common')
+    from psat_api_client import PSATAPIError, psat_client as psat
+    
+    P = psat(settings.PANSTARRS_TOKEN, endpoint = settings.PANSTARRS_BASE_URL + '/api/', timeout = 2.0)
+
+    panstarrsCrossmatches = None
+    try:           
+        panstarrsCrossmatches = P.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
+    except RequestsConnectionError as e:
+        # If the API URL is incorrect or times out we will get a connection error.
+        sys.stderr.write('Pan-STARRS API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except RequestsConnectionTimeoutError as e:
+        # If the API times out, we will get a timeout error.
+        sys.stderr.write('Pan-STARRS API Timeout Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except PSATAPIError as e:
+        sys.stderr.write('Pan-STARRS Error\n')
+        sys.stderr.write('%s\n' % str(e))
+
     # Dummy form initialisation
     formSearchObject = SearchForObjectForm()
     form = PromoteAndCommentsForm()
@@ -1373,7 +1396,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
 
                 # 2010-12-02 KWS Added check for atlasDesignation.  Don't choose a new designation
                 # if we already have one.
-                if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
+                if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
                     surveyField = 'ATLAS'
 
                     try:
@@ -1635,7 +1658,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
 
     recurrenceData = [recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter]
 
-    return render(request, 'atlas/' + template_name,{'transient' : transient, 'table': table, 'images': transient_images, 'form' : form, 'avg_coords': avgCoords, 'lcdata': lcData, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedstackflux': lcDataForcedStackFlux, 'lclimits': lcLimits, 'recurrencedata': recurrenceData, 'conesearchold': xmresults['oldDBXmList'], 'olddburl': xmresults['oldDBURL'], 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'fpData': fpData, 'sc': sc, 'gw': gw, 'comments': existingComments, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches})
+    return render(request, 'atlas/' + template_name,{'transient' : transient, 'table': table, 'images': transient_images, 'form' : form, 'avg_coords': avgCoords, 'lcdata': lcData, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedstackflux': lcDataForcedStackFlux, 'lclimits': lcLimits, 'recurrencedata': recurrenceData, 'conesearchold': xmresults['oldDBXmList'], 'olddburl': xmresults['oldDBURL'], 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'fpData': fpData, 'sc': sc, 'gw': gw, 'comments': existingComments, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'panstarrsCrossmatches': panstarrsCrossmatches, 'panstarrsBaseURL': settings.PANSTARRS_BASE_URL})
 
 
 def lightcurveplain(request, tcs_transient_objects_id):
@@ -3235,7 +3258,7 @@ def followupQuickView(request, listNumber):
                     fieldCounter = transient.followup_counter
 
 
-                    if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
+                    if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
                         # ASSUMPTION!!  All filenames contain dots and the first part is the field name.
                         surveyField = 'ATLAS'
 
@@ -3847,7 +3870,7 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
                     fieldCounter = transient.followup_counter
 
 
-                    if not atlasDesignation and (listId == GOOD or listId == POSSIBLE or listId == ATTIC or listId == FOLLOWUP):
+                    if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
                         # ASSUMPTION!!  All filenames contain dots and the first part is the field name.
                         surveyField = 'ATLAS'
 

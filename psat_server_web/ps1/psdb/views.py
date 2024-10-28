@@ -376,32 +376,7 @@ def candidateflot(request, tcs_transient_objects_id):
     #                the short term.  May consider doing it longer term.
     from django.db import connection
 
-    # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
-    from lasair import LasairError, lasair_client as lasair
-
     transient = get_object_or_404(TcsTransientObjects, pk=tcs_transient_objects_id)
-
-    token = settings.LASAIR_TOKEN
-    # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
-    #                version v0.0.5+. This should help if Lasair goes offline for any
-    #                reason. But extra (Requests)ConnectionError catch needed.
-    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api', timeout = 2.0)
-
-    lasairZTFCrossmatches = None
-    try:
-        lasairZTFCrossmatches = L.cone(transient.ra_psf, transient.dec_psf, 2.0, requestType='all')
-    except RequestsConnectionError as e:
-        # If the API URL is incorrect or times out we will get a connection error.
-        sys.stderr.write('Lasair API Connection Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except RequestsConnectionTimeoutError as e:
-        # If the API times out, we will get a timeout error.
-        sys.stderr.write('Lasair API Timeout Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except LasairError as e:
-        sys.stderr.write('Lasair Error\n')
-        sys.stderr.write('%s\n' % str(e))
-        
 
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
@@ -811,6 +786,53 @@ def candidateflot(request, tcs_transient_objects_id):
 
     galactic = transform([avgCoords['ra'], avgCoords['dec']], J2000toGalactic)
 
+    # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
+    from lasair import LasairError, lasair_client as lasair
+
+    # 2024-10-18 KWS Moved the code down to after the average RA and Dec are calculated
+    #                so we don't need to calculate it twice.
+    token = settings.LASAIR_TOKEN
+    # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
+    #                version v0.0.5+. This should help if Lasair goes offline for any
+    #                reason. But extra (Requests)ConnectionError catch needed.
+    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api', timeout = 2.0)
+
+    lasairZTFCrossmatches = None
+    try:
+        lasairZTFCrossmatches = L.cone(avgCoords['ra'], avgCoords['dec'], 2.0, requestType='all')
+    except RequestsConnectionError as e:
+        # If the API URL is incorrect or times out we will get a connection error.
+        sys.stderr.write('Lasair API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except RequestsConnectionTimeoutError as e:
+        # If the API times out, we will get a timeout error.
+        sys.stderr.write('Lasair API Timeout Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except LasairError as e:
+        sys.stderr.write('Lasair Error\n')
+        sys.stderr.write('%s\n' % str(e))
+        
+    # 2024-10-15 KWS Talk to the ATLAS API. Are there any ATLAS objects nearby?
+    sys.path.append('../../common')
+    from psat_api_client import PSATAPIError, psat_client as psat
+
+    A = psat(settings.ATLAS_TOKEN, endpoint = settings.ATLAS_BASE_URL + '/api/', timeout = 2.0)
+
+    atlasCrossmatches = None
+    try:
+        atlasCrossmatches = A.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
+    except RequestsConnectionError as e:
+        # If the API URL is incorrect or times out we will get a connection error.
+        sys.stderr.write('ATLAS API Connection Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except RequestsConnectionTimeoutError as e:
+        # If the API times out, we will get a timeout error.
+        sys.stderr.write('ATLAS API Timeout Error\n')
+        sys.stderr.write('%s\n' % str(e))
+    except PSATAPIError as e:
+        sys.stderr.write('ATLAS Error\n')
+        sys.stderr.write('%s\n' % str(e))
+
 
     coneSearchRadius = 4.0   # arcsec
 
@@ -912,7 +934,7 @@ def candidateflot(request, tcs_transient_objects_id):
     # 2011-04-04 KWS Add the user defined list to the objects passed to the web page.
     # 2013-10-24 KWS Added context_instance=RequestContext(request) to the render_to_response call.
     #                If not included, the specified template won't understand STATIC_URL.
-    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'displayagns': settings.DISPLAY_AGNS})
+    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'atlasCrossmatches': atlasCrossmatches, 'atlasBaseURL': settings.ATLAS_BASE_URL, 'displayagns': settings.DISPLAY_AGNS})
 
 
 
@@ -2772,17 +2794,18 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
             # Processing is done in the searchResults method
         else:
             # We're using the submit form for the object updates
-            objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter)
+            objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter).order_by(*sort)
+            sys.stderr.write('\nAAAAH - FILTER = %s\n' % str(queryFilter))
             
             # 2019-07-31 KWS Rattle through all the objects to see if we have any
             #                associated with a specified GW event.
             if queryFilterGW:
-                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
+                gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW).order_by(*sort)
                 gwTaggedObjects = [x.transient_object_id_id for x in gw]
                 if len(gwTaggedObjects) == 0:
                     # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
                     gwTaggedObjects = [1]
-                objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter).filter(id__in=gwTaggedObjects)
+                objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter).filter(id__in=gwTaggedObjects).order_by(*sort)
 
             for key, value in list(request.POST.items()):
                 if '_promote_demote' in key and value != 'U':
@@ -2873,17 +2896,21 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
     if objectsQueryset.count() > 0:
         if objectsQueryset[0].tcs_cmf_metadata_id.filename.split('.')[0].upper() == 'FGSS':
             fgss = True
-            table = TcsTransientObjectsTableFGSS(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+            table = TcsTransientObjectsTableFGSS(objectsQueryset)
+            sys.stderr.write('\nPUKE!\n')
         else:
             try:
                 if int(list_id) in (0,1,2,3,4,5,6,7,8):
-                    table = TcsTransientObjectsTables[list_id](objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+                    table = TcsTransientObjectsTables[list_id](objectsQueryset)
+                    sys.stderr.write('\nAARGH!\n')
                 else:
-                    table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+                    table = TcsTransientObjectsTable(objectsQueryset)
             except ValueError as e:
-                table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+                table = TcsTransientObjectsTable(objectsQueryset)
+                sys.stderr.write('\nBAARF!\n')
     else:
-        table = TcsTransientObjectsTable(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
+        table = TcsTransientObjectsTable(objectsQueryset)
+        sys.stderr.write('\nPUKE!\n')
 
     # Paginate the results. Completely bypass Django tables.
     paginator = Paginator(objectsQueryset, nobjects)
