@@ -36,10 +36,10 @@ services:
       # schema changes. The first time running the migrations will need to be 
       # done manually with a --force flag to ensure only the modifications get 
       # properly migrated. 
-      # && python manage.py makemigrations atlas --noinput 
-      # && python manage.py migrate atlas --noinput 
     command: >
       sh -c "python manage.py collectstatic --noinput
+      && python manage.py makemigrations --noinput 
+      && python manage.py migrate --noinput 
       && ./generate_mod_wsgi_apachectl.sh 
       && sleep infinity"
     hostname: psat-server-web
@@ -49,6 +49,7 @@ services:
       - ./data/db_data:/images 
       - ./psat_server_web/atlas/atlasapi:/app/psat_server_web/atlas/atlasapi
       - ./psat_server_web/atlas/atlas:/app/psat_server_web/atlas/atlas
+      - ./psat_server_web/atlas/accounts:/app/psat_server_web/atlas/accounts
       - ./psat_server_web/atlas/tests:/app/psat_server_web/atlas/tests
     ports:
       - 8086:8086
@@ -56,6 +57,7 @@ services:
       - db
     environment:
       - WSGI_PREFIX=/atlas
+      - WSGI_PORT=8086
       - DJANGO_MYSQL_DBNAME=${MYSQL_DATABASE}
       - DJANGO_MYSQL_DBUSER=${DJANGO_MYSQL_DBUSER}
       - DJANGO_MYSQL_DBPASS=${MYSQL_PASSWORD}
@@ -74,4 +76,3 @@ services:
       - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
       - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
 
-     
