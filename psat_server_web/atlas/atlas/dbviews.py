@@ -21,6 +21,12 @@ class CustomLCPoints(models.Model):
     dec = models.FloatField(db_column='dec')
     atlas_metadata_id = models.IntegerField(db_column='atlas_metadata_id')
 
+    class Meta:
+        """Meta.
+        """
+
+        managed = False
+
 # 2023-12-19 KWS Added ALL the detection columns - not just the ones for plotting.
 # 2024-03-07 KWS Added date_inserted column.
 class CustomLCPoints2(models.Model):
@@ -61,6 +67,12 @@ class CustomLCPoints2(models.Model):
     dflx = models.FloatField(db_column='dflx')
     date_inserted = models.DateTimeField(db_column='date_inserted')
 
+    class Meta:
+        """Meta.
+        """
+
+        managed = False
+
 
 class CustomLCBlanks(models.Model):
     """CustomLCBlanks.
@@ -76,6 +88,12 @@ class CustomLCBlanks(models.Model):
     input = models.CharField(max_length=765, db_column='input')
     reference = models.CharField(max_length=765, db_column='reference')
     pointing = models.CharField(max_length=765, db_column='pointing')
+
+    class Meta:
+        """Meta.
+        """
+
+        managed = False
 
 # 2024-03-07 KWS Added date_inserted column.
 class CustomLCBlanks2(models.Model):
@@ -95,6 +113,12 @@ class CustomLCBlanks2(models.Model):
     mag5sig = models.FloatField(db_column='mag5sig')
     date_inserted = models.DateTimeField(db_column='date_inserted')
 
+    class Meta:
+        """Meta.
+        """
+
+        managed = False
+
 class CustomFollowupLCData(models.Model):
     """CustomFollowupLCData.
     """
@@ -109,6 +133,12 @@ class CustomFollowupLCData(models.Model):
     telescope_description = models.CharField(max_length=180, db_column='telescope_description')
     instrument_name = models.CharField(max_length=90, db_column='instrument_name')
     instrument_description = models.CharField(max_length=180, db_column='instrument_description')
+
+    class Meta:
+        """Meta.
+        """
+
+        managed = False
 
 class FollowupRaw(models.Model):
     """FollowupRaw.
@@ -171,6 +201,12 @@ class FollowupRaw(models.Model):
         #nameColumn = ", ".join(names)
         return xms
 
+
+    class Meta:
+        """Meta.
+        """
+
+        managed = False
 
 
 class WebViewAbstractFollowup(models.Model):
@@ -273,6 +309,7 @@ class WebViewFollowupTransients(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followupall'
 
 class WebViewFollowupTransients0(WebViewAbstractFollowup):
@@ -284,6 +321,7 @@ class WebViewFollowupTransients0(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup0'
 
 class WebViewFollowupTransients1(WebViewAbstractFollowup):
@@ -295,6 +333,7 @@ class WebViewFollowupTransients1(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup1'
 
 class WebViewFollowupTransients2(WebViewAbstractFollowup):
@@ -306,6 +345,7 @@ class WebViewFollowupTransients2(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup2'
 
 class WebViewFollowupTransients3(WebViewAbstractFollowup):
@@ -317,6 +357,7 @@ class WebViewFollowupTransients3(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup3'
 
 class WebViewFollowupTransients4(WebViewAbstractFollowup):
@@ -328,6 +369,7 @@ class WebViewFollowupTransients4(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup4'
 
 class WebViewFollowupTransients5(WebViewAbstractFollowup):
@@ -339,6 +381,7 @@ class WebViewFollowupTransients5(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup5'
 
 class WebViewFollowupTransients6(WebViewAbstractFollowup):
@@ -350,6 +393,7 @@ class WebViewFollowupTransients6(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup6'
 
 class WebViewFollowupTransients7(WebViewAbstractFollowup):
@@ -361,6 +405,7 @@ class WebViewFollowupTransients7(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup7'
 
 class WebViewFollowupTransients8(WebViewAbstractFollowup):
@@ -372,6 +417,7 @@ class WebViewFollowupTransients8(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup8'
 
 class WebViewFollowupTransients9(WebViewAbstractFollowup):
@@ -383,6 +429,7 @@ class WebViewFollowupTransients9(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup9'
 
 class WebViewFollowupTransients10(WebViewAbstractFollowup):
@@ -394,6 +441,7 @@ class WebViewFollowupTransients10(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup10'
 
 class WebViewFollowupTransients11(WebViewAbstractFollowup):
@@ -405,6 +453,7 @@ class WebViewFollowupTransients11(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup11'
 
 class WebViewFollowupTransientsGeneric(WebViewAbstractFollowup):
@@ -416,6 +465,7 @@ class WebViewFollowupTransientsGeneric(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup'
 
 class WebViewFollowupTransientsGenericGW(WebViewAbstractFollowup):
@@ -427,6 +477,7 @@ class WebViewFollowupTransientsGenericGW(WebViewAbstractFollowup):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup_gw'
 
 
@@ -550,6 +601,7 @@ class WebViewUserDefined(WebViewAbstractUserDefined):
         """Meta.
         """
 
+        managed = False
         db_table = 'atlas_v_followup_userdefined'
 
 
