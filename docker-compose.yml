@@ -33,9 +33,7 @@ services:
     build: .
     image: local/psat-server-web
       # Commands for running migrations, which are only needed when database
-      # schema changes. The first time running the migrations will need to be 
-      # done manually with a --force flag to ensure only the modifications get 
-      # properly migrated. 
+      # schema changes. 
     command: >
       sh -c "python manage.py collectstatic --noinput
       && python manage.py makemigrations --noinput 
