@@ -12,6 +12,7 @@ cover/
 html_test_coverage_report/
 _ignore_*
 *.bak
+.vscode/
 
 # Compiled python modules.
 *.pyc

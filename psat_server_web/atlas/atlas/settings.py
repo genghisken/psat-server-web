@@ -180,6 +180,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'atlas',
+    'accounts',
     'django_tables2',
     'rest_framework',
     'rest_framework.authtoken',

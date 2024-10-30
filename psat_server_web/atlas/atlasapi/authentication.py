@@ -23,7 +23,7 @@ class ExpiringTokenAuthentication(TokenAuthentication):
             group_profile = user.groups.first().profile
             token_expiration_time = group_profile.token_expiration_time.total_seconds()
         else:
-            raise AuthenticationFailed('User is not assigned to any group.')
+            token_expiration_time = settings.TOKEN_EXPIRY
         
         # Calculate the token's age and compare it to the expiration setting
         token_age = (now() - token.created).total_seconds()
