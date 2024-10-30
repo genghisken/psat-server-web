@@ -20,9 +20,14 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         
         # Retrieve the user's group and get the token expiration time from the group profile
         if user.groups.exists():
-            group_profile = user.groups.first().profile
+            try:
+                group_profile = user.groups.first().profile
+            except AttributeError:
+                # TODO: Log this error?
+                raise AuthenticationFailed('Could not authenticate: Group has no profile. Please contact administrator.')
             token_expiration_time = group_profile.token_expiration_time.total_seconds()
         else:
+            # Otherwise use the default expiration time
             token_expiration_time = settings.TOKEN_EXPIRY
         
         # Calculate the token's age and compare it to the expiration setting
