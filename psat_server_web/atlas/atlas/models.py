@@ -1020,6 +1020,7 @@ class TcsGravityEvents(models.Model):
         """Meta.
         """
 
+        managed = False
         db_table = 'tcs_gravity_events'
 
 
@@ -1047,7 +1048,8 @@ class TcsGravityAlerts(models.Model):
     creator = models.CharField(max_length=30, blank=True, null=True)
     group = models.CharField(max_length=100, blank=True, null=True)
     pipeline = models.CharField(max_length=100, blank=True, null=True)
-    map_iteration = models.CharField(max_length=100, blank=True, null=True)
+    #map_iteration = models.CharField(max_length=100, blank=True, null=True)
+    map_iteration = models.CharField(max_length=100, blank=True, null=True, unique=True)
     alert_map = models.CharField(db_column='map', max_length=400, blank=True, null=True)
     interesting = models.IntegerField(blank=True, null=True)
     dateadded = models.DateTimeField(db_column='dateAdded', blank=True, null=True)  # Field name made lowercase.
@@ -1166,6 +1168,7 @@ class TcsObjectComments(models.Model):
         """Meta.
         """
 
+        managed = False
         db_table = 'tcs_object_comments'
 
 

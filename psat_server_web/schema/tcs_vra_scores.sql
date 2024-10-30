@@ -7,7 +7,7 @@ create table `tcs_vra_scores` (
 `preal` float,
 `pgal` float,
 `pfast` float,
-`rank_oxqub` float,
+`rank` float,
 `rank_alt1` float,
 `rank_alt2` float,
 `timestamp` timestamp not null default current_timestamp,

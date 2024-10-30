@@ -6,7 +6,7 @@ Args:
     token (string): The Calls are throttled by the Pan-STARRS server, by use of an 
     'authorization token', as described in the api documentation above. 
     There is a free token listed there, but it is throttled at 10 calls per hour. 
-    Once a user has an account at the Lasair webserver, they can get their own token
+    Once a user has an account at the Pan-STARRS webserver, they can get their own token
     allowing 100 calls per hour, or request to be a power user, with infinite usage.
 
     cache (string): Results can be cached on a local filesystem, by providing 
@@ -91,7 +91,7 @@ class psat_client():
         return result
 
     def cone(self, ra, dec, radius=5, requestType='all'):
-        """ Run a cone search on the Lasair database.
+        """ Run a cone search on the Pan-STARRS or ATLAS database.
         Args:
             ra (float): Right Ascension in decimal degrees
             dec (float): Declination in decimal degrees
