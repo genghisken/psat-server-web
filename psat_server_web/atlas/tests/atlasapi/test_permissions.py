@@ -15,14 +15,16 @@ class TestPermissionsAuthenticated(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
     def test_permissions(self):
-        response = self.client.get(reverse('api:objects'))
+        endpoint = "/api/vrascores/"
+        response = self.client.get(endpoint)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client.post(reverse('api:objects'))
+        response = self.client.post(endpoint)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self.user.is_staff = True
         self.user.save()
 
-        response = self.client.post(reverse('api:objects'))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(endpoint)
+        # This will now fail with a 400 because we've not provided the payload
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

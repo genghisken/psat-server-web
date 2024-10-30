@@ -74,3 +74,83 @@ services:
       - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
       - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
 
+  test-db: 
+    image: mariadb:latest
+    ports:
+      - 3306:3306
+    command: --port=3306
+    volumes:
+    # Mount in the custom my.cnf file and run the init.sql script to create the
+    # database and user upon first run. The init.sql script will be provided by 
+    # one of the development team. 
+      - ./docker/my.cnf:/etc/mysql/my.cnf
+      # - ./data/init.sql:/docker-entrypoint-initdb.d/1.sql
+      # - ./docker/init-test.sql:/docker-entrypoint-initdb.d/1.sql
+      # - ./psat_server_web/schema/create_schema.sql:/docker-entrypoint-initdb.d/2.sql
+      # - ./psat_server_web/schema:/docker-entrypoint-initdb.d
+      # - ./psat_server_web/atlas/sql/create_web_views.sql:/docker-entrypoint-initdb.d/1.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MARIADB_DATABASE: ${MYSQL_DATABASE}
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
+  
+  test-adminer:
+    depends_on:
+      - test-db
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  test-atlas:
+    build: .
+    image: local/psat-server-web
+      # Run the schema creation script, then run the migrations, and finally run
+      # the tests.
+    command: >
+      mysql -h test-db -u ${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} ${MYSQL_DATABASE} < ../schema/create_schema.sql
+      && sh -c "python manage.py collectstatic --noinput
+      && python manage.py makemigrations --noinput 
+      && python manage.py migrate --noinput 
+      && python manage.py test --keepdb
+    restart: always
+    volumes:
+    # Mount the code directories into the image to allow for live code changes
+    # while we develop
+      - ./data/db_data:/images 
+      - ./psat_server_web/atlas/atlasapi:/app/psat_server_web/atlas/atlasapi
+      - ./psat_server_web/atlas/atlas:/app/psat_server_web/atlas/atlas
+      - ./psat_server_web/atlas/accounts:/app/psat_server_web/atlas/accounts
+      - ./psat_server_web/atlas/tests:/app/psat_server_web/atlas/tests
+      - ./psat_server_web/schema:/app/psat_server_web/schema
+    ports:
+      - 8087:8087
+    depends_on:
+      - test-db
+    environment:
+      - WSGI_PREFIX=/atlas
+      - WSGI_PORT=8087
+      - DJANGO_MYSQL_DBNAME=${MYSQL_DATABASE}
+      - DJANGO_MYSQL_DBUSER=${DJANGO_MYSQL_DBUSER}
+      - DJANGO_MYSQL_DBPASS=${MYSQL_PASSWORD}
+      - DJANGO_MYSQL_DBHOST=test-db
+      - DJANGO_MYSQL_DBPORT=3306
+      - DJANGO_MYSQL_TESTDBNAME=${MYSQL_DATABASE}
+      - DJANGO_SECRET_KEY=secret
+      - DJANGO_TNS_DAEMON_SERVER=psat-server-web
+      - DJANGO_TNS_DAEMON_PORT=8001
+      - DJANGO_MPC_DAEMON_SERVER=psat-server-web
+      - DJANGO_MPC_DAEMON_PORT=8002
+      - DJANGO_NAME_DEAMON_SERVER=psat-server-web
+      - DJANGO_NAME_DEAMON_PORT=8003
+      - DJANGO_NAMESERVER_MULTIPLIER=10000000
+      - DJANGO_NAMESERVER_TOKEN=''
+      - DJANGO_NAMESERVER_API_URL=''
+      - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
+      - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap

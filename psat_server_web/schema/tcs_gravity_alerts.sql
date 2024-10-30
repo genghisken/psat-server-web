@@ -1,6 +1,6 @@
 -- 2023-06-15 KWS Added an "interesting" column - human override of alert significance
 
-DROP TABLE `tcs_gravity_alerts`;
+DROP TABLE IF EXISTS `tcs_gravity_alerts`;
 
 CREATE TABLE `tcs_gravity_alerts` (
   `id` int NOT NULL AUTO_INCREMENT,
