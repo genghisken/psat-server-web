@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     apache2-dev \
     libhdf5-dev \
+    default-mysql-client \
     default-libmysqlclient-dev \
     swig \
     && apt-get clean \
