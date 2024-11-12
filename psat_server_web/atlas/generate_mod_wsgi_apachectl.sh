@@ -33,7 +33,9 @@
 #
 # export DJANGO_PANSTARRS_TOKEN=''
 # export DJANGO_PANSTARRS_BASE_URL=''
+# export API_TOKEN_EXPIRY=''
 
+export API_TOKEN_EXPIRY='1000000000'
 
 if [ -f ~/.config/django/django_env_$CONDA_DEFAULT_ENV ]; then chmod 600 ~/.config/django/django_env_$CONDA_DEFAULT_ENV; source ~/.config/django/django_env_$CONDA_DEFAULT_ENV; fi
 

@@ -73,6 +73,7 @@ services:
       - DJANGO_NAMESERVER_API_URL=''
       - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
       - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
+      - DJANGO_LOG_LEVEL=DEBUG
 
   test-db: 
     image: mariadb:latest
