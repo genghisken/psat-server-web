@@ -19,7 +19,6 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MARIADB_DATABASE: ${MYSQL_DATABASE}
     healthcheck:
-      # test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
       test: healthcheck.sh --su-mysql --connect --innodb_initialized
       timeout: 20s
       retries: 10
@@ -84,46 +83,12 @@ services:
       - DJANGO_LOG_LEVEL=DEBUG
       - DJANGO_DEBUG=True
 
-  test-db: 
-    image: mariadb:latest
-    ports:
-      - ${MYSQL_TEST_PORT}:${MYSQL_TEST_PORT}
-    command: --port=${MYSQL_TEST_PORT}
-    profiles:
-      - test
-    volumes:
-    # Mount in the custom my.cnf file and run the init.sql script to create the
-    # database and user upon first run. The init.sql script will be provided by 
-    # one of the development team. 
-      - ./docker/my.cnf:/etc/mysql/my.cnf
-      # - ./data/init.sql:/docker-entrypoint-initdb.d/1.sql
-      # - ./docker/init-test.sql:/docker-entrypoint-initdb.d/1.sql
-      # - ./psat_server_web/schema/create_schema.sql:/docker-entrypoint-initdb.d/2.sql
-      # - ./psat_server_web/schema:/docker-entrypoint-initdb.d
-      # - ./psat_server_web/atlas/sql/create_web_views.sql:/docker-entrypoint-initdb.d/1.sql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MARIADB_DATABASE: ${MYSQL_DATABASE}
-    healthcheck:
-      # test: "mysql -h localhost -u root -p${MYSQL_ROOT_PASSWORD} -e SELECT 1 || exit 1"
-      test: healthcheck.sh --su-mysql --connect --innodb_initialized
-      timeout: 10s
-      retries: 10
-
   tests:
     build: .
     profiles: 
       - default
     image: local/psat-server-web
-      # Run the schema creation script, then run the migrations, and finally run
-      # the tests.
-      # mysql -h test-db -u ${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -P ${MYSQL_TEST_PORT} < ../schema/create_test_db.sql
-      # mysql -h test-db -u ${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -P ${MYSQL_TEST_PORT} ${MYSQL_TEST_DATABASE} < ../schema/create_schema.sql
-      # && python manage.py makemigrations --noinput 
-      # && python manage.py migrate --noinput 
+      # Run the tests, using the root user to avoid permission issues
     command: >
       bash -c "python manage.py test"
     volumes:
@@ -134,7 +99,6 @@ services:
       - ./psat_server_web/atlas/atlas:/app/psat_server_web/atlas/atlas
       - ./psat_server_web/atlas/accounts:/app/psat_server_web/atlas/accounts
       - ./psat_server_web/atlas/tests:/app/psat_server_web/atlas/tests
-      # - ./psat_server_web/schema:/app/psat_server_web/schema
     ports:
       - 8087:8087
     depends_on:
@@ -165,5 +129,5 @@ services:
       - DJANGO_NAMESERVER_API_URL=''
       - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
       - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
-      - DJANGO_LOG_LEVEL=INFO
+      - DJANGO_LOG_LEVEL=DEBUG
       - API_TOKEN_EXPIRY=10
