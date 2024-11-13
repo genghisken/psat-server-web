@@ -1,6 +1,8 @@
 services:
   db: 
     image: mariadb:latest
+    profiles:
+      - default
     hostname: db
     ports:
       - 3306:3306
@@ -17,13 +19,16 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MARIADB_DATABASE: ${MYSQL_DATABASE}
     healthcheck:
-      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
+      # test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
+      test: healthcheck.sh --su-mysql --connect --innodb_initialized
       timeout: 20s
       retries: 10
 
   adminer:
     depends_on:
       - db
+    profiles:
+      - default
     image: adminer
     restart: always
     ports:
@@ -31,6 +36,8 @@ services:
 
   atlas-web:
     build: .
+    profiles:
+      - default
     image: local/psat-server-web
       # Commands for running migrations, which are only needed when database
       # schema changes. 
@@ -73,13 +80,17 @@ services:
       - DJANGO_NAMESERVER_API_URL=''
       - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
       - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
+      - API_TOKEN_EXPIRY=10
       - DJANGO_LOG_LEVEL=DEBUG
+      - DJANGO_DEBUG=True
 
   test-db: 
     image: mariadb:latest
     ports:
-      - 3306:3306
-    command: --port=3306
+      - ${MYSQL_TEST_PORT}:${MYSQL_TEST_PORT}
+    command: --port=${MYSQL_TEST_PORT}
+    profiles:
+      - test
     volumes:
     # Mount in the custom my.cnf file and run the init.sql script to create the
     # database and user upon first run. The init.sql script will be provided by 
@@ -97,30 +108,24 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MARIADB_DATABASE: ${MYSQL_DATABASE}
     healthcheck:
-      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
-      timeout: 20s
+      # test: "mysql -h localhost -u root -p${MYSQL_ROOT_PASSWORD} -e SELECT 1 || exit 1"
+      test: healthcheck.sh --su-mysql --connect --innodb_initialized
+      timeout: 10s
       retries: 10
-  
-  test-adminer:
-    depends_on:
-      - test-db
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
 
-  test-atlas:
+  tests:
     build: .
+    profiles: 
+      - default
     image: local/psat-server-web
       # Run the schema creation script, then run the migrations, and finally run
       # the tests.
+      # mysql -h test-db -u ${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -P ${MYSQL_TEST_PORT} < ../schema/create_test_db.sql
+      # mysql -h test-db -u ${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -P ${MYSQL_TEST_PORT} ${MYSQL_TEST_DATABASE} < ../schema/create_schema.sql
+      # && python manage.py makemigrations --noinput 
+      # && python manage.py migrate --noinput 
     command: >
-      mysql -h test-db -u ${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} ${MYSQL_DATABASE} < ../schema/create_schema.sql
-      && sh -c "python manage.py collectstatic --noinput
-      && python manage.py makemigrations --noinput 
-      && python manage.py migrate --noinput 
-      && python manage.py test --keepdb
-    restart: always
+      bash -c "python manage.py test"
     volumes:
     # Mount the code directories into the image to allow for live code changes
     # while we develop
@@ -129,20 +134,25 @@ services:
       - ./psat_server_web/atlas/atlas:/app/psat_server_web/atlas/atlas
       - ./psat_server_web/atlas/accounts:/app/psat_server_web/atlas/accounts
       - ./psat_server_web/atlas/tests:/app/psat_server_web/atlas/tests
-      - ./psat_server_web/schema:/app/psat_server_web/schema
+      # - ./psat_server_web/schema:/app/psat_server_web/schema
     ports:
       - 8087:8087
     depends_on:
-      - test-db
+      db:
+        condition: service_healthy
+        restart: true
     environment:
       - WSGI_PREFIX=/atlas
       - WSGI_PORT=8087
-      - DJANGO_MYSQL_DBNAME=${MYSQL_DATABASE}
-      - DJANGO_MYSQL_DBUSER=${DJANGO_MYSQL_DBUSER}
-      - DJANGO_MYSQL_DBPASS=${MYSQL_PASSWORD}
-      - DJANGO_MYSQL_DBHOST=test-db
-      - DJANGO_MYSQL_DBPORT=3306
-      - DJANGO_MYSQL_TESTDBNAME=${MYSQL_DATABASE}
+      - DJANGO_MYSQL_DBNAME=${MYSQL_TEST_DATABASE}
+      - DJANGO_MYSQL_DBUSER=${MYSQL_TEST_USER}
+      - DJANGO_MYSQL_DBPASS=${MYSQL_TEST_PASSWORD}
+      - DJANGO_MYSQL_DBHOST=db
+      - DJANGO_MYSQL_DBPORT=${MYSQL_TEST_PORT}
+      - DJANGO_MYSQL_TEST_DBNAME=${MYSQL_TEST_DATABASE}
+      - DJANGO_MYSQL_TEST_DBPORT=${MYSQL_TEST_PORT}
+      - DJANGO_MYSQL_TEST_DBUSER=${MYSQL_TEST_USER}
+      - DJANGO_MYSQL_TEST_DBPASS=${MYSQL_TEST_PASSWORD}
       - DJANGO_SECRET_KEY=secret
       - DJANGO_TNS_DAEMON_SERVER=psat-server-web
       - DJANGO_TNS_DAEMON_PORT=8001
@@ -155,3 +165,5 @@ services:
       - DJANGO_NAMESERVER_API_URL=''
       - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
       - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
+      - DJANGO_LOG_LEVEL=INFO
+      - API_TOKEN_EXPIRY=10

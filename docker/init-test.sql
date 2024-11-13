@@ -1,6 +1,5 @@
 -- create databases
-CREATE DATABASE IF NOT EXISTS `test_atlas`;
+CREATE DATABASE IF NOT EXISTS `atlas_test`;
 
--- create root user and grant rights
-CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin';
-GRANT ALL ON *.* TO 'admin'@'localhost';
+-- create user and grant rights
+GRANT ALL ON atlas_test.* TO 'atlas'@'%';
