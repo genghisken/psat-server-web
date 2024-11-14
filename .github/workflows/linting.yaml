@@ -2,7 +2,7 @@ name: Linting
 on: [push, pull_request]
 jobs:
   linting:
-    runs-on: [ubuntu-latest, debian-latest, macos-latest]
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
