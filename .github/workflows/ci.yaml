@@ -30,7 +30,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Start up test containers
-      run: docker compose up -d test --build
+      run: docker compose up -d tests --build
     - name: Stop containers
       if: always()
       run: docker compose down
