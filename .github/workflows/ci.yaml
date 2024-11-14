@@ -34,7 +34,7 @@ jobs:
         # Copy the sample environment file and build the containers
         pwd
         ls -la
-        cp .env.example .env
+        cp .env.sample .env
         # In the future we can populate the .env file with secrets, none needed for now
         docker compose build 
     - name: Start db container
