@@ -57,7 +57,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y apache2 
+        sudo apt-get install -y apache2 apache2-dev
     - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
