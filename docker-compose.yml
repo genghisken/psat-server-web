@@ -1,8 +1,6 @@
 services:
   db: 
     image: mariadb:latest
-    profiles:
-      - default
     hostname: db
     ports:
       - 3306:3306
@@ -20,14 +18,12 @@ services:
       MARIADB_DATABASE: ${MYSQL_DATABASE}
     healthcheck:
       test: healthcheck.sh --su-mysql --connect --innodb_initialized
-      timeout: 20s
+      timeout: 5s
       retries: 10
 
   adminer:
     depends_on:
       - db
-    profiles:
-      - default
     image: adminer
     restart: always
     ports:
@@ -35,8 +31,6 @@ services:
 
   atlas-web:
     build: .
-    profiles:
-      - default
     image: local/psat-server-web
       # Commands for running migrations, which are only needed when database
       # schema changes. 
@@ -85,8 +79,6 @@ services:
 
   tests:
     build: .
-    profiles: 
-      - default
     image: local/psat-server-web
       # Run the tests, using the root user to avoid permission issues
     command: >
