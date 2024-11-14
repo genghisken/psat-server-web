@@ -6,3 +6,4 @@ docker-compose.yml
 .dockerignore
 data/
 .devcontainer/
+.github/

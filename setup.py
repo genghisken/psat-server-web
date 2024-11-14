@@ -2,6 +2,9 @@ from setuptools import setup, find_packages
 import os
 
 moduleDirectory = os.path.dirname(os.path.realpath(__file__))
+
+# Imports __version__ variable from __version__.py
+__version__ = ''
 exec(open(moduleDirectory + "/psat_server_web/__version__.py").read())
 
 def readme():
