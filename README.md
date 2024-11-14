@@ -52,10 +52,11 @@ docker compose up
 Which will start 4 services, comprised of:
 - `db` - A MariaDB instance. By default served at `localhost:3036` 
 - `atlas-web` - A mod-wsgi instance to serve the django front end. By default 
-  served at `localhost:8086` and requires `db` to be running.
-- `adminer` - A web interface for interacting with the db. By default served at 
-  `localhost:8080` and requires `db` to be running.
-- `tests` - A single-use run of the unit tests, requires `db` to be running.
+served at `localhost:8086` and requires `db` to be running.
+- `adminer` - A web interface for interacting with the db. By default served 
+at `localhost:8080` and requires `db` to be running.
+- `tests` - A single-use run of the unit tests using django's `manage.py test`. 
+Requires `db` to be running.
 
 Each of these services can be run independently with 
 
@@ -63,9 +64,9 @@ Each of these services can be run independently with
 docker compose up {service_name}
 ```
 
-So if for example you just wanted to run the tests you could put `docker compose up tests`
-and it would first check that `db` is running, start it if it is not already up, 
-and so a single run of the unit tests. 
+So if, for example, you wanted to run the tests you could execute 
+`docker compose up tests` and it would – after starting `db` if it is not 
+already running – perform a single run of the unit tests. 
 
 ## A dummy database
 
