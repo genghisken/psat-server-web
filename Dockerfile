@@ -14,6 +14,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     build-essential \
     pkg-config \
+    apache2 \
     apache2-dev \
     libhdf5-dev \
     default-mysql-client \
@@ -26,8 +27,8 @@ RUN apt-get update && apt-get install -y \
 COPY . .
 
 # Install python dependencies and the package itself
-RUN pip install --no-cache-dir -e . && \
-    pip install --no-cache-dir mod_wsgi-standalone
+RUN pip install --no-cache-dir -e .
+    # pip install --no-cache-dir mod_wsgi-express
 
 WORKDIR /app/psat_server_web/atlas
 
