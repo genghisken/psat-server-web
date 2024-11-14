@@ -1,4 +1,4 @@
-name: Linting
+name: Test and Lint
 on: [push, pull_request]
 jobs:
   linting:
@@ -27,3 +27,14 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pytest
+  testing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Start up test containers
+      run: docker compose up -d test --build
+    - name: Stop containers
+      if: always()
+      run: docker compose down
