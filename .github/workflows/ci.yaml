@@ -30,11 +30,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build test containers
-      run: docker compose build 
+      run: |
+        # Copy the sample environment file and build the containers
+        cp .env.example .env
+        # In the future we can populate the .env file with secrets, none needed for now
+        docker compose build 
     - name: Start db container
       run: docker compose up -d db
     - name: Start test container
-      run: docker compose up -d tests
+      run: docker compose up tests
     - name: Stop containers
       if: always()
       run: docker compose down
