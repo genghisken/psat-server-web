@@ -38,7 +38,7 @@ jobs:
         # In the future we can populate the .env file with secrets, none needed for now
         docker compose build 
     - name: Start db container
-      run: docker compose up -d db
+      run: docker compose up db
     - name: Start test container
       run: docker compose up tests
     - name: Stop containers
