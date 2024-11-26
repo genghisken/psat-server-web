@@ -84,7 +84,7 @@ services:
     image: local/psat-server-web
       # Run the tests, using the root user to avoid permission issues
     command: >
-      bash -c "&& python manage.py makemigrations --noinput && 
+      bash -c "python manage.py makemigrations --noinput && 
       python manage.py test 
       || exit $?"
     volumes:
