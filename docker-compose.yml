@@ -84,7 +84,7 @@ services:
     image: local/psat-server-web
       # Run the tests, using the root user to avoid permission issues
     command: >
-      bash -c "python manage.py test"
+      bash -c "python manage.py test || exit $?"
     volumes:
     # Mount the code directories into the image to allow for live code changes
     # while we develop
