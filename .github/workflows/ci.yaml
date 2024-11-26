@@ -32,15 +32,16 @@ jobs:
     - name: Build test containers
       run: |
         # Copy the sample environment file and build the containers
-        pwd
-        ls -la
         cp .env.sample .env
         # In the future we can populate the .env file with secrets, none needed for now
         docker compose build 
     - name: Start db container
       run: docker compose up db
     - name: Start test container
-      run: docker compose up tests
+      run: |
+        docker compose up tests
+        exit_code=$?
+        exit $exit_code
     - name: Stop containers
       if: always()
       run: docker compose down
@@ -62,6 +63,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install .
+    - name: Set initial environment
+      run: |
+        # Copy the sample environment file
+        cp .env.sample .env
     - name: Run tests
       run: 
         python psat_server_web/atlas/manage.py test --noinput
