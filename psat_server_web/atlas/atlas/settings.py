@@ -57,7 +57,7 @@ LOGOUT_URL = 'logout'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': os.environ.get('DJANGO_DB_ENGINE', 'django.db.backends.mysql'),
         'NAME': os.environ.get('DJANGO_MYSQL_DBNAME'),
         'USER': os.environ.get('DJANGO_MYSQL_DBUSER'),
         'PASSWORD': os.environ.get('DJANGO_MYSQL_DBPASS'),
