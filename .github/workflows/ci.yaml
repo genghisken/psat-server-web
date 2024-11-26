@@ -39,9 +39,7 @@ jobs:
       run: docker compose up db
     - name: Start test container
       run: |
-        docker compose up tests
-        exit_code=$?
-        exit $exit_code
+        docker compose up tests --exit-code-from tests
     - name: Stop containers
       if: always()
       run: docker compose down
@@ -68,5 +66,6 @@ jobs:
         # Copy the sample environment file
         cp .env.sample .env
     - name: Run tests
-      run: 
+      run: |
+        python psat_server_web/atlas/manage.py makemigrations --noinput
         python psat_server_web/atlas/manage.py test --noinput
