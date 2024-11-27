@@ -104,6 +104,7 @@ services:
     environment:
       - WSGI_PREFIX=/atlas
       - WSGI_PORT=8087
+      - DJANGO_DB_ENGINE=django.db.backends.mysql
       - DJANGO_MYSQL_DBNAME=${MYSQL_TEST_DATABASE}
       - DJANGO_MYSQL_DBUSER=${MYSQL_TEST_USER}
       - DJANGO_MYSQL_DBPASS=${MYSQL_TEST_PASSWORD}
