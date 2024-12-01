@@ -65,7 +65,7 @@ DATABASES = {
         'PORT': int(os.environ.get('DJANGO_MYSQL_DBPORT')),
         'TEST': {
             'NAME': os.environ.get('DJANGO_MYSQL_TEST_DBNAME'),
-            'PORT': int(os.environ.get('DJANGO_MYSQL_TEST_DBPORT')),
+            'PORT': os.environ.get('DJANGO_MYSQL_TEST_DBPORT'),
             'USER': os.environ.get('DJANGO_MYSQL_TEST_DBUSER'),
             'PASSWORD': os.environ.get('DJANGO_MYSQL_TEST_DBPASS'),
         }
