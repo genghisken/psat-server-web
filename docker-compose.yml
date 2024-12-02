@@ -17,8 +17,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MARIADB_DATABASE: ${MYSQL_DATABASE}
     healthcheck:
-      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
-      timeout: 20s
+      test: healthcheck.sh --su-mysql --connect --innodb_initialized
+      timeout: 5s
       retries: 10
 
   adminer:
@@ -73,4 +73,60 @@ services:
       - DJANGO_NAMESERVER_API_URL=''
       - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
       - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
+      - API_TOKEN_EXPIRY=10
+      - DJANGO_LOG_LEVEL=DEBUG
+      - DJANGO_DEBUG=True
+      - DJANGO_PANSTARRS_TOKEN=${PANSTARRS_TOKEN}
+      - DJANGO_PANSTARRS_BASE_URL=${PANSTARRS_BASE_URL}
 
+  tests:
+    build: .
+    image: local/psat-server-web
+      # Run the tests, using the root user to avoid permission issues
+    command: >
+      bash -c "python manage.py makemigrations --noinput && 
+      python manage.py test 
+      || exit $?"
+    volumes:
+    # Mount the code directories into the image to allow for live code changes
+    # while we develop
+      - ./data/db_data:/images 
+      - ./psat_server_web/atlas/atlasapi:/app/psat_server_web/atlas/atlasapi
+      - ./psat_server_web/atlas/atlas:/app/psat_server_web/atlas/atlas
+      - ./psat_server_web/atlas/accounts:/app/psat_server_web/atlas/accounts
+      - ./psat_server_web/atlas/tests:/app/psat_server_web/atlas/tests
+    ports:
+      - 8087:8087
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    environment:
+      - WSGI_PREFIX=/atlas
+      - WSGI_PORT=8087
+      - DJANGO_DB_ENGINE=django.db.backends.mysql
+      - DJANGO_MYSQL_DBNAME=${MYSQL_TEST_DATABASE}
+      - DJANGO_MYSQL_DBUSER=${MYSQL_TEST_USER}
+      - DJANGO_MYSQL_DBPASS=${MYSQL_TEST_PASSWORD}
+      - DJANGO_MYSQL_DBHOST=db
+      - DJANGO_MYSQL_DBPORT=${MYSQL_TEST_PORT}
+      - DJANGO_MYSQL_TEST_DBNAME=${MYSQL_TEST_DATABASE}
+      - DJANGO_MYSQL_TEST_DBPORT=${MYSQL_TEST_PORT}
+      - DJANGO_MYSQL_TEST_DBUSER=${MYSQL_TEST_USER}
+      - DJANGO_MYSQL_TEST_DBPASS=${MYSQL_TEST_PASSWORD}
+      - DJANGO_SECRET_KEY=secret
+      - DJANGO_TNS_DAEMON_SERVER=psat-server-web
+      - DJANGO_TNS_DAEMON_PORT=8001
+      - DJANGO_MPC_DAEMON_SERVER=psat-server-web
+      - DJANGO_MPC_DAEMON_PORT=8002
+      - DJANGO_NAME_DEAMON_SERVER=psat-server-web
+      - DJANGO_NAME_DEAMON_PORT=8003
+      - DJANGO_NAMESERVER_MULTIPLIER=10000000
+      - DJANGO_NAMESERVER_TOKEN=''
+      - DJANGO_NAMESERVER_API_URL=''
+      - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
+      - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
+      - DJANGO_LOG_LEVEL=DEBUG
+      - API_TOKEN_EXPIRY=10
+      - DJANGO_PANSTARRS_TOKEN=${PANSTARRS_TOKEN}
+      - DJANGO_PANSTARRS_BASE_URL=${PANSTARRS_BASE_URL}

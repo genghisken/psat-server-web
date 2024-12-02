@@ -25,9 +25,9 @@ SITE_ID = 1
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 # 2021-08-21 KWS Need to set this to None, otherwise default is 1000.
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
@@ -57,14 +57,17 @@ LOGOUT_URL = 'logout'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': os.environ.get('DJANGO_DB_ENGINE', 'django.db.backends.mysql'),
         'NAME': os.environ.get('DJANGO_MYSQL_DBNAME'),
         'USER': os.environ.get('DJANGO_MYSQL_DBUSER'),
         'PASSWORD': os.environ.get('DJANGO_MYSQL_DBPASS'),
         'HOST': os.environ.get('DJANGO_MYSQL_DBHOST'),
         'PORT': int(os.environ.get('DJANGO_MYSQL_DBPORT')),
         'TEST': {
-            'NAME': os.environ.get('DJANGO_MYSQL_TESTDBNAME'),
+            'NAME': os.environ.get('DJANGO_MYSQL_TEST_DBNAME'),
+            'PORT': os.environ.get('DJANGO_MYSQL_TEST_DBPORT'),
+            'USER': os.environ.get('DJANGO_MYSQL_TEST_DBUSER'),
+            'PASSWORD': os.environ.get('DJANGO_MYSQL_TEST_DBPASS'),
         }
     }
 }
@@ -81,6 +84,49 @@ DAEMONS = {
         'port': int(os.environ.get('DJANGO_MPC_DAEMON_PORT')),
         'test': False
     }
+}
+
+
+DJANGO_LOG_LEVEL = os.environ.get('DJANGO_LOG_LEVEL', 'WARNING')
+LOGGING = {
+    "version": 1,  # the dictConfig format version
+    "disable_existing_loggers": False,  # retain the default loggers
+    "formatters": {
+        "verbose": {
+            "format": "{name} {levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        # The different log handlers are defined here. We have a file logger and 
+        # a stderr logger - which reroutes to the error_log file managed by wsgi.  
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "django-default.log",
+            "level": DJANGO_LOG_LEVEL,
+            "formatter": "verbose",
+        },
+        "stderr": {
+            "class": "logging.StreamHandler",
+            "level": DJANGO_LOG_LEVEL,
+            "formatter": "verbose",
+            "stream": "ext://sys.stderr",
+        }
+    },
+    # Implement the stderr logger as the default logger.
+    "loggers": {
+        "": {
+            "handlers": ["stderr"],
+            "level": DJANGO_LOG_LEVEL,
+            "propagate": True,
+        },
+    }
+
 }
 
 
