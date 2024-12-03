@@ -1,10 +1,13 @@
 from re import match
+import logging
 
 from django.conf import settings
 from django.utils.timezone import now
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+
+logger = logging.getLogger(__name__)
 
 class ExpiringTokenAuthentication(TokenAuthentication):
     """
@@ -23,8 +26,9 @@ class ExpiringTokenAuthentication(TokenAuthentication):
             try:
                 group_profile = user.groups.first().profile
             except AttributeError:
-                # TODO: Log this error?
-                raise AuthenticationFailed('Could not authenticate: Group has no profile. Please contact administrator.')
+                msg = 'Could not authenticate: Group has no profile. Please contact administrator.'
+                logger.error(msg)
+                raise AuthenticationFailed(msg)
             token_expiration_time = group_profile.token_expiration_time.total_seconds()
         else:
             # Otherwise use the default expiration time
@@ -33,6 +37,7 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         # Calculate the token's age and compare it to the expiration setting
         token_age = (now() - token.created).total_seconds()
         if token_age > token_expiration_time:
+            logger.warning(f'User {user} attempted to use an expired token.')
             raise AuthenticationFailed('Token has expired.')
         
         return user, token

@@ -84,8 +84,13 @@ services:
     image: local/psat-server-web
       # Run the tests, using the root user to avoid permission issues
     command: >
-      bash -c "python manage.py makemigrations --noinput && 
-      python manage.py test 
+      bash -c "
+      python manage.py makemigrations --noinput && 
+      mysql -h db -u root -p${MYSQL_ROOT_PASSWORD} < sql/init.sql &&
+      cd ../schema &&
+      mysql -h db -u root -p${MYSQL_ROOT_PASSWORD} ${MYSQL_TEST_DATABASE} < create_schema.sql &&
+      cd ../atlas &&
+      python manage.py test --keepdb --noinput
       || exit $?"
     volumes:
     # Mount the code directories into the image to allow for live code changes
@@ -95,6 +100,8 @@ services:
       - ./psat_server_web/atlas/atlas:/app/psat_server_web/atlas/atlas
       - ./psat_server_web/atlas/accounts:/app/psat_server_web/atlas/accounts
       - ./psat_server_web/atlas/tests:/app/psat_server_web/atlas/tests
+      - ./psat_server_web/schema:/app/psat_server_web/schema
+      - ./docker/init.sql:/app/psat_server_web/atlas/sql/init.sql
     ports:
       - 8087:8087
     depends_on:
@@ -126,7 +133,7 @@ services:
       - DJANGO_NAMESERVER_API_URL=''
       - DJANGO_LASAIR_TOKEN=${DJANGO_LASAIR_TOKEN}
       - DJANGO_DUSTMAP_LOCATION=/tmp/dustmap
-      - DJANGO_LOG_LEVEL=DEBUG
+      - DJANGO_LOG_LEVEL=ERROR
       - API_TOKEN_EXPIRY=10
       - DJANGO_PANSTARRS_TOKEN=${PANSTARRS_TOKEN}
       - DJANGO_PANSTARRS_BASE_URL=${PANSTARRS_BASE_URL}

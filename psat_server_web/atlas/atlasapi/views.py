@@ -28,7 +28,7 @@ from .serializers import (
     ObjectDetectionListSerializer,
 )
 from .authentication import QueryAuthentication, ExpiringTokenAuthentication
-from .permissions import IsApprovedUser
+from .permissions import HasReadAccess, HasWriteAccess
 
 def retcode(message):
     if 'error' in message: return status.HTTP_400_BAD_REQUEST
@@ -68,7 +68,7 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 
 class ConeView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasWriteAccess]
 
     def get(self, request):
         serializer = ConeSerializer(data=request.GET, context={'request': request})
@@ -87,7 +87,7 @@ class ConeView(APIView):
 
 class ObjectsView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasReadAccess]
 
     def get(self, request):
         serializer = ObjectsSerializer(data=request.GET, context={'request': request})
@@ -106,7 +106,7 @@ class ObjectsView(APIView):
 
 class ObjectListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasReadAccess]
 
     def get(self, request):
         serializer = ObjectListSerializer(data=request.GET, context={'request': request})
@@ -125,7 +125,7 @@ class ObjectListView(APIView):
 
 class VRAScoresView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasWriteAccess]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -142,7 +142,7 @@ class VRAScoresView(APIView):
 
 class VRAScoresListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasReadAccess]
 
     def get(self, request):
         serializer = VRAScoresListSerializer(data=request.GET, context={'request': request})
@@ -162,7 +162,7 @@ class VRAScoresListView(APIView):
 #                appropriate to the circumstances. E.g. if object is not found generate a 404, etc.
 class VRATodoView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasWriteAccess]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -179,7 +179,7 @@ class VRATodoView(APIView):
 # 2024-05-07 KWS Added VRATodoListView.
 class VRATodoListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasReadAccess]
 
     def get(self, request):
         serializer = VRATodoListSerializer(data=request.GET, context={'request': request})
@@ -197,7 +197,7 @@ class VRATodoListView(APIView):
 
 class TcsObjectGroupsView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasWriteAccess]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -213,7 +213,7 @@ class TcsObjectGroupsView(APIView):
 
 class TcsObjectGroupsListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasReadAccess]
 
     def get(self, request):
         serializer = TcsObjectGroupsListSerializer(data=request.GET, context={'request': request})
@@ -232,7 +232,8 @@ class TcsObjectGroupsListView(APIView):
 
 class TcsObjectGroupsDeleteView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    # TODO: Change this to HasDeleteAccess?
+    permission_classes = [IsAuthenticated&HasWriteAccess]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -255,7 +256,7 @@ class TcsObjectGroupsDeleteView(APIView):
 #                appropriate to the circumstances. E.g. if object is not found generate a 404, etc.
 class VRARankView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasWriteAccess]
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -272,7 +273,7 @@ class VRARankView(APIView):
 # 2024-05-22 KWS Added VRARankListView.
 class VRARankListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasReadAccess]
 
     def get(self, request):
         serializer = VRARankListSerializer(data=request.GET, context={'request': request})
@@ -292,7 +293,7 @@ class VRARankListView(APIView):
 # 2024-09-24 KWS Added ExternalCrossmatchesListView.
 class ExternalCrossmatchesListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasReadAccess]
 
     def get(self, request):
         serializer = ExternalCrossmatchesListSerializer(data=request.GET, context={'request': request})
@@ -312,7 +313,7 @@ class ExternalCrossmatchesListView(APIView):
 # 2024-09-24 KWS Added ExternalCrossmatchesListView.
 class ObjectDetectionListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&IsApprovedUser]
+    permission_classes = [IsAuthenticated&HasWriteAccess]
 
     def get(self, request):
         serializer = ObjectDetectionListSerializer(data=request.GET, context={'request': request})
