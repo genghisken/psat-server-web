@@ -68,7 +68,7 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 
 class ConeView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
-    permission_classes = [IsAuthenticated&HasWriteAccess]
+    permission_classes = [IsAuthenticated&HasReadAccess]
 
     def get(self, request):
         serializer = ConeSerializer(data=request.GET, context={'request': request})
