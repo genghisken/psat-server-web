@@ -17,10 +17,14 @@ class GroupProfile(models.Model):
         on_delete=models.CASCADE, 
         related_name='profile'
     )
+    api_write_access = models.BooleanField(
+        default=False,
+        help_text='Does the group have write access to the API?'
+    )
     token_expiration_time = models.DurationField(
         help_text='in days, default 1 day (24*60*60 seconds)',
         default=timedelta(days=1)
-        )
+    )
     description = models.TextField(
         blank=True,
         help_text='What is the group for?'
