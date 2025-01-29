@@ -35,6 +35,8 @@
 # export DJANGO_PANSTARRS_BASE_URL=''
 # export API_TOKEN_EXPIRY=''
 
+# export DJANGO_DEBUG='True'
+
 if [ -f ~/.config/django/django_env_$CONDA_DEFAULT_ENV ]; then chmod 600 ~/.config/django/django_env_$CONDA_DEFAULT_ENV; source ~/.config/django/django_env_$CONDA_DEFAULT_ENV; fi
 
 export APACHEPATH="/tmp/atlas"

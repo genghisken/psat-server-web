@@ -456,6 +456,32 @@ class WebViewFollowupTransients11(WebViewAbstractFollowup):
         managed = False
         db_table = 'atlas_v_followup11'
 
+class WebViewFollowupTransients12(WebViewAbstractFollowup):
+    """WebViewFollowupTransients12.
+    """
+
+
+    class Meta(WebViewAbstractFollowup.Meta):
+        """Meta.
+        """
+
+        managed = False
+        db_table = 'atlas_v_followup12'
+
+
+class WebViewFollowupTransients13(WebViewAbstractFollowup):
+    """WebViewFollowupTransients13.
+    """
+
+
+    class Meta(WebViewAbstractFollowup.Meta):
+        """Meta.
+        """
+
+        managed = False
+        db_table = 'atlas_v_followup13'
+
+
 class WebViewFollowupTransientsGeneric(WebViewAbstractFollowup):
     """WebViewFollowupTransientsGeneric.
     """

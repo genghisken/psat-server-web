@@ -195,7 +195,7 @@ class TcsDetectionListsForm(forms.Form):
 
     name = forms.CharField()
 
-GARBAGE, FOLLOWUP, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, AGN, FASTEYE, MOVERS, SMCLMC, HPMSTAR = list(range(12))
+GARBAGE, FOLLOWUP, GOOD, POSSIBLE, EYEBALL, ATTIC, STAR, AGN, FASTEYE, MOVERS, SMCLMC, HPMSTAR, GALCAND, DUPLICATES = list(range(14))
 
 OBJECT_LISTS = {
     'Garbage': GARBAGE,
@@ -210,6 +210,8 @@ OBJECT_LISTS = {
     'Movers': MOVERS,
     'SMCLMC': SMCLMC,
     'HPMStar': HPMSTAR,
+    'GalCand': GALCAND,
+    'Duplicates': DUPLICATES,
     'DoNothing': -1
 }
 
@@ -1094,7 +1096,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
     if originalListId == destinationListId:
         return
 
-    if destinationListId in [GOOD, ATTIC, FOLLOWUP]:
+    if destinationListId in [GOOD, ATTIC, FOLLOWUP, DUPLICATES]:
         preal = 1.0
     elif destinationListId in [POSSIBLE]:
         preal = 0.5
@@ -1103,7 +1105,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
 
     if destinationListId in [ATTIC, HPMSTAR]:
         pgal = 1.0
-    elif destinationListId in [GOOD, FOLLOWUP]:
+    elif destinationListId in [GOOD, FOLLOWUP, DUPLICATES]:
         pgal = 0.0
 
     if destinationListId in [FOLLOWUP]:
@@ -1461,20 +1463,24 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                        request.session['error'] = "WARNING: Please add a comment before promoting to the Followup Targets list, so other users know why it is there!"
                        redirect_to = "../../error/"
                        return HttpResponseRedirect(redirect_to)
-                   if originalListId in [EYEBALL, FASTEYE, SMCLMC, STAR, HPMSTAR, AGN, MOVERS] and (listId == POSSIBLE) and comments.strip() == '':
+                   if originalListId in [EYEBALL, FASTEYE, SMCLMC, STAR, HPMSTAR, AGN, MOVERS, GALCAND] and (listId == POSSIBLE) and comments.strip() == '':
                        # Did the user add any comments? Ah, ah, ah - blank comments not allowed!
                        request.session['error'] = "WARNING: Please add a comment before promoting to the Possible list, so other users know why it is there!"
                        redirect_to = "../../error/"
                        return HttpResponseRedirect(redirect_to)
-                   if (originalListId == EYEBALL or originalListId == POSSIBLE or originalListId == ATTIC or originalListId == STAR or originalListId == FASTEYE or originalListId == SMCLMC or originalListId == HPMSTAR) and (listId == GOOD or listId == FOLLOWUP):
+                   if originalListId in [EYEBALL, FASTEYE, POSSIBLE, ATTIC, STAR, SMCLMC, HPMSTAR, GALCAND] and listId in [GOOD, FOLLOWUP]:
                        # Is there an object already in the good or confirmed lists within 2.0 arcsec?
                        message, goodObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup2', queryType = FULL, conn = connection, django = True)
                        message, confirmedObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup1', queryType = FULL, conn = connection, django = True)
                        if len(goodObjects) > 0 or len(confirmedObjects) > 0:
                            # Object is already in the good or confirmed lists. Please move to attic.
-                           request.session['error'] = "WARNING: Duplicate object is already in the Good List. Please go back and move this to the Attic or Garbage."
-                           redirect_to = "../../error/"
-                           return HttpResponseRedirect(redirect_to)
+                           # TODO: Add code to actually move the object to the duplicates list.
+                           listId = DUPLICATES
+
+
+                           #request.session['error'] = "WARNING: Duplicate object is already in the Good List. The object has been added to the Duplicates List."
+                           #redirect_to = "../../error/"
+                           #return HttpResponseRedirect(redirect_to)
 
                    # 2018-09-28 KWS Ok - we really need to stop updates happening if processing status is not
                    #                set correctly.
@@ -1548,6 +1554,11 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                         except ObjectDoesNotExist as e:
                             # Just in case someone else has already deleted the object before 'Submit' button pressed.
                             pass
+                # 2025-01-29 KWS Redirect to an error page.
+                if listId == DUPLICATES:
+                    request.session['error'] = "Duplicate object is already in the Good List. The object has been added to the Duplicates List."
+                    redirect_to = "../../error/"
+                    return HttpResponseRedirect(redirect_to)
 
                 if previousURL and (previousURL.find('/followup/') >= 0 or previousURL.find('/userlist/') >= 0 or previousURL.find('/crossmatch') >= 0 or previousURL.find('/followup_quickview/') >= 0 or previousURL.find('/externalcrossmatches/') > 0 or previousURL.find('/userlist_quickview/') > 0 or previousURL.find('/followup_quickview_bs/') >= 0):
                     redirect_to = previousURL
@@ -2488,7 +2499,9 @@ followupClassList = [WebViewFollowupTransients0,
                      WebViewFollowupTransients8,
                      WebViewFollowupTransients9,
                      WebViewFollowupTransients10,
-                     WebViewFollowupTransients11]
+                     WebViewFollowupTransients11,
+                     WebViewFollowupTransients12,
+                     WebViewFollowupTransients13]
 
 
 @login_required
