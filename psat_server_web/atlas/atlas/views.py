@@ -1606,7 +1606,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
             form.fields['promote_demote'].choices = ATTIC_POST_PROMOTION_CHOICES
         elif listId == STAR or listId == HPMSTAR:
             form.fields['promote_demote'].choices = STAR_POST_PROMOTION_CHOICES
-        elif listId == GARBAGE:
+        elif listId == GARBAGE or listId == DUPLICATES:
             form.fields['promote_demote'].choices = GARBAGE_CHOICES
         else:
             form.fields['promote_demote'].choices = FOLLOWUP_POST_PROMOTION_CHOICES
