@@ -9,7 +9,7 @@ create table `tcs_vra_scores` (
 `pfast` float,
 `rank` float,
 `rank_alt1` float,
-`rank_alt2` float,
+`is_gal_cand` bool,
 `timestamp` timestamp not null default current_timestamp,
 `apiusername` varchar(30) default null,
 `username` varchar(30) default null,

@@ -147,7 +147,7 @@ class VRAScoresSerializer(serializers.Serializer):
     # 2024-08-14 KWS Added 3 new values to the form for Rank.
     rank = serializers.FloatField(required=False, default=None)
     rank_alt1 = serializers.FloatField(required=False, default=None)
-    rank_alt2 = serializers.FloatField(required=False, default=None)
+    is_gal_cand = serializers.IntegerField(required=False, default=None)
     debug = serializers.BooleanField(required=False, default=False)
     insertdate = serializers.DateTimeField(required=False, default=None)
 
@@ -161,7 +161,7 @@ class VRAScoresSerializer(serializers.Serializer):
         pfast = self.validated_data['pfast']
         rank = self.validated_data['rank']
         rank_alt1 = self.validated_data['rank_alt1']
-        rank_alt2 = self.validated_data['rank_alt2']
+        is_gal_cand = self.validated_data['is_gal_cand']
         insertdate = self.validated_data['insertdate']
         debug = self.validated_data['debug']
 
@@ -185,7 +185,7 @@ class VRAScoresSerializer(serializers.Serializer):
                 'pfast': pfast,
                 'rank': rank,
                 'rank_alt1': rank_alt1,
-                'rank_alt2': rank_alt2,
+                'is_gal_cand': is_gal_cand,
                 'timestamp': insertDate,
                 'debug': debug,
                 'apiusername': userId}
@@ -438,7 +438,7 @@ class VRARankSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=True)
     rank = serializers.FloatField(required=True)
     rank_alt1 = serializers.FloatField(required=False, default=None)
-    rank_alt2= serializers.FloatField(required=False, default=None)
+    is_gal_cand = serializers.IntegerField(required=False, default=None)
     insertdate = serializers.DateTimeField(required=False, default=None)
 
     import sys
@@ -450,7 +450,7 @@ class VRARankSerializer(serializers.Serializer):
         insertdate = self.validated_data['insertdate']
         rank = self.validated_data['rank']
         rank_alt1 = self.validated_data['rank_alt1']
-        rank_alt2 = self.validated_data['rank_alt2']
+        is_gal_cand = self.validated_data['is_gal_cand']
 
         insertDate = None
         if insertdate is not None:
@@ -464,7 +464,7 @@ class VRARankSerializer(serializers.Serializer):
         data = {'transient_object_id_id': objectid,
                 'rank': rank,
                 'rank_alt1': rank_alt1,
-                'rank_alt2': rank_alt2,
+                'is_gal_cand': is_gal_cand,
                 'timestamp': insertDate}
 
         # Does the objectId actually exit - not allowed to comment on objects that don't exist!
@@ -575,7 +575,7 @@ class ObjectDetectionListSerializer(serializers.Serializer):
             for key, value in data.items():
                 sys.stderr.write("\nkey=%s\n" % key)
                 sys.stderr.write("\nvalue=%s\n" % value)
-                if key=='detection_list_id_id' and value not in (3,4):
+                if key=='detection_list_id_id' and value not in (3,4,12):
                     replyMessage = 'Error updating row.'
                     info = { "objectid": objectid, "info": replyMessage }
                     return info
