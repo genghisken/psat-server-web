@@ -104,18 +104,16 @@ def getObjectList(request, listId, getCustomList = False, dateThreshold = None):
     querySet = None
 
     if getCustomList:
-        if listId > 0 and listId <= 100:
-            if dateThreshold is not None:
-                querySet = WebViewUserDefined.objects.filter(object_group_id = listId, followup_flag_date__gt = dateThreshold)
-            else:
-                querySet = WebViewUserDefined.objects.filter(object_group_id = listId)
+        if dateThreshold is not None:
+            querySet = WebViewUserDefined.objects.filter(object_group_id = listId, followup_flag_date__gt = dateThreshold)
+        else:
+            querySet = WebViewUserDefined.objects.filter(object_group_id = listId)
     else:
         # There are currently 11 valid lists.
-        if listId >= 0 and listId <= 11:
-            if dateThreshold is not None:
-                querySet = followupClassList[int(listId)].objects.filter(followup_flag_date__gt = dateThreshold)
-            else:
-                querySet = followupClassList[int(listId)].objects.all()
+        if dateThreshold is not None:
+            querySet = followupClassList[int(listId)].objects.filter(followup_flag_date__gt = dateThreshold)
+        else:
+            querySet = followupClassList[int(listId)].objects.all()
 
     objectList = []
 
