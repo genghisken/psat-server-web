@@ -181,7 +181,8 @@ class AtlasDiffObjects(models.Model):
 
     id = models.BigIntegerField(primary_key=True)
     followup_id = models.IntegerField(blank=True, null=True)
-    followup_flag_date = models.DateField(blank=True, null=True)
+    # 2025-02-13 KWS followup_flag_date now holds date and time
+    followup_flag_date = models.DateTimeField(blank=True, null=True)
     #detection_id = models.IntegerField()
     # Note the quoted model name in the foreign key. This model has not yet been defined.
     detection_id = models.ForeignKey('AtlasDiffDetections', to_field='id', db_column='detection_id', on_delete=models.CASCADE)

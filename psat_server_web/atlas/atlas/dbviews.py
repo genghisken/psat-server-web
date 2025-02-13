@@ -151,7 +151,8 @@ class FollowupRaw(models.Model):
     ra = models.FloatField(db_column='ra')
     dec = models.FloatField(db_column='dec')
     object_classification = models.IntegerField(db_column='object_classification')
-    followup_flag_date = models.DateField(db_column='followup_flag_date')
+    # 2025-02-13 KWS followup_flag_date now holds date and time
+    followup_flag_date = models.DateTimeField(db_column='followup_flag_date')
     observation_status = models.CharField(max_length=40, db_column='observation_status')
     current_trend = models.CharField(max_length=40, db_column='current_trend')
     earliest_mjd = models.FloatField(db_column='earliest_mjd')
@@ -223,7 +224,8 @@ class WebViewAbstractFollowup(models.Model):
     dec_avg = models.FloatField(db_column='dec_avg')
     object_classification = models.IntegerField(db_column='object_classification')
     sherlockClassification = models.CharField(max_length=120, db_column='sherlockClassification')
-    followup_flag_date = models.DateField(db_column='followup_flag_date')
+    # 2025-02-13 KWS followup_flag_date now holds date and time
+    followup_flag_date = models.DateTimeField(db_column='followup_flag_date')
     observation_status = models.CharField(max_length=40, db_column='observation_status')
     current_trend = models.CharField(max_length=40, db_column='current_trend')
     earliest_mjd = models.FloatField(db_column='earliest_mjd')
@@ -526,7 +528,8 @@ class WebViewAbstractUserDefined(models.Model):
     dec_avg = models.FloatField(db_column='dec_avg')
     object_classification = models.IntegerField(db_column='object_classification')
     sherlockClassification = models.CharField(max_length=120, db_column='sherlockClassification')
-    followup_flag_date = models.DateField(db_column='followup_flag_date')
+    # 2025-02-13 KWS followup_flag_date now holds date and time
+    followup_flag_date = models.DateTimeField(db_column='followup_flag_date')
     observation_status = models.CharField(max_length=40, db_column='observation_status')
     current_trend = models.CharField(max_length=40, db_column='current_trend')
     earliest_mjd = models.FloatField(db_column='earliest_mjd')
