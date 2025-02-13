@@ -1594,7 +1594,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
         form.fields['user_list_membership'].choices = listMembership
 
         # 2011-10-04 KWS Added GARBAGE choices
-        if listId == EYEBALL or listId == FASTEYE or listId == SMCLMC or listId == AGN:
+        if listId in [EYEBALL, FASTEYE, SMCLMC, AGN, GALCAND]:
             form.fields['promote_demote'].choices = EYEBALL_PROMOTION_CHOICES
         elif listId == FOLLOWUP:
             form.fields['promote_demote'].choices = FOLLOWUP_POST_PROMOTION_CHOICES
@@ -1604,9 +1604,9 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
             form.fields['promote_demote'].choices = POSSIBLE_POST_PROMOTION_CHOICES
         elif listId == ATTIC:
             form.fields['promote_demote'].choices = ATTIC_POST_PROMOTION_CHOICES
-        elif listId == STAR or listId == HPMSTAR:
+        elif listId in [STAR, HPMSTAR]:
             form.fields['promote_demote'].choices = STAR_POST_PROMOTION_CHOICES
-        elif listId == GARBAGE or listId == DUPLICATES:
+        elif listId in [GARBAGE, DUPLICATES]:
             form.fields['promote_demote'].choices = GARBAGE_CHOICES
         else:
             form.fields['promote_demote'].choices = FOLLOWUP_POST_PROMOTION_CHOICES
