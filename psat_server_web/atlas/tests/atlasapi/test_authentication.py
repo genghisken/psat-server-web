@@ -10,7 +10,7 @@ from atlasapi.authentication import ExpiringTokenAuthentication
 from accounts.models import GroupProfile
 
 
-class TokenAuthenticationTests(TestCase):
+class TokenAuthenticationUserTests(TestCase):
 
     def setUp(self):
         # Create groups
@@ -104,6 +104,92 @@ class TokenAuthenticationTests(TestCase):
         # Even if we artificially backdate the token, it should still be valid
         self.never_expiring_token.created = now() - timedelta(days=9999)
         self.never_expiring_token.save()
+        self.assertEqual(
+            self.auth.authenticate_credentials(self.never_expiring_token.key), 
+            (self.never_expiring_user, self.never_expiring_token)
+        )
+        
+class TokenAuthenticationStaffTests(TokenAuthenticationUserTests):
+
+    def setUp(self):
+        super().setUp()
+
+        # Make all created staff members staff
+        self.no_group_user.is_staff = True
+        self.no_group_token.save()
+        self.no_profile_user.is_staff = True
+        self.no_profile_user.save()
+        self.week_user.is_staff = True
+        self.week_user.save()
+        self.year_user.is_staff = True
+        self.year_user.save()
+        self.never_expiring_user.is_staff = True
+        self.never_expiring_user.save()
+
+        
+    def test_no_group(self):
+        """Testing token expiration for staff members with no group.
+        
+        Expected outcome: Staff members should not have their tokens expire and 
+        so should always be able to authenticate. 
+        """
+        # Test: user with no group profile should have default token expiration
+        self.assertEqual(self.auth.authenticate_credentials(self.no_group_token.key), 
+                         (self.no_group_user, self.no_group_token))
+        
+        self.no_group_token.created = now() - timedelta(days=settings.TOKEN_EXPIRY + 1)
+        self.no_group_token.save()
+        # Staff members should not have their tokens expire
+        self.assertEqual(self.auth.authenticate_credentials(self.no_group_token.key), 
+                         (self.no_group_user, self.no_group_token))
+        
+    def test_no_profile(self):
+        # Test: user with no group profile should have default token expiration
+        with self.assertRaises(AuthenticationFailed) as cm:
+            self.auth.authenticate_credentials(self.no_profile_token.key)
+        self.assertEqual(str(cm.exception), 'Could not authenticate: Group has no profile. Please contact administrator.')
+
+    def test_weekly_token_expiration(self):
+        # Test: weekly expiring token should be valid if within one week
+        self.assertEqual(
+            self.auth.authenticate_credentials(self.week_token.key), 
+            (self.week_user, self.week_token)
+        )
+
+        # Staff members should not have their tokens expire
+        self.week_user.created = now() - timedelta(weeks=2)
+        self.week_user.save()
+        self.assertEqual(
+            self.auth.authenticate_credentials(self.week_token.key), 
+            (self.week_user, self.week_token)
+        )
+
+    def test_yearly_token_expiration(self):
+        # Test: yearly expiring token should be valid if within one year
+        self.assertEqual(
+            self.auth.authenticate_credentials(self.year_token.key), 
+            (self.year_user, self.year_token)
+        )
+
+        self.year_token.created = now() - timedelta(days=400)
+        self.year_token.save()
+        # Staff members should not have their tokens expire
+        self.assertEqual(
+            self.auth.authenticate_credentials(self.year_token.key), 
+            (self.year_user, self.year_token)
+        )
+
+    def test_never_expiring_token(self):
+        # Test: never-expiring token should always be valid
+        self.assertEqual(
+            self.auth.authenticate_credentials(self.never_expiring_token.key), 
+            (self.never_expiring_user, self.never_expiring_token)
+        )
+
+        # Even if we artificially backdate the token, it should still be valid
+        self.never_expiring_token.created = now() - timedelta(days=9999)
+        self.never_expiring_token.save()
+        # Staff members should not have their tokens expire!
         self.assertEqual(
             self.auth.authenticate_credentials(self.never_expiring_token.key), 
             (self.never_expiring_user, self.never_expiring_token)
