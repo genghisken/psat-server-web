@@ -34,9 +34,10 @@ class ExpiringTokenAuthentication(TokenAuthentication):
             # Otherwise use the default expiration time
             token_expiration_time = settings.TOKEN_EXPIRY
         
-        # Calculate the token's age and compare it to the expiration setting
+        # If we're not dealing with a staff member, calculate the token's age 
+        # and compare it to the expiration setting
         token_age = (now() - token.created).total_seconds()
-        if token_age > token_expiration_time:
+        if not user.is_staff and token_age > token_expiration_time:
             logger.warning(f'User {user} attempted to use an expired token.')
             raise AuthenticationFailed('Token has expired.')
         
