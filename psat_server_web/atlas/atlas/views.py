@@ -188,6 +188,18 @@ def csrf_failure(request, reason=""):
     return render(request, 'invalid_login.html', {'message': 'CSRF failure'})
 
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+def register_user(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
 
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.

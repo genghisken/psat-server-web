@@ -15,6 +15,7 @@ urlpatterns = [
     path('', include('atlasapi.urls')),
     # 2016-02-26 KWS Add the authentication URLs
     url(r'^accounts/login/', views.login, name="login"),
+    url(r'^accounts/register/', views.register_user, name="register"),
     url(r'^accounts/logout/', views.logout, name="logout"),
     url(r'^accounts/auth/', views.authView, name="auth"),
     url(r'^accounts/loggedin/', views.loggedin, name="loggedin"),

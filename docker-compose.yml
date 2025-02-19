@@ -49,6 +49,7 @@ services:
       - ./psat_server_web/atlas/atlas:/app/psat_server_web/atlas/atlas
       - ./psat_server_web/atlas/accounts:/app/psat_server_web/atlas/accounts
       - ./psat_server_web/atlas/tests:/app/psat_server_web/atlas/tests
+      - ./psat_server_web/atlas/templates:/app/psat_server_web/atlas/templates
     ports:
       - 8086:8086
     depends_on:
