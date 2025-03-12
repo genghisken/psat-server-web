@@ -232,5 +232,18 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'atlasapi.throttling.BurstRateThrottle',        # For authenticated users
+        'atlasapi.throttling.UserAdminRateThrottle',    # Allow admin users unlimited rate, otherwise use the default rate 
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '50/day',       # The only anonymous endpoint is the token refresh endpoint
+        'user': '1000/day',     # Limit regular authenticated users to 1000 requests per day
+        'admin': '100000/day',  # Allow admin users (basically) unlimited rate
+        'burst': '120/min',     # Also limit all authenticated users to 1000 requests per minute
+    }
+}
+
 # Token expiry time in days, default 1 day (24*60*60 seconds)
 TOKEN_EXPIRY = int(os.environ.get("API_TOKEN_EXPIRY") or 86400) # seconds

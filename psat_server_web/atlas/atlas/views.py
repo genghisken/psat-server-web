@@ -86,7 +86,7 @@ import django_tables2 as tables2
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # 2016-02-26 KWS Required for authentication
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 # 2022-05-06 KWS New model - AtlasDiffSubcells
 from atlas.models import AtlasDiffSubcells
@@ -1139,6 +1139,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
 
 # 2017-06-16 KWS New DDC format candidate method
 @login_required
+@permission_required('atlas.add_atlasdiffobjects')
 def candidateddc(request, atlas_diff_objects_id, template_name):
     """candidateddc.
 
