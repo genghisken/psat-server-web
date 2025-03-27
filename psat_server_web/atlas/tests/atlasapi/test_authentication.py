@@ -116,7 +116,7 @@ class TokenAuthenticationStaffTests(TokenAuthenticationUserTests):
 
         # Make all created staff members staff
         self.no_group_user.is_staff = True
-        self.no_group_token.save()
+        self.no_group_user.save()
         self.no_profile_user.is_staff = True
         self.no_profile_user.save()
         self.week_user.is_staff = True
@@ -137,8 +137,10 @@ class TokenAuthenticationStaffTests(TokenAuthenticationUserTests):
         self.assertEqual(self.auth.authenticate_credentials(self.no_group_token.key), 
                          (self.no_group_user, self.no_group_token))
         
+        # Artificially backdate the token to simulate expiration
         self.no_group_token.created = now() - timedelta(days=settings.TOKEN_EXPIRY + 1)
         self.no_group_token.save()
+        
         # Staff members should not have their tokens expire
         self.assertEqual(self.auth.authenticate_credentials(self.no_group_token.key), 
                          (self.no_group_user, self.no_group_token))
