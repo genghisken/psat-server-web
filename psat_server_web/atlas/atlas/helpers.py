@@ -12,6 +12,11 @@ from .lightcurvequeries import getLCData, getRecurrenceDataForPlotting
 
 SHOW_LC_DATA_LIMIT = 50
 
+CONESEARCHLISTNUMBER = 14
+CONESEARCHLISTS = ['atlas_v_followup' + str(x) for x in range(CONESEARCHLISTNUMBER)]
+
+# 2025-03-28 KWS Added functionality to search by specified list as well as the general objects table. Note that this requires
+#                gkutils >= 0.3.6.
 def processSearchForm(searchText, getAssociatedData = False, ddc = False, getNonDets = False, getNearbyObjects = False):
     """processSearchForm.
 
@@ -62,6 +67,7 @@ def processSearchForm(searchText, getAssociatedData = False, ddc = False, getNon
         #    results = AtlasDiffObjects.objects.filter(Q(atlas_designation__isnull = False) & (Q(atlas_designation__startswith = 'ATLAS' + name) | Q(other_designation__startswith = '20' + name)))
     else:
          # It must be a coordinate or a match failure
+         tableToSearch = 'atlas_diff_objects'
          coords = getCoordsAndSearchRadius(searchText)
          if coords:
              searchRadius = 4.0
@@ -69,8 +75,29 @@ def processSearchForm(searchText, getAssociatedData = False, ddc = False, getNon
                  searchRadius = float(coords['radius'])
                  if searchRadius > 300.0:
                       searchRadius = 300.0
+             try:
+                 if coords['detectionlist']:
+                     # Restrict the cone search to a specified list
+                     detectionlistid = coords['detectionlist']
+                     if detectionlistid == 'all':
+                         tableToSearch = 'atlas_v_followupall_with_junk'
+                     else:
+                         sys.stderr.write("\nDETECTION LIST ID = %s\n" % str(detectionlistid))
+                         try:
+                             detectionlistid = int(coords['detectionlist'])
+                             if detectionlistid > 14 or detectionlistid < 0:
+                                 tableToSearch = 'atlas_v_followupall_with_junk'
+                             else:
+                                 tableToSearch = CONESEARCHLISTS[detectionlistid]
+                         except ValueError as e:
+                             # The value wasn't an integer. Shouldn't happen if regex is doing its job.
+                             tableToSearch = 'atlas_v_followupall_with_junk'
+                                 
+             except KeyError as e:
+                 # The 'detectionlist' key is not implemented yet
+                 tableToSearch = 'atlas_diff_objects'
          
-             message, xmObjects = coneSearchHTM(coords['ra'], coords['dec'], searchRadius, 'atlas_diff_objects', queryType = FULL, conn = connection, django = True)
+             message, xmObjects = coneSearchHTM(coords['ra'], coords['dec'], searchRadius, tableToSearch, queryType = FULL, conn = connection, django = True)
              for xm in xmObjects:
                  dictRow = xm[1]
                  dictRow.update({'xmseparation': xm[0]})
