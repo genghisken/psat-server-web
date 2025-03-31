@@ -59,7 +59,7 @@ order by image_filename desc;
 -- 2025-03-31 KWS Added tcs_images_id to all the views so that when searching by view
 --                the crossmatch code continues to work OK.
 create or replace view psdb_web_v_followup_all_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -103,7 +103,7 @@ inner join tcs_cmf_metadata m
 
 -- 2025-03-31 KWS Added view of everything that's passed through the eyeball list, including garbage.
 create or replace view psdb_web_v_followup_all_with_eyeball_and_garbage_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -147,7 +147,7 @@ inner join tcs_cmf_metadata m
 
 -- BAD objects
 create or replace view psdb_web_v_followup_bad_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -190,7 +190,7 @@ inner join tcs_cmf_metadata m
 
 -- CONFIRMED objects
 create or replace view psdb_web_v_followup_conf_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -233,7 +233,7 @@ inner join tcs_cmf_metadata m
 
 -- GOOD objects
 create or replace view psdb_web_v_followup_good_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -276,7 +276,7 @@ inner join tcs_cmf_metadata m
 
 -- POSSIBLE objects
 create or replace view psdb_web_v_followup_poss_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -319,7 +319,7 @@ inner join tcs_cmf_metadata m
 
 -- PENDING (EYEBALL) objects
 create or replace view psdb_web_v_followup_pend_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -362,7 +362,7 @@ inner join tcs_cmf_metadata m
 
 -- ATTIC objects
 create or replace view psdb_web_v_followup_attic_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -405,7 +405,7 @@ inner join tcs_cmf_metadata m
 
 -- ZOO objects
 create or replace view psdb_web_v_followup_zoo_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -449,7 +449,7 @@ inner join tcs_cmf_metadata m
 -- TBD objects
 -- 2019-07-16 KWS Created two new views in particular for a Fast Track List.
 create or replace view psdb_web_v_followup_tbd_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -492,7 +492,7 @@ inner join tcs_cmf_metadata m
 
 -- FAST objects
 create or replace view psdb_web_v_followup_fast_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -536,7 +536,7 @@ inner join tcs_cmf_metadata m
 
 -- 2011-04-14 KWS User Defined Lists
 create or replace view psdb_web_v_followup_userdefined as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
