@@ -100,7 +100,6 @@ def processSearchForm(searchText, getAssociatedData = False, getNonDets = False,
                  tableToSearch = 'tcs_transient_objects'
 
 
-             sys.stderr.write("\ntable = %s\n" % tableToSearch)
              message, xmObjects = coneSearchHTM(coords['ra'], coords['dec'], searchRadius, tableToSearch, queryType = FULL, conn = connection, django = True)
              for xm in xmObjects:
                  dictRow = xm[1]
