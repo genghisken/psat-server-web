@@ -12,6 +12,15 @@ import sys
 
 SHOW_LC_DATA_LIMIT = 50
 
+CONESEARCHLISTS = ['psdb_web_v_followup_bad_presentation',
+                   'psdb_web_v_followup_conf_presentation',
+                   'psdb_web_v_followup_good_presentation',
+                   'psdb_web_v_followup_poss_presentation',
+                   'psdb_web_v_followup_pend_presentation',
+                   'psdb_web_v_followup_attic_presentation',
+                   'psdb_web_v_followup_zoo_presentation',
+                   'psdb_web_v_followup_tbd_presentation',
+                   'psdb_web_v_followup_fast_presentation']
 
 def processSearchForm(searchText, getAssociatedData = False, getNonDets = False, getNearbyObjects = False):
     """processSearchForm.
@@ -60,15 +69,39 @@ def processSearchForm(searchText, getAssociatedData = False, getNonDets = False,
             results = list(set([x.id for x in q]))
     else:
          # It must be a coordinate or a match failure
+         tableToSearch = 'tcs_transient_objects'
          coords = getCoordsAndSearchRadius(searchText)
          if coords:
              searchRadius = 4.0
              if coords['radius']:
                  searchRadius = float(coords['radius'])
-                 if searchRadius > 99.0:
-                      searchRadius = 99.0
+                 if searchRadius > 300.0:
+                      searchRadius = 300.0
+             try:
+                 if coords['detectionlist']:
+                     # Restrict the cone search to a specified list
+                     detectionlistid = coords['detectionlist']
+                     if detectionlistid == 'all':
+                         tableToSearch = 'psdb_web_v_followup_all_with_eyeball_and_garbage_presentation'
+                     else:
+                         sys.stderr.write("\nDETECTION LIST ID = %s\n" % str(detectionlistid))
+                         try:
+                             detectionlistid = int(coords['detectionlist'])
+                             if detectionlistid > 8 or detectionlistid < 0:
+                                 tableToSearch = 'psdb_web_v_followup_all_with_eyeball_and_garbage_presentation'
+                             else:
+                                 tableToSearch = CONESEARCHLISTS[detectionlistid]
+                         except ValueError as e:
+                             # The value wasn't an integer. Shouldn't happen if regex is doing its job.
+                             tableToSearch = 'psdb_web_v_followup_all_with_eyeball_and_garbage_presentation'
 
-             message, xmObjects = coneSearchHTM(coords['ra'], coords['dec'], searchRadius, 'tcs_transient_objects', queryType = FULL, conn = connection, django = True)
+             except KeyError as e:
+                 # The 'detectionlist' key is not implemented yet
+                 tableToSearch = 'tcs_transient_objects'
+
+
+             sys.stderr.write("\ntable = %s\n" % tableToSearch)
+             message, xmObjects = coneSearchHTM(coords['ra'], coords['dec'], searchRadius, tableToSearch, queryType = FULL, conn = connection, django = True)
              for xm in xmObjects:
                  dictRow = xm[1]
                  dictRow.update({'xmseparation': xm[0]})
