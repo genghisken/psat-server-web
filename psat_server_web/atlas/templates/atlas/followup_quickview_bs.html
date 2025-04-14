@@ -33,7 +33,12 @@
 
 {% if listHeader %}
   {% if list_id >= 0 and list_id <= 10 and table.rows|length > 0 %}
-<input type="submit" value="Classify Objects" name="classify" /></p>
+    {% if can_edit_fl == 1 %}
+      <input type="submit" value="Classify Objects" name="classify" /></p>
+    {% else %}
+      <input type="submit" value="Classify Objects" name="classify" disabled /></p>
+      {% include "atlas/permissions_alert.html" %}
+    {% endif %}
   {% endif %}
 </form>
 {% endif %}

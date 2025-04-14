@@ -899,40 +899,45 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         </div>
         {% endfor %}
         {% for field in form.visible_fields %}
-        <div class="form-group has-errors text-danger small">
-            {{ field.errors }}
-        </div>
-        <div class="form-group">
-            {{ field.label }}
-        </div>
-        <div class="form-group">
-        {% if field.name == "promote_demote" %}
-          <div class="btn-group flex-wrap btn-group-toggle" data-toggle="buttons">
-          {% for radio in field %}
-            <label for="{{ radio.id_for_label }}" class="btn btn-outline-secondary btn-sm {% if forloop.last %}active{% endif %}">{{ radio.choice_label }}
-            {{ radio.tag }}
-            </label>
-          {% endfor %}
+          <div class="form-group has-errors text-danger small">
+              {{ field.errors }}
           </div>
-        {% elif field.name == "user_list_membership" %}
-          {% for choice in field %}
-          <div class="checkbox">
-            {{ choice.tag }}
-            <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}<br />
-            </label>
+          <div class="form-group">
+              {{ field.label }}
           </div>
-          {% endfor %}
+          <div class="form-group">
+          {% if field.name == "promote_demote" %}
+            <div class="btn-group flex-wrap btn-group-toggle" data-toggle="buttons">
+            {% for radio in field %}
+              <label for="{{ radio.id_for_label }}" class="btn btn-outline-secondary btn-sm {% if forloop.last %}active{% endif %}">{{ radio.choice_label }}
+              {{ radio.tag }}
+              </label>
+            {% endfor %}
+          </div>
+          {% elif field.name == "user_list_membership" %}
+            {% for choice in field %}
+              <div class="checkbox">
+                {{ choice.tag }}
+                <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}<br />
+                </label>
+              </div>
+            {% endfor %}
 
-        {% else %}
+          {% else %}
             {{ field }}
-        {% endif %}
+          {% endif %}
         </div>
         {% endfor %}
 
         {% for hidden in form.hidden_fields %}
           {{ hidden }}
         {% endfor %}
-        <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Update Object">Update Object</button>
+        {% if can_edit_fl == 1 %}
+          <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Update Object">Update Object</button>
+        {% else %}
+          <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit" value="Update Object" disabled>Update Object</button>
+          {% include "atlas/permissions_alert.html" %}
+        {% endif %}
     </form>
   </div>
   {% endif %}

@@ -369,14 +369,19 @@
 </table>
 
 {% if not public %}
-{% if processingStatus != 1 %}
-{% if listHeader %}
-  {% if list_id >= 0 and list_id < 9 %}
-<input type="submit" value="Classify Objects" name="classify" /></p>
+  {% if processingStatus != 1 %}
+    {% if listHeader %}
+      {% if list_id >= 0 and list_id < 9 %}
+        {% if can_edit_fl == 1 %}
+          <input type="submit" value="Classify Objects" name="classify" /></p>
+        {% else %}
+          <input type="submit" value="Classify Objects" name="classify" disabled/></p>
+          {% include "atlas/permissions_alert.html" %}
+        {% endif %}
+      {% endif %}
+    </form>
+    {% endif %}
   {% endif %}
-</form>
-{% endif %}
-{% endif %}
 {% endif %}
 
 <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/flot/jquery-1.7.2.js"></script>
