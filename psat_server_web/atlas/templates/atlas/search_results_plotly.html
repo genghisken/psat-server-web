@@ -126,7 +126,12 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
 {% if processingStatus != 1 %}
   {% if classifyform and subdata.paginator.count %}
   <form id="classify_form" action="" method="post">{% csrf_token %}
-  <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Classify Objects" name="classify">Classify</button>
+    {% if can_edit_fl == 1 %}
+      <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Classify Objects" name="classify">Classify</button>
+    {% else %}
+      <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit" value="Classify Objects" name="classify" disabled>Classify</button>
+      {% include "atlas/permissions_alert.html" %}
+    {% endif %}
   {% endif %}
 {% endif %}
 
@@ -492,7 +497,12 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
 
 {% if processingStatus != 1 %}
   {% if classifyform and subdata.paginator.count %}
-  <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Classify Objects" name="classify">Classify</button>
+    {% if can_edit_fl == 1 %}
+      <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Classify Objects" name="classify">Classify</button>
+    {% else %}
+      <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit" value="Classify Objects" name="classify" disabled>Classify</button>
+      {% include "atlas/permissions_alert.html" %}
+    {% endif %}
   </form>
   {% endif %}
 {% endif %}

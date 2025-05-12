@@ -877,50 +877,55 @@ new SkyWindow2(options).attach($('#mySkyWnd')[0]);
 
 <!-- 2011-04-04 KWS Added the User Defined Lists -->
 {% if not public and user.is_authenticated %}
-{% if processingStatus != 1 %}
+  {% if processingStatus != 1 %}
 
-{% if userList %}
-<div id="userdefinedlists">
-<table class="generictable">
-   <tr>
-      <th>Object is a member of:</th>
-   </tr>
-   {% for row in userList %}
-   <tr>
-      <td><a href="../../userlist/{{row.object_group_id.id}}/">{{ row.object_group_id.description }}</a></td>
-   </tr>
-   {% endfor %}
-</table>
-</div>
-{% endif %}
+    {% if userList %}
+      <div id="userdefinedlists">
+      <table class="generictable">
+      <tr>
+          <th>Object is a member of:</th>
+      </tr>
+      {% for row in userList %}
+        <tr>
+            <td><a href="../../userlist/{{row.object_group_id.id}}/">{{ row.object_group_id.description }}</a></td>
+        </tr>
+      {% endfor %}
+    </table>
+    </div>
+    {% endif %}
 
 
-<div id="classifyobjectform">
+    <div id="classifyobjectform">
 
-<!-- 2011-10-04 KWS Removed the ifnotequal for list = 0 - i.e. allow form for Garbage objects now -->
+    <!-- 2011-10-04 KWS Removed the ifnotequal for list = 0 - i.e. allow form for Garbage objects now -->
 
-{% if transient.detection_list_id.id >= 0 %}
-   {% if form %}
-   {% if form.errors %}
-       <p style="color: red;">
-           Please correct the error{{ form.errors|pluralize }} below.
-       </p>
-   {% endif %}
+    {% if transient.detection_list_id.id >= 0 %}
+      {% if form %}
+        {% if form.errors %}
+            <p style="color: red;">
+                Please correct the error{{ form.errors|pluralize }} below.
+            </p>
+        {% endif %}
 
-   <form action="" method="post" id="classifyform">{% csrf_token %}
-   <table class="forms">
-       {{ form.as_table }}
-   </table>
-   <input type="submit" value="Update Object" />
-   </form>
-   {% endif %}
-{% endif %}
+        <form action="" method="post" id="classifyform">{% csrf_token %}
+        <table class="forms">
+            {{ form.as_table }}
+        </table>
+        {% if can_edit_fl == 1 %}
+          <input type="submit" value="Update Object" />
+        {% else %}
+          <input type="submit" value="Update Object" disabled />
+          {% include "atlas/permissions_alert.html" %}
+        {% endif %}
+        </form>
+      {% endif %}
+    {% endif %}
 
-</div>
+    </div>
 
-{% else %}
-Database Dump in Progress. Updates not allowed.
-{% endif %}
+  {% else %}
+    Database Dump in Progress. Updates not allowed.
+  {% endif %}
 {% endif %}
 
 

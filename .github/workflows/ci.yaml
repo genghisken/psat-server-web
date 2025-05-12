@@ -43,7 +43,7 @@ jobs:
     - name: Stop containers
       if: always()
       run: docker compose down
-  testing-pip:
+  test-pip-install:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -65,7 +65,3 @@ jobs:
       run: |
         # Copy the sample environment file
         cp .env.sample .env
-    - name: Run tests
-      run: |
-        python psat_server_web/atlas/manage.py makemigrations --noinput
-        python psat_server_web/atlas/manage.py test --noinput

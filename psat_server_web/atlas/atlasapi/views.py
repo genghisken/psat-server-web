@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.throttling import AnonRateThrottle
 
 # 2024-01-29 KWS Need the model to do inserts.
 from atlas.models import TcsObjectGroups, TcsVraScores
@@ -35,6 +35,7 @@ def retcode(message):
     else:                  return status.HTTP_200_OK
     
 class ObtainExpiringAuthToken(ObtainAuthToken):
+    throttle_classes = [AnonRateThrottle]
    
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})

@@ -6,6 +6,7 @@ from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
 
 from accounts.models import GroupProfile
+# from ..create_schema import AtlasTestCase
 
 class TestPermissionsSetup(TestCase):   
     def setUp(self) -> None:
