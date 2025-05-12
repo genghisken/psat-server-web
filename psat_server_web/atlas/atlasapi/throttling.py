@@ -1,10 +1,10 @@
-from rest_framework.throttling import UserRateThrottle, ScopedRateThrottle
+from rest_framework.throttling import UserRateThrottle
    
 class UserAdminRateThrottle(UserRateThrottle):
     
     def get_rate(self, request=None):
         # Check if a user is authenticated and is an admin.
-        if request and hasattr(request, 'user') and request.user.is_staff:
+        if request and hasattr(request, 'user') and (request.user.is_staff or request.user.is_superuser):
             # Use the admin scope.
             self.scope = 'admin'
         else:
@@ -21,6 +21,3 @@ class UserAdminRateThrottle(UserRateThrottle):
         self.num_requests, self.duration = self.parse_rate(self.rate)
 
         return super().allow_request(request, view)
-
-class BurstRateThrottle(ScopedRateThrottle):
-    scope = 'burst'

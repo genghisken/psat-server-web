@@ -70,7 +70,6 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 class ConeView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         serializer = ConeSerializer(data=request.GET, context={'request': request})
@@ -90,7 +89,6 @@ class ConeView(APIView):
 class ObjectsView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         serializer = ObjectsSerializer(data=request.GET, context={'request': request})
@@ -110,7 +108,6 @@ class ObjectsView(APIView):
 class ObjectListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         serializer = ObjectListSerializer(data=request.GET, context={'request': request})
@@ -130,7 +127,6 @@ class ObjectListView(APIView):
 class VRAScoresView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -148,7 +144,6 @@ class VRAScoresView(APIView):
 class VRAScoresListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         serializer = VRAScoresListSerializer(data=request.GET, context={'request': request})
@@ -169,7 +164,6 @@ class VRAScoresListView(APIView):
 class VRATodoView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -187,7 +181,6 @@ class VRATodoView(APIView):
 class VRATodoListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         serializer = VRATodoListSerializer(data=request.GET, context={'request': request})
@@ -206,7 +199,6 @@ class VRATodoListView(APIView):
 class TcsObjectGroupsView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -223,7 +215,6 @@ class TcsObjectGroupsView(APIView):
 class TcsObjectGroupsListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         serializer = TcsObjectGroupsListSerializer(data=request.GET, context={'request': request})
@@ -244,7 +235,6 @@ class TcsObjectGroupsDeleteView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     # TODO: Change this to HasDeleteAccess?
     permission_classes = [IsAuthenticated&HasWriteAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -268,7 +258,6 @@ class TcsObjectGroupsDeleteView(APIView):
 class VRARankView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         return Response({"Error": "GET is not implemented for this service."})
@@ -286,7 +275,6 @@ class VRARankView(APIView):
 class VRARankListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         serializer = VRARankListSerializer(data=request.GET, context={'request': request})
@@ -327,7 +315,6 @@ class ExternalCrossmatchesListView(APIView):
 class ObjectDetectionListView(APIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
-    throttle_scope = 'burst'
 
     def get(self, request):
         serializer = ObjectDetectionListSerializer(data=request.GET, context={'request': request})

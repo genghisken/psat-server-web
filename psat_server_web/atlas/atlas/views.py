@@ -87,7 +87,7 @@ import django_tables2 as tables2
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # 2016-02-26 KWS Required for authentication
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 
 # 2022-05-06 KWS New model - AtlasDiffSubcells
 from atlas.models import AtlasDiffSubcells
@@ -1357,7 +1357,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     formSearchObject = SearchForObjectForm()
     form = PromoteAndCommentsForm()
 
-    if request.method == 'POST' and can_edit_fl:
+    if request.method == 'POST':
         logger.debug("In a POST request")
         if 'find_object' in request.POST:
             formSearchObject = SearchForObjectForm(request.POST)
@@ -1368,7 +1368,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                     listHeader = 'Candidates for Followup'
                 else:
                     objectsQueryset = AtlasDiffObjects.objects.filter(detection_list_id = listNumber, images_id__isnull = False)
-        else:
+        elif can_edit_fl:
             form = PromoteAndCommentsForm(request.POST)
             if form.is_valid(): # All validation rules pass
                 # Do stuff here

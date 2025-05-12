@@ -234,14 +234,12 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [
-        'atlasapi.throttling.BurstRateThrottle',        # For authenticated users
         'atlasapi.throttling.UserAdminRateThrottle',    # Allow admin users unlimited rate, otherwise use the default rate 
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '10/hour',       # The only anonymous endpoint is the token refresh endpoint
         'user': '100/hour',      # Limit regular authenticated users to 100 requests per hour
         'admin': '100000/hour',  # Allow admin users (basically) unlimited rate
-        'burst': '60/min',       # Also limit all authenticated users to 60 requests per minute
     }
 }
 
