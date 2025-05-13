@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Permission, AnonymousUser
 from django.test import TestCase
 
-from atlas.permissions import has_write_permissions
+from accounts.permissions import has_write_permissions
 
 
 class HasWritePermissionsTest(TestCase):
