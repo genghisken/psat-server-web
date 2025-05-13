@@ -56,8 +56,10 @@ order by image_filename desc;
 
 -- 2020-02-20 KWS New views that include zooniverse score.
 -- 2020-09-30 KWS Added htm16ID so the views can be cone searched.
+-- 2025-03-31 KWS Added tcs_images_id to all the views so that when searching by view
+--                the crossmatch code continues to work OK.
 create or replace view psdb_web_v_followup_all_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -85,6 +87,7 @@ create or replace view psdb_web_v_followup_all_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -98,10 +101,9 @@ inner join tcs_cmf_metadata m
        and detection_list_id != 4
 ;
 
-
--- BAD objects
-create or replace view psdb_web_v_followup_bad_presentation as
-    select o.followup_id rank,
+-- 2025-03-31 KWS Added view of everything that's passed through the eyeball list, including garbage.
+create or replace view psdb_web_v_followup_all_with_eyeball_and_garbage_presentation as
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -129,6 +131,51 @@ create or replace view psdb_web_v_followup_bad_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
+           o.htm16ID
+      from tcs_transient_objects o
+inner join tcs_cmf_metadata m
+        on (o.tcs_cmf_metadata_id = m.id)
+ left join tcs_latest_object_stats s
+        on (o.id = s.id)
+ left join tcs_zooniverse_scores z
+        on (o.id = z.transient_object_id)
+     where detection_list_id is not null
+       and detection_list_id >= 0
+;
+
+
+-- BAD objects
+create or replace view psdb_web_v_followup_bad_presentation as
+    select o.followup_id `rank`,
+           o.id,
+           substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
+           o.local_designation,
+           o.ps1_designation,
+           o.other_designation,
+           o.ra_psf,
+           o.dec_psf,
+           o.object_classification,
+           o.sherlockClassification,
+           o.followup_flag_date,
+           o.observation_status,
+           o.current_trend,
+           s.earliest_mjd,
+           s.earliest_mag,
+           s.earliest_filter,
+           s.latest_mjd,
+           s.latest_mag,
+           s.latest_filter,
+           s.catalogue,
+           s.catalogue_object_id,
+           s.separation,
+           o.classification_confidence,
+           o.confidence_factor,
+           s.external_crossmatches,
+           s.discovery_target,
+           z.score zooniverse_score,
+           o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -143,7 +190,7 @@ inner join tcs_cmf_metadata m
 
 -- CONFIRMED objects
 create or replace view psdb_web_v_followup_conf_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -171,6 +218,7 @@ create or replace view psdb_web_v_followup_conf_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -185,7 +233,7 @@ inner join tcs_cmf_metadata m
 
 -- GOOD objects
 create or replace view psdb_web_v_followup_good_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -213,6 +261,7 @@ create or replace view psdb_web_v_followup_good_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -227,7 +276,7 @@ inner join tcs_cmf_metadata m
 
 -- POSSIBLE objects
 create or replace view psdb_web_v_followup_poss_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -255,6 +304,7 @@ create or replace view psdb_web_v_followup_poss_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -269,7 +319,7 @@ inner join tcs_cmf_metadata m
 
 -- PENDING (EYEBALL) objects
 create or replace view psdb_web_v_followup_pend_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -297,6 +347,7 @@ create or replace view psdb_web_v_followup_pend_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -311,7 +362,7 @@ inner join tcs_cmf_metadata m
 
 -- ATTIC objects
 create or replace view psdb_web_v_followup_attic_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -339,6 +390,7 @@ create or replace view psdb_web_v_followup_attic_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -353,7 +405,7 @@ inner join tcs_cmf_metadata m
 
 -- ZOO objects
 create or replace view psdb_web_v_followup_zoo_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -381,6 +433,7 @@ create or replace view psdb_web_v_followup_zoo_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -396,7 +449,7 @@ inner join tcs_cmf_metadata m
 -- TBD objects
 -- 2019-07-16 KWS Created two new views in particular for a Fast Track List.
 create or replace view psdb_web_v_followup_tbd_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -424,6 +477,7 @@ create or replace view psdb_web_v_followup_tbd_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -438,7 +492,7 @@ inner join tcs_cmf_metadata m
 
 -- FAST objects
 create or replace view psdb_web_v_followup_fast_presentation as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,
@@ -466,6 +520,7 @@ create or replace view psdb_web_v_followup_fast_presentation as
            s.discovery_target,
            z.score zooniverse_score,
            o.xt,
+           o.tcs_images_id,
            o.htm16ID
       from tcs_transient_objects o
 inner join tcs_cmf_metadata m
@@ -481,7 +536,7 @@ inner join tcs_cmf_metadata m
 
 -- 2011-04-14 KWS User Defined Lists
 create or replace view psdb_web_v_followup_userdefined as
-    select o.followup_id rank,
+    select o.followup_id `rank`,
            o.id,
            substr(m.filename, 1, instr(m.filename,'.')-1) survey_field,
            o.local_designation,

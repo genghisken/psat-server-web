@@ -53,8 +53,8 @@ class ConeSerializer(serializers.Serializer):
         if request and hasattr(request, "user"):
             userId = request.user
 
-        if radius > 1000:
-            replyMessage = "Max radius is 1000 arcsec."
+        if radius > 300:
+            replyMessage = "Max radius is 300 arcsec."
             info = {"error": replyMessage}
             return info
 

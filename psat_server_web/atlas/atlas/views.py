@@ -13,6 +13,7 @@ from django.template.context_processors import csrf
 from django.urls import reverse
 from django.db.models import Avg, Max, Min, Count
 from django.db import IntegrityError
+from accounts.permissions import has_write_permissions
 from atlas.models import TcsPostageStampImages
 from atlas.models import TcsClassificationFlags
 from atlas.models import TcsDetectionLists
@@ -104,6 +105,10 @@ from requests.exceptions import Timeout as RequestsConnectionTimeoutError
 # 2023-01-06 KWS Import the new code to grab a name from the nameserver.
 #                Requires an update to gkutils.
 from gkutils.commonutils import getLocalObjectName
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class LoginForm(forms.Form):
@@ -1164,6 +1169,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
 
     transient = get_object_or_404(AtlasDiffObjects, pk=atlas_diff_objects_id)
 
+    can_edit_fl = has_write_permissions(request.user)
 
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
@@ -1172,6 +1178,11 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     if len(processingStatusData) == 1:
         processingStatus = processingStatusData[0].status
         processingStartTime = processingStatusData[0].started
+        
+    if processingStatus == 1:
+        # No one should be able to edit this object when processing happening.
+        can_edit_fl = False
+    logger.debug("User can edit observations: %s" % can_edit_fl)
 
     # 2017-03-21 KWS Get Gravity Wave annotations and Sherlock Classifications
     sc = SherlockClassifications.objects.filter(transient_object_id_id = transient.id)
@@ -1359,6 +1370,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     form = PromoteAndCommentsForm()
 
     if request.method == 'POST':
+        logger.debug("In a POST request")
         if 'find_object' in request.POST:
             formSearchObject = SearchForObjectForm(request.POST)
             if formSearchObject.is_valid(): # All validation rules pass
@@ -1368,7 +1380,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                     listHeader = 'Candidates for Followup'
                 else:
                     objectsQueryset = AtlasDiffObjects.objects.filter(detection_list_id = listNumber, images_id__isnull = False)
-        else:
+        elif can_edit_fl:
             form = PromoteAndCommentsForm(request.POST)
             if form.is_valid(): # All validation rules pass
                 # Do stuff here
@@ -1680,8 +1692,41 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                 rmsScatter += xmrmsScatter
 
     recurrenceData = [recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter]
+    
+    context = {
+        'transient' : transient, 
+        'table': table, 
+        'images': transient_images, 
+        'form' : form, 
+        'avg_coords': avgCoords, 
+        'lcdata': lcData, 
+        'lcdataforced': lcDataForced, 
+        'lcdataforcedflux': lcDataForcedFlux, 
+        'lcdataforcedstackflux': lcDataForcedStackFlux, 
+        'lclimits': lcLimits, 
+        'recurrencedata': recurrenceData, 
+        'conesearchold': xmresults['oldDBXmList'], 
+        'olddburl': xmresults['oldDBURL'], 
+        'externalXMs': externalXMs, 
+        'tnsXMs': tnsXMs, 
+        'public': public, 
+        'form_searchobject': formSearchObject, 
+        'dbName': dbName, 
+        'finderImages': finderImages, 
+        'processingStatus': processingStatus, 
+        'galactic': galactic, 
+        'fpData': fpData, 
+        'sc': sc, 
+        'gw': gw, 
+        'comments': existingComments, 
+        'sx': sx, 
+        'lasairZTFCrossmatches': lasairZTFCrossmatches, 
+        'panstarrsCrossmatches': panstarrsCrossmatches, 
+        'panstarrsBaseURL': settings.PANSTARRS_BASE_URL,
+        'can_edit_fl': can_edit_fl,
+    }
 
-    return render(request, 'atlas/' + template_name,{'transient' : transient, 'table': table, 'images': transient_images, 'form' : form, 'avg_coords': avgCoords, 'lcdata': lcData, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedstackflux': lcDataForcedStackFlux, 'lclimits': lcLimits, 'recurrencedata': recurrenceData, 'conesearchold': xmresults['oldDBXmList'], 'olddburl': xmresults['oldDBURL'], 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'fpData': fpData, 'sc': sc, 'gw': gw, 'comments': existingComments, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'panstarrsCrossmatches': panstarrsCrossmatches, 'panstarrsBaseURL': settings.PANSTARRS_BASE_URL})
+    return render(request, 'atlas/' + template_name, context)
 
 
 def lightcurveplain(request, tcs_transient_objects_id):
@@ -3178,6 +3223,8 @@ def followupQuickView(request, listNumber):
 
     detectionListRow = get_object_or_404(TcsDetectionLists, pk=listNumber)
     listHeader = detectionListRow.description
+    
+    can_edit_fl = has_write_permissions(request.user)
 
     # We just want to pass the list Id to the HTML page, if it exists
     list_id = None
@@ -3217,38 +3264,33 @@ def followupQuickView(request, listNumber):
         processingStatus = processingStatusData[0].status
         processingStartTime = processingStatusData[0].started
 
+    if processingStatus == 1:
+        can_edit_fl = False
+    logger.debug("User can edit observations: %s" % can_edit_fl)
+    
+    objectsQueryset = None
+        
     objectName = None
 
     # Dummy form search object
     formSearchObject = SearchForObjectForm()
 
     coneSearchRadius = 3.6
-    if request.method == 'POST':
-        if 'find_object' in request.POST:
-            formSearchObject = SearchForObjectForm(request.POST)
-            if formSearchObject.is_valid(): # All validation rules pass
-                objectName = formSearchObject.cleaned_data['searchText']
-                objectsQueryset = processSearchForm(objectName)
+    # Search for object name
+    if request.method == 'POST' and 'find_object' in request.POST:
+        formSearchObject = SearchForObjectForm(request.POST)
+        if formSearchObject.is_valid(): # All validation rules pass
+            objectName = formSearchObject.cleaned_data['searchText']
+            objectsQueryset = processSearchForm(objectName)
 #                if len(objectName) > 0 and objectName != '%%':
 #                    objectsQueryset = AtlasDiffObjects.objects.filter(Q(atlas_designation__isnull = False) & (Q(atlas_designation__startswith = objectName) | Q(other_designation__startswith = objectName)))
 #                    listHeader = 'Candidates for Followup'
 #                else:
 #                    objectsQueryset = AtlasDiffObjects.objects.filter(detection_list_id = listNumber, images_id__isnull = False)
-            else: # Default query if the form is NOT valid - need to fix!!
-                #objectsQueryset = AtlasDiffObjects.objects.filter(detection_list_id = listNumber, images_id__isnull = False)
-                # 2019-07-31 KWS Rattle through all the objects to see if we have any
-                #                associated with a specified GW event.
-                if queryFilterGW:
-                    gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
-                    gwTaggedObjects = [x.transient_object_id_id for x in gw]
-                    if len(gwTaggedObjects) == 0:
-                        # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
-                        gwTaggedObjects = [1]
-                    objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter).filter(id__in=gwTaggedObjects)
-                else:
-                    objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter)
-        else:
-            # We're using the submit form for the object updates
+        else: # Default query if the form is NOT valid - need to fix!!
+            #objectsQueryset = AtlasDiffObjects.objects.filter(detection_list_id = listNumber, images_id__isnull = False)
+            # 2019-07-31 KWS Rattle through all the objects to see if we have any
+            #                associated with a specified GW event.
             if queryFilterGW:
                 gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
                 gwTaggedObjects = [x.transient_object_id_id for x in gw]
@@ -3258,57 +3300,69 @@ def followupQuickView(request, listNumber):
                 objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter).filter(id__in=gwTaggedObjects)
             else:
                 objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter)
+    # Otherwise classify, but only if we have edit permissions
+    elif request.method == 'POST' and can_edit_fl:
+        # We're using the submit form for the object updates
+        if queryFilterGW:
+            gw = TcsGravityEventAnnotations.objects.filter(transient_object_id__detection_list_id=list_id).filter(**queryFilterGW)
+            gwTaggedObjects = [x.transient_object_id_id for x in gw]
+            if len(gwTaggedObjects) == 0:
+                # Put one fake object in the list. The query will fail with an EmptyResultSet error if we don't.
+                gwTaggedObjects = [1]
+            objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter).filter(id__in=gwTaggedObjects)
+        else:
+            objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter)
 
-            for key, value in list(request.POST.items()):
-                if '_promote_demote' in key and value != 'U':
+        for key, value in list(request.POST.items()):
+            if '_promote_demote' in key and value != 'U':
 
-                    id = int(key.replace('_promote_demote', ''))
+                id = int(key.replace('_promote_demote', ''))
 
-                    transient = AtlasDiffObjects.objects.get(pk=id)
-                    originallistId = transient.detection_list_id.id
+                transient = AtlasDiffObjects.objects.get(pk=id)
+                originallistId = transient.detection_list_id.id
 
-                    # 2017-10-04 KWS Get nearby objects from partner database. If we get a
-                    #                named object, don't bother choosing a counter. Just use
-                    #                the old name to avoid confusion.
-                    xmresults = getNearbyObjectsFromAlternateDatabase(dbName, ALTERNATE_DB_CONNECTIONS, transient, coneSearchRadius)
+                # 2017-10-04 KWS Get nearby objects from partner database. If we get a
+                #                named object, don't bother choosing a counter. Just use
+                #                the old name to avoid confusion.
+                xmresults = getNearbyObjectsFromAlternateDatabase(dbName, ALTERNATE_DB_CONNECTIONS, transient, coneSearchRadius)
 
-                    # Override the listId with the value from the form if it exists
+                # Override the listId with the value from the form if it exists
 
-                    listId = PROMOTE_DEMOTE[value]
-                    if listId < 0:
-                        listId = originallistId
+                listId = PROMOTE_DEMOTE[value]
+                if listId < 0:
+                    listId = originallistId
 
-                    atlasDesignation = transient.atlas_designation
-                    surveyField = transient.survey_field
-                    fieldCounter = transient.followup_counter
+                atlasDesignation = transient.atlas_designation
+                surveyField = transient.survey_field
+                fieldCounter = transient.followup_counter
 
 
-                    if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
-                        # ASSUMPTION!!  All filenames contain dots and the first part is the field name.
-                        surveyField = 'ATLAS'
+                if not atlasDesignation and (listId == GOOD or listId == ATTIC or listId == FOLLOWUP):
+                    # ASSUMPTION!!  All filenames contain dots and the first part is the field name.
+                    surveyField = 'ATLAS'
 
-                        try:
-                           fieldCode = SURVEY_FIELDS[surveyField]
-                        except KeyError:
-                           # Can't find the field, so record the code as 'XX'
-                           fieldCode = 'ATLAS'
+                    try:
+                        fieldCode = SURVEY_FIELDS[surveyField]
+                    except KeyError:
+                        # Can't find the field, so record the code as 'XX'
+                        fieldCode = 'ATLAS'
 
-                        # Let's assume that there's no field counters table.  Let's try and calculate
-                        # what the number should be from the data.
+                    # Let's assume that there's no field counters table.  Let's try and calculate
+                    # what the number should be from the data.
 
-                        followupFlagDate = transient.followup_flag_date
-                        if followupFlagDate is None:
-                           followupFlagDate = datetime.date.today()
-                           objectFlagMonth = datetime.date.today().month
-                           objectFlagYear = datetime.date.today().year
-                        else:
-                           objectFlagMonth = followupFlagDate.month
-                           objectFlagYear = followupFlagDate.year
+                    followupFlagDate = transient.followup_flag_date
+                    if followupFlagDate is None:
+                        followupFlagDate = datetime.date.today()
+                        objectFlagMonth = datetime.date.today().month
+                        objectFlagYear = datetime.date.today().year
+                    else:
+                        objectFlagMonth = followupFlagDate.month
+                        objectFlagYear = followupFlagDate.year
 
-                        if xmresults['xmNearestName']:
-                            fieldCounter = xmresults['xmNearestCounter']
-                            atlasDesignation = xmresults['xmNearestName']
-                        else:
+                    if xmresults['xmNearestName']:
+                        fieldCounter = xmresults['xmNearestCounter']
+                        atlasDesignation = xmresults['xmNearestName']
+                    else:
 #                            fieldCounter = AtlasDiffObjects.objects.filter(followup_flag_date__year = objectFlagYear, survey_field = surveyField, atlas_designation__contains=(objectFlagYear-2000)).aggregate(Max('followup_counter'))['followup_counter__max']
 #                            if fieldCounter is None:
 #                               # This is the first time we've used the counter
@@ -3318,49 +3372,49 @@ def followupQuickView(request, listNumber):
 #
 #                            atlasDesignation = '%s%d%s' % (fieldCode, objectFlagYear - 2000, base26(fieldCounter))
 
-                            nameData = getLocalObjectName(settings.NAMESERVER_API_URL, settings.NAMESERVER_TOKEN, transient.id, transient.ra, transient.dec, followupFlagDate.strftime("%Y-%m-%d"), dbName)
-                            if nameData:
-                                if nameData['status'] == 201 and nameData['counter'] is not None and nameData['name'] is not None:
-                                    sys.stderr.write("\n%s\n" % nameData['info'])
-                                    fieldCounter = nameData['counter']
-                                    atlasDesignation = nameData['name']
-                                else:
-                                    sys.stderr.write("\nStatus = %s. %s\n" % (str(nameData['status']), nameData['info']))
-                                    request.session['error'] = "ERROR: Nameserver error. Status = %s. %s" % (str(nameData['status']), nameData['info'])
-                                    redirect_to = "../../error/"
-                                    return HttpResponseRedirect(redirect_to)
+                        nameData = getLocalObjectName(settings.NAMESERVER_API_URL, settings.NAMESERVER_TOKEN, transient.id, transient.ra, transient.dec, followupFlagDate.strftime("%Y-%m-%d"), dbName)
+                        if nameData:
+                            if nameData['status'] == 201 and nameData['counter'] is not None and nameData['name'] is not None:
+                                sys.stderr.write("\n%s\n" % nameData['info'])
+                                fieldCounter = nameData['counter']
+                                atlasDesignation = nameData['name']
                             else:
-                                sys.stderr.write("\nBad response from the nameserver. Something went wrong.\n")
-                                request.session['error'] = "ERROR: Bad response from the Nameserver."
+                                sys.stderr.write("\nStatus = %s. %s\n" % (str(nameData['status']), nameData['info']))
+                                request.session['error'] = "ERROR: Nameserver error. Status = %s. %s" % (str(nameData['status']), nameData['info'])
                                 redirect_to = "../../error/"
                                 return HttpResponseRedirect(redirect_to)
-                    try:
-                        # 2011-02-24 KWS Added Observation Status
-                        # 2013-10-29 KWS Added date_modified so we can track when bulk updates were done.
-                        # 2017-10-17 KWS Who modified the objects?
-                        processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
-                        if len(processingStatusData) == 1:
-                            processingStatus = processingStatusData[0].status
-                            processingStartTime = processingStatusData[0].started
-                            if processingStatus == 1:
-                                request.session['error'] = "WARNING: Database is busy doing a backup. Please come back later."
-                                redirect_to = "../../error/"
-                                return HttpResponseRedirect(redirect_to)  
-                        AtlasDiffObjects.objects.filter(pk=int(key.replace('_promote_demote', ''))).update(detection_list_id = listId,
-                                                                                                                   survey_field = surveyField,
-                                                                                                               followup_counter = fieldCounter,
-                                                                                                              atlas_designation = atlasDesignation,
-                                                                                                                     updated_by = request.user.username, 
-                                                                                                                  date_modified = datetime.datetime.now()) 
-                    except IntegrityError as e:
-                        if e[0] == 1062: # Duplicate Key error
-                            pass # Do nothing - will eventually raise some errors on the form
+                        else:
+                            sys.stderr.write("\nBad response from the nameserver. Something went wrong.\n")
+                            request.session['error'] = "ERROR: Bad response from the Nameserver."
+                            redirect_to = "../../error/"
+                            return HttpResponseRedirect(redirect_to)
+                try:
+                    # 2011-02-24 KWS Added Observation Status
+                    # 2013-10-29 KWS Added date_modified so we can track when bulk updates were done.
+                    # 2017-10-17 KWS Who modified the objects?
+                    processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
+                    if len(processingStatusData) == 1:
+                        processingStatus = processingStatusData[0].status
+                        processingStartTime = processingStatusData[0].started
+                        if processingStatus == 1:
+                            request.session['error'] = "WARNING: Database is busy doing a backup. Please come back later."
+                            redirect_to = "../../error/"
+                            return HttpResponseRedirect(redirect_to)  
+                    AtlasDiffObjects.objects.filter(pk=int(key.replace('_promote_demote', ''))).update(detection_list_id = listId,
+                                                                                                                survey_field = surveyField,
+                                                                                                            followup_counter = fieldCounter,
+                                                                                                            atlas_designation = atlasDesignation,
+                                                                                                                    updated_by = request.user.username, 
+                                                                                                                date_modified = datetime.datetime.now()) 
+                except IntegrityError as e:
+                    if e[0] == 1062: # Duplicate Key error
+                        pass # Do nothing - will eventually raise some errors on the form
 
-                    if settings.VRA_ADD_ROW:
-                        originalListId = transient.detection_list_id.id
-                        addVraRow(transient.id, originalListId, listId, request.user.username, settings)
+                if settings.VRA_ADD_ROW:
+                    originalListId = transient.detection_list_id.id
+                    addVraRow(transient.id, originalListId, listId, request.user.username, settings)
 
-
+    # Otherwise handle for a get request
     else:
         if objectName:
             formSearchObject = SearchForObjectForm(initial={'searchText': objectName})
@@ -3400,8 +3454,22 @@ def followupQuickView(request, listNumber):
         table = AtlasDiffObjectsTablePublic(objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
+    
+    context = {
+        'table': table, 
+        'rows': table.rows, 
+        'listHeader': listHeader, 
+        'form_searchobject': formSearchObject, 
+        'dbname': dbName, 
+        'list_id': list_id, 
+        'public': public, 
+        'fgss': fgss, 
+        'processingStatus': processingStatus, 
+        'nobjects': nobjects,
+        'can_edit_fl': can_edit_fl,
+    }
 
-    return render(request, 'atlas/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'public': public, 'fgss': fgss, 'processingStatus': processingStatus, 'nobjects': nobjects})
+    return render(request, 'atlas/followup_quickview_bs.html', context)
 
 
 # 2013-12-12 KWS Added followupQuickViewAll mainly for the public pages.
@@ -3461,9 +3529,20 @@ def followupAllQuickView(request):
         nobjects = 100
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
+    
+    context = {
+        'table': table, 
+        'rows': table.rows, 
+        'listHeader': listHeader, 
+        'form_searchobject': formSearchObject, 
+        'dbname': dbName, 
+        'public': public, 
+        'fgss': fgss, 
+        'nobjects': nobjects,
+    }
 
-    return render(request, 'atlas/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects})
 
+    return render(request, 'atlas/followup_quickview_bs.html', context)
 
 @login_required
 def followupAllPublicQuickView(request):
@@ -3517,8 +3596,19 @@ def followupAllPublicQuickView(request):
         nobjects = 100
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
+    
+    context = {
+        'table': table, 
+        'rows': table.rows, 
+        'listHeader': listHeader, 
+        'form_searchobject': formSearchObject, 
+        'dbname': dbName, 
+        'public': public, 
+        'fgss': fgss, 
+        'nobjects': nobjects
+    }
 
-    return render(request, 'atlas/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects})
+    return render(request, 'atlas/followup_quickview_bs.html', context)
 
 
 # 2015-03-06 KWS Added new quickview custom lists
@@ -3578,8 +3668,19 @@ def userDefinedListsQuickview(request, userDefinedListNumber):
         nobjects = 100
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
+    
+    context = {
+        'table': table, 
+        'rows': table.rows, 
+        'listHeader': listHeader, 
+        'form_searchobject': formSearchObject, 
+        'dbname': dbName, 
+        'public': public, 
+        'fgss': fgss, 
+        'nobjects': nobjects
+    }
 
-    return render(request, 'atlas/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'public': public, 'fgss': fgss, 'nobjects': nobjects})
+    return render(request, 'atlas/followup_quickview_bs.html', context)
 
 
 @login_required
@@ -3718,8 +3819,18 @@ def searchResults(request):
             sc = SherlockClassifications.objects.filter(transient_object_id_id = row.id)
             row.sc = sc
 
+    context = {
+        'subdata': subdata, 
+        'connection': connection, 
+        'form_searchobject' : form, 
+        'dbname': dbName, 
+        'public': public, 
+        'searchText': searchText, 
+        'nobjects': nobjects, 
+        'showObjectLCThreshold': SHOW_LC_DATA_LIMIT
+    }
 
-    return render(request, 'atlas/search_results_plotly.html', {'subdata': subdata, 'connection': connection, 'form_searchobject' : form, 'dbname': dbName, 'public': public, 'searchText': searchText, 'nobjects': nobjects, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT})
+    return render(request, 'atlas/search_results_plotly.html', context)
 
 
 # 2018-07-02 KWS New version of the quickview pages, using plotly and bootstrap.
@@ -3816,7 +3927,8 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
         except FieldDoesNotExist as e:
             sort = ['-rank']
             break
-
+    can_edit_fl = has_write_permissions(request.user)
+    
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
     processingStatus = None
@@ -3825,6 +3937,11 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
         processingStatus = processingStatusData[0].status
         processingStartTime = processingStatusData[0].started
 
+    # If the processing status is 1, we can't edit the observations
+    if processingStatus == 1:
+        can_edit_fl = False
+    logger.debug("User can edit observations: %s" % can_edit_fl)
+    
     objectName = None
 
     # Dummy form search object
@@ -3856,7 +3973,7 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
                             objectsQueryset.append(obj)
                 else:
                     objectsQueryset = WebViewFollowupTransientsGeneric.objects.filter(**queryFilter).order_by(*sort)
-        else:
+        elif can_edit_fl:
             # We're using the submit form for the object updates
             #objectsQueryset = AtlasDiffObjects.objects.filter(**queryFilter)
             if queryFilterGW:
@@ -4046,5 +4163,21 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
             sc = SherlockClassifications.objects.filter(transient_object_id_id = row.id)
             row.sc = sc
 
-    return render(request, 'atlas/search_results_plotly.html', {'subdata': subdata, 'listHeader': listHeader, 'form_searchobject' : formSearchObject, 'dbname': dbName, 'list_id': list_id, 'processingStatus': processingStatus, 'nobjects': nobjects, 'public': public, 'searchText': searchText, 'urlsuffix': urlsuffix, 'classifyform': True, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT })
+    context = {
+        'subdata': subdata, 
+        'listHeader': listHeader, 
+        'form_searchobject' : formSearchObject, 
+        'dbname': dbName, 
+        'list_id': list_id, 
+        'processingStatus': processingStatus, 
+        'nobjects': nobjects, 
+        'public': public, 
+        'searchText': searchText, 
+        'urlsuffix': urlsuffix, 
+        'classifyform': True, 
+        'showObjectLCThreshold': SHOW_LC_DATA_LIMIT,
+        "can_edit_fl": can_edit_fl,
+    }
+
+    return render(request, 'atlas/search_results_plotly.html', context)
 
