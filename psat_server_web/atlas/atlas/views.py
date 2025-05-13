@@ -13,7 +13,7 @@ from django.template.context_processors import csrf
 from django.urls import reverse
 from django.db.models import Avg, Max, Min, Count
 from django.db import IntegrityError
-from .permissions import has_write_permissions
+from accounts.permissions import has_write_permissions
 from atlas.models import TcsPostageStampImages
 from atlas.models import TcsClassificationFlags
 from atlas.models import TcsDetectionLists

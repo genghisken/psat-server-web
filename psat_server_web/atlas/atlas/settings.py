@@ -121,7 +121,7 @@ LOGGING = {
     # Implement the stderr logger as the default logger.
     "loggers": {
         "": {
-            "handlers": ["stderr"],
+            "handlers": ["stderr","file"],
             "level": DJANGO_LOG_LEVEL,
             "propagate": True,
         },

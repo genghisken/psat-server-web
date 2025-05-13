@@ -11,7 +11,7 @@ def has_write_permissions(user: User) -> bool:
         logger.debug("User is not authenticated.")
         return False
     
-    return user.has_perm('atlas.has_write_access') or user.is_staff or user.is_superuser
+    return user.has_perm('accounts.has_write_access') or user.is_staff or user.is_superuser
 
 
 class GlobalPermissions(models.Model):
