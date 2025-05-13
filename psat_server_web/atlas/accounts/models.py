@@ -3,6 +3,31 @@ from django.utils.timezone import timedelta
 from django.contrib.auth.models import Group
 from django.db import models
 
+class UserProfile(models.Model):
+    """UserProfile.
+    
+    Extension of the User model to store additional information, such as token 
+    expiration time.
+    """
+    id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(
+        'auth.User', 
+        on_delete=models.CASCADE, 
+        related_name='profile'
+    )
+    password_unuseable_fl = models.BooleanField(
+        default=False,
+        help_text='If true, password requires changing before login'
+    )
+    
+    class Meta:
+        """Meta.
+        """
+        app_label = 'accounts'
+        managed = True
+        verbose_name = 'User Profile'
+        verbose_name_plural = 'User Profiles'
+        db_table = 'auth_user_profile'
 
 
 class GroupProfile(models.Model):

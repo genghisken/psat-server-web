@@ -5,9 +5,9 @@ expiry time for tokens can be set.
 import logging
 
 from django.contrib import admin
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 from django.forms.models import ModelForm
-from .models import GroupProfile
+from .models import GroupProfile, UserProfile
 
 
 logger = logging.getLogger(__name__)
@@ -29,6 +29,18 @@ class GroupProfileInline(admin.StackedInline):
 
 class GroupAdmin(admin.ModelAdmin):
     inlines = (GroupProfileInline,)
-
+    
 admin.site.unregister(Group)
 admin.site.register(Group, GroupAdmin)
+    
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    extra = 1
+    form = AlwaysChangedModelForm
+    
+class UserAdmin(admin.ModelAdmin):
+    inlines = (UserProfileInline,)
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
