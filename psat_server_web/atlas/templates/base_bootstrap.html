@@ -217,7 +217,7 @@
       {% endif %}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bug" title="Raise a Bug Report or Suggest Improvements"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> bug/feature request</span></a>
-        <div class="dropdown-menu">
+        <div class="dropdown-menu dropdown-menu-right">
           <a class="dropdown-item" href="https://github.com/genghisken/psat-server-web/issues" target="_blank">Webserver issues</a>
           <a class="dropdown-item" href="https://github.com/thespacedoctor/sherlock/issues" target="_blank">Context issues</a>
         </div>
@@ -225,8 +225,8 @@
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-solid fa-spaghetti-monster-flying" title="Change Password"></i> {{request.user.username}}</a>
         <div class="dropdown-menu dropdown-menu-right">
-          <a class="dropdown-item" href="{% url 'change_password' %}"> change password</a>
-          <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-solid fa-sign-out-alt" title="Sign out"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> logout</span></a>
+          <a class="dropdown-item" href="{% url 'change_password' %}"><i class="fa-solid fa-user-secret"></i> change password</a>
+          <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-solid fa-sign-out-alt" title="Sign out"></i> logout</a>
         </div>
 
       </li>
