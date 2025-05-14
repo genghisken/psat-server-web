@@ -3,4 +3,4 @@ prune psat_server_web/atlas/media/images/data
 prune psat_server_web/atlas/static
 prune psat_server_web/ps1/static
 prune psat_server_web/ps1/media/images/data
-global-exclude .gitignore __pycache__ *.py[cod]
+global-exclude .gitignore __pycache__ *.py[cod] */migrations/*.py */migrations/*.pyc */migrations/__pycache__/*
