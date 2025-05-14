@@ -197,6 +197,10 @@ def csrf_failure(request, reason=""):
     """
     return render(request, 'invalid_login.html', {'message': 'CSRF failure'})
 
+def privacy_policy(request):
+    """View for the privacy_policy.
+    """
+    return render(request, 'privacy_policy.html')
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
