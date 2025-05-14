@@ -26,6 +26,7 @@ urlpatterns = [
     path("accounts/", include("django_registration.backends.activation.urls")),
 
     url(r'^$', views.homepage, name='home'),
+    url(r'^privacy/$', views.privacy_policy, name='privacy_policy'),
 
     # 2019-09-28 KWS New error page.
     url(r'^error/$', views.errorpage, name='error'),
