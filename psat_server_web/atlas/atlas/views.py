@@ -230,7 +230,6 @@ class AtlasPasswordChangeForm(PasswordChangeForm):
         Further checking on old password to ensure it is not the same as the 
         new password.
         """
-        logger.debug('self.cleaned_data: %s', self.cleaned_data)
         new_password1 = self.cleaned_data['new_password1']
         try:
             old_password = self.cleaned_data['old_password']
@@ -247,7 +246,7 @@ class AtlasPasswordChangeForm(PasswordChangeForm):
                 self.error_messages['password_old_same_new'],
                 code='password_old_same_new',
             )
-        return old_password
+        return new_password1
         
 class AtlasPasswordChangeView(auth_views.PasswordChangeView):
     """AtlasPasswordChangeView.
