@@ -225,6 +225,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
+    'django_registration',
     'atlas',
     'accounts',
     'django_tables2',
@@ -245,3 +246,7 @@ REST_FRAMEWORK = {
 
 # Token expiry time in days, default 1 day (24*60*60 seconds)
 TOKEN_EXPIRY = int(os.environ.get("API_TOKEN_EXPIRY") or 86400) # seconds
+
+# Variables for the django_registration app
+ACCOUNT_ACTIVATION_DAYS = int(os.environ.get("ACCOUNT_ACTIVATION_DAYS") or 7)
+REGISTRATION_OPEN = True

@@ -2,6 +2,7 @@
 from django.urls import re_path as url
 from django.urls import path, include
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from atlas import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -14,11 +15,15 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('atlasapi.urls')),
     # 2016-02-26 KWS Add the authentication URLs
-    url(r'^accounts/login/', views.login, name="login"),
-    url(r'^accounts/logout/', views.logout, name="logout"),
+    url(r'^accounts/login/', views.loginView, name="login"),
+    # url(r'^accounts/register/', views.register_user, name="register"),
+    url(r'^accounts/logout/', views.logoutView, name="logout"),
     url(r'^accounts/auth/', views.authView, name="auth"),
     url(r'^accounts/loggedin/', views.loggedin, name="loggedin"),
     url(r'^accounts/invalid/', views.invalidLogin, name="invalid"),
+    url(r'^accounts/change_password/$', views.AtlasPasswordChangeView.as_view(), name="change_password"),
+    url(r'^accounts/password_change_done/$', auth_views.PasswordChangeDoneView.as_view(template_name="password_change_done.html"), name="password_change_done"),
+    path("accounts/", include("django_registration.backends.activation.urls")),
 
     url(r'^$', views.homepage, name='home'),
 

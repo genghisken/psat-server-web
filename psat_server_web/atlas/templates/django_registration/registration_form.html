@@ -1,0 +1,27 @@
+{% extends "base_bootstrap_login.html" %}
+{% block title %}Register new user{% endblock %}
+{% block content %}
+
+
+<div class="container-fluid h-100">
+  <div class="row justify-content-center align-items-center h-100">
+    <div class="col-lg-4 col-md-6 col-sm-12">
+
+      {% if form.errors %}
+        <p class="error">Sorry, that's not a valid username and password combination</p>
+      {% endif %}
+      
+      <div class="form-group">
+        <form action="{% url "register" %}" method="post" id="registerform">    
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Register</button>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

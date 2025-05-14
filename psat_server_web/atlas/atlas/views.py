@@ -7,13 +7,12 @@ from django.http import HttpResponseRedirect
 
 # 2016-02-26 KWS Required for authentication
 from django.contrib import auth
-from django.template.context_processors import csrf
-#from django.template.context_processors import csrf
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.forms import PasswordChangeForm
 
-from django.urls import reverse
-from django.db.models import Avg, Max, Min, Count
 from django.db import IntegrityError
 from accounts.permissions import has_write_permissions
+from accounts.utils import needs_to_change_password
 from atlas.models import TcsPostageStampImages
 from atlas.models import TcsClassificationFlags
 from atlas.models import TcsDetectionLists
@@ -87,7 +86,7 @@ import django_tables2 as tables2
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # 2016-02-26 KWS Required for authentication
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 # 2022-05-06 KWS New model - AtlasDiffSubcells
 from atlas.models import AtlasDiffSubcells
@@ -118,7 +117,7 @@ class LoginForm(forms.Form):
     username = forms.CharField(required=False, widget=forms.TextInput(attrs={'size':'50', 'class':'form-control'}))
     password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'size':'50', 'class':'form-control'}))
 
-def login(request):
+def loginView(request):
     """login.
 
     Args:
@@ -149,6 +148,12 @@ def authView(request):
         # 2017-11-28 KWS Changed expiry to 30 days. 1 day expiry too irritating.
         request.session.set_expiry(30 * 86400)
         auth.login(request, user)
+        try:
+            if user.profile.password_unuseable_fl:
+                return redirect('change_password')
+        except AttributeError:
+            logger.warning(f'User {user} has no profile.')
+        
         if next == '':
             return redirect('home')
         else:
@@ -174,7 +179,7 @@ def invalidLogin(request):
     """
     return render(request, 'invalid_login.html')
 
-def logout(request):
+def logoutView(request):
     """logout.
 
     Args:
@@ -193,6 +198,67 @@ def csrf_failure(request, reason=""):
     return render(request, 'invalid_login.html', {'message': 'CSRF failure'})
 
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+def register_user(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
+
+
+class AtlasPasswordChangeForm(PasswordChangeForm):
+    """AtlasPasswordChangeForm.
+    """
+    error_messages = {
+        **PasswordChangeForm.error_messages,
+        'password_old_same_new': "The new password cannot be the same as the old password.",
+    }
+
+    def clean_new_password1(self):
+        """ 
+        Further checking on old password to ensure it is not the same as the 
+        new password.
+        """
+        new_password1 = self.cleaned_data['new_password1']
+        old_password = self.cleaned_data['old_password']
+        
+        if old_password == new_password1:
+            raise forms.ValidationError(
+                self.error_messages['password_old_same_new'],
+                code='password_old_same_new',
+            )
+        return old_password
+        
+class AtlasPasswordChangeView(auth_views.PasswordChangeView):
+    """AtlasPasswordChangeView.
+    """
+    form_class = AtlasPasswordChangeForm
+    template_name = 'change_password.html'
+    
+    def form_valid(self, form):
+        # Unset the password_unuseable flag in the user profile
+        try:
+            form.user.profile.password_unuseable_fl = False
+            form.user.profile.save()
+        except AttributeError:
+            logger.warning(f'User {form.user} has no profile.')
+        
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        try:
+            context_data['password_unuseable_fl'] = self.request.user.profile.password_unuseable_fl
+        except AttributeError:
+            logger.warning(f'User {self.request.user} has no profile.')
+            context_data['password_unuseable_fl'] = False
+        return context_data
 
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.
@@ -392,6 +458,7 @@ class UserDefinedListDefinitionsTable(tables2.Table):
         template_name = "bootstrap4_django_tables2_atlas.html"
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def userDefinedListDefinitions(request):
     """userDefinedListDefinitions.
@@ -566,6 +633,7 @@ class WebViewUserDefinedTable(tables2.Table):
         #attrs = {'class': 'followuplists_standardview'}
         template_name = "bootstrap4_django_tables2_atlas.html"
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def userDefinedLists(request, userDefinedListNumber):
     """userDefinedLists.
@@ -612,6 +680,7 @@ def userDefinedLists(request, userDefinedListNumber):
 
 
 # 2023-06-09 KWS Get GCN formatted user defined lists
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def gcn(request, userDefinedListNumber, template_name):
     """Create a text only GCN list from a custom list"""
@@ -683,6 +752,7 @@ class AtlasDetectionsddcTable(tables2.Table):
         template_name = "bootstrap4_django_tables2_atlas.html"
 
 # Experimental code - Use of forms
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def candidate(request, atlas_diff_objects_id):
     """candidate.
@@ -1143,6 +1213,7 @@ def addVraRow(objectid, originalListId, destinationListId, username, settings):
 
 
 # 2017-06-16 KWS New DDC format candidate method
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def candidateddc(request, atlas_diff_objects_id, template_name):
     """candidateddc.
@@ -1908,6 +1979,7 @@ def atel(request, tcs_transient_objects_id):
 #
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def obsCatalogue(request, userDefinedListNumber):
     """Create a text only observation catalogue for (e.g.) WHT"""
@@ -1921,6 +1993,7 @@ def obsCatalogue(request, userDefinedListNumber):
     return render(request, 'atlas/obscat.txt',{'table': table, 'rows' : table.rows, 'listHeader' : listHeader}, content_type="text/plain")
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def obsMediaWiki(request, userDefinedListNumber):
     """Create a text only observation catalogue for (e.g.) WHT"""
@@ -1934,6 +2007,7 @@ def obsMediaWiki(request, userDefinedListNumber):
     return render(request, 'atlas/obsmediawiki.txt',{'table': table, 'rows' : table.rows, 'listHeader' : listHeader}, content_type="text/plain")
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def atelsDiscovery(request, userDefinedListNumber):
     """Create a text only Discovery ATel list"""
@@ -1947,6 +2021,7 @@ def atelsDiscovery(request, userDefinedListNumber):
     return render(request, 'atlas/atelsdiscovery.txt',{'table': table, 'rows' : table.rows, 'listHeader' : listHeader}, content_type="text/plain")
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def atelsFast(request, userDefinedListNumber):
     """Create a text only Discovery ATel list"""
@@ -1971,6 +2046,7 @@ def atelsFast(request, userDefinedListNumber):
     return render(request, 'atlas/atelsfast.txt',{'table': results, 'listHeader' : listHeader}, content_type="text/plain")
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def visibility(request, userDefinedListNumber):
     """Create a text only Visibility Tool input list"""
@@ -1984,6 +2060,7 @@ def visibility(request, userDefinedListNumber):
     return render(request, 'atlas/visibility.txt',{'table': table, 'rows' : table.rows}, content_type="text/plain")
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def iobserve(request, userDefinedListNumber):
     """Create a text only Visibility Tool input list"""
@@ -1996,6 +2073,7 @@ def iobserve(request, userDefinedListNumber):
 
     return render(request, 'atlas/iobserve.txt',{'table': table, 'rows' : table.rows}, content_type="text/plain")
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def heatmap(request, expname, template_name):
     """Generate a heat map for detections within an exposure"""
@@ -2071,6 +2149,7 @@ def heatmap(request, expname, template_name):
 
     return render(request, 'atlas/' + template_name, {'obs': expname, 'heatmap' : heatmap, 'x': xpos, 'y': ypos, 'resolution': resolution, 'colorbarspan': colorBarSpan})
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 # 2018-10-18 KWS Code to generate a JSON table of all the good & confirmed SNe - required by celestial.js
 def jsonSNe(request):
@@ -2111,6 +2190,7 @@ def jsonSNe(request):
 
 
 # 2014-01-31 KWS Altered the home page to only show public info for public database.
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def homepage(request):
     """homepage.
@@ -2131,6 +2211,7 @@ def homepage(request):
         return render(request, 'atlas/index_bs_celestial.html', {'form_searchobject' : form, 'public': public})
 
 # 2018-09-28 KWS New error page.
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def errorpage(request):
     """errorpage.
@@ -2147,6 +2228,7 @@ def errorpage(request):
 
     return render(request, 'atlas/error.html', {'error_message': message})
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def temporaryHomepage(request):
     """temporaryHomepage.
@@ -2164,6 +2246,7 @@ def temporaryHomepage(request):
         return render(request, 'atlas/index_bs.html', {'public': public})
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def redirectedHomepage(request):
     """redirectedHomepage.
@@ -2174,6 +2257,7 @@ def redirectedHomepage(request):
     redirect_to = './psdb/' 
     return HttpResponseRedirect(redirect_to)
     
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def reportspage(request):
     """reportspage.
@@ -2549,6 +2633,7 @@ followupClassList = [WebViewFollowupTransients0,
                      WebViewFollowupTransients13]
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def followupList(request, listNumber):
     """followupList.
@@ -2899,6 +2984,7 @@ def pesstorecurrencesddc(request):
 
     return render(request, 'atlas/pesstorecurrencesddc.txt',{'table': initial_queryset}, content_type="text/plain")
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def atelsDiscovery(request, userDefinedListNumber):
     """Create a text only Discovery ATel list"""
@@ -2968,6 +3054,7 @@ class TcsCrossMatchesExternalTable(tables2.Table):
 
         model = TcsCrossMatchesExternal
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def displayExternalCrossmatches(request):
     """displayExternalCrossmatches.
@@ -3199,6 +3286,7 @@ class AtlasDiffObjectsTablePublic(AtlasDiffObjectsTable):
 
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def followupQuickView(request, listNumber):
     """followupQuickView.
@@ -3462,6 +3550,7 @@ def followupQuickView(request, listNumber):
 
 # 2013-12-12 KWS Added followupQuickViewAll mainly for the public pages.
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def followupAllQuickView(request):
     """followupAllQuickView.
@@ -3532,6 +3621,7 @@ def followupAllQuickView(request):
 
     return render(request, 'atlas/followup_quickview_bs.html', context)
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def followupAllPublicQuickView(request):
     """followupAllPublicQuickView.
@@ -3601,6 +3691,7 @@ def followupAllPublicQuickView(request):
 
 # 2015-03-06 KWS Added new quickview custom lists
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def userDefinedListsQuickview(request, userDefinedListNumber):
     """userDefinedListsQuickview.
@@ -3671,6 +3762,7 @@ def userDefinedListsQuickview(request, userDefinedListNumber):
     return render(request, 'atlas/followup_quickview_bs.html', context)
 
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def searchResults(request):
     """searchResults.
@@ -3822,6 +3914,7 @@ def searchResults(request):
 
 
 # 2018-07-02 KWS New version of the quickview pages, using plotly and bootstrap.
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required
 def followupQuickViewBootstrapPlotly(request, listNumber):
     """followupQuickViewBootstrapPlotly.
