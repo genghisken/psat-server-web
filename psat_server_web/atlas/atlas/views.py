@@ -222,6 +222,7 @@ class AtlasPasswordChangeForm(PasswordChangeForm):
     error_messages = {
         **PasswordChangeForm.error_messages,
         'password_old_same_new': "The new password cannot be the same as the old password.",
+        'old_password_incorrect': "The old password is not correct.",
     }
 
     def clean_new_password1(self):
@@ -229,8 +230,17 @@ class AtlasPasswordChangeForm(PasswordChangeForm):
         Further checking on old password to ensure it is not the same as the 
         new password.
         """
+        logger.debug('self.cleaned_data: %s', self.cleaned_data)
         new_password1 = self.cleaned_data['new_password1']
-        old_password = self.cleaned_data['old_password']
+        try:
+            old_password = self.cleaned_data['old_password']
+        except KeyError:
+            # This is a new password change form, so we don't have an old password
+            # to check against.
+            raise forms.ValidationError(
+                self.error_messages['old_password_incorrect'],
+                code='old_password_incorrect',
+            )
         
         if old_password == new_password1:
             raise forms.ValidationError(
