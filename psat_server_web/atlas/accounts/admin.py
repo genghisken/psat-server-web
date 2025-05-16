@@ -5,6 +5,8 @@ expiry time for tokens can be set.
 import logging
 
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from django.contrib.auth.models import User, Group
 from django.forms.models import ModelForm
 from .models import GroupProfile, UserProfile
@@ -27,7 +29,10 @@ class GroupProfileInline(admin.StackedInline):
     extra = 1
     form = AlwaysChangedModelForm
 
-class GroupAdmin(admin.ModelAdmin):
+class GroupAdmin(BaseGroupAdmin):
+    """ Customise admin interface for Group model to include GroupProfile, so 
+    expiry time for tokens can be set. 
+    """
     inlines = (GroupProfileInline,)
     
 admin.site.unregister(Group)
@@ -39,7 +44,10 @@ class UserProfileInline(admin.StackedInline):
     extra = 1
     form = AlwaysChangedModelForm
     
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(BaseUserAdmin):
+    """ Customise admin interface for User model to include UserProfile, so
+    unuseable_password flag can be set. 
+    """
     inlines = (UserProfileInline,)
 
 admin.site.unregister(User)
