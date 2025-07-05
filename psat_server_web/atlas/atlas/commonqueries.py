@@ -79,6 +79,7 @@ LC_POINTS_QUERY_ATLAS = '''\
            '''
 
 # 2015-12-10 KWS Updated query for DDT format schema.
+# 2025-07-02 KWS Added nx and ny.
 LC_POINTS_QUERY_ATLAS_DDT = '''\
           select o.id,
                  d.ra,
@@ -95,6 +96,8 @@ LC_POINTS_QUERY_ATLAS_DDT = '''\
                  m.reference,
                  m.object pointing,
                  m.mag5sig,
+                 m.nx,
+                 m.ny,
                  d.atlas_metadata_id,
                  d.atlas_object_id,
                  o.atlas_designation,
@@ -172,6 +175,7 @@ def metadataWhereClause(metadataIds):
 
 # 2017-06-16 KWS Updated query for DDC format schema.
 # 2024-03-07 KWS Added date_inserted.
+# 2025-07-02 KWS Added nx and ny.
 LC_POINTS_QUERY_ATLAS_DDC = '''\
           select o.id,
                  d.ra,
@@ -188,6 +192,8 @@ LC_POINTS_QUERY_ATLAS_DDC = '''\
                  m.reference,
                  m.obj pointing,
                  m.mag5sig,
+                 m.nx,
+                 m.ny,
                  d.atlas_metadata_id,
                  d.atlas_object_id,
                  o.atlas_designation,
