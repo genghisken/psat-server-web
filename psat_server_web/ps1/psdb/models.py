@@ -1122,3 +1122,70 @@ class TcsZooniverseScores(models.Model):
 
         db_table = 'tcs_zooniverse_scores'
         managed = False
+
+
+# 2025-06-30 KWS Added TcsForcedPhotometry model.
+class TcsForcedPhotometry(models.Model):
+    """TcsForcedPhotometry.
+    """
+        
+    id = models.BigIntegerField(primary_key=True)
+    postage_stamp_request_id = models.BigIntegerField(blank=True, null=True)
+    transient_object_id = models.ForeignKey(TcsTransientObjects, to_field='id', db_column='transient_object_id', on_delete=models.CASCADE)
+    rownum = models.IntegerField(blank=True, null=True)
+    skycell = models.CharField(max_length=10, blank=True)
+    mjd_obs = models.FloatField(blank=True, null=True)
+    exptime = models.FloatField(blank=True, null=True)
+    filter = models.CharField(max_length=20, blank=True)
+    fpa_id = models.CharField(max_length=20, blank=True)
+    x_psf = models.FloatField(blank=True, null=True)
+    y_psf = models.FloatField(blank=True, null=True)
+    x_psf_sig = models.FloatField(blank=True, null=True)
+    y_psf_sig = models.FloatField(blank=True, null=True)
+    posangle = models.FloatField(blank=True, null=True)
+    pltscale = models.FloatField(blank=True, null=True)
+    psf_inst_mag = models.FloatField(blank=True, null=True)
+    psf_inst_mag_sig = models.FloatField(blank=True, null=True)
+    psf_inst_flux = models.FloatField(blank=True, null=True)
+    psf_inst_flux_sig = models.FloatField(blank=True, null=True)
+    ap_mag = models.FloatField(blank=True, null=True)
+    ap_mag_radius = models.FloatField(blank=True, null=True)
+    peak_flux_as_mag = models.FloatField(blank=True, null=True)
+    cal_psf_mag = models.FloatField(blank=True, null=True)
+    cal_psf_mag_sig = models.FloatField(blank=True, null=True)
+    ra_psf = models.FloatField()
+    dec_psf = models.FloatField()
+    sky = models.FloatField(blank=True, null=True)
+    sky_sigma = models.FloatField(blank=True, null=True)
+    psf_chisq = models.FloatField(blank=True, null=True)
+    cr_nsigma = models.FloatField(blank=True, null=True)
+    ext_nsigma = models.FloatField(blank=True, null=True)
+    psf_major = models.FloatField(blank=True, null=True)
+    psf_minor = models.FloatField(blank=True, null=True) 
+    psf_theta = models.FloatField(blank=True, null=True)
+    psf_qf = models.FloatField(blank=True, null=True)
+    psf_ndof = models.IntegerField(blank=True, null=True) 
+    psf_npix = models.IntegerField(blank=True, null=True)
+    moments_xx = models.FloatField(blank=True, null=True)
+    moments_xy = models.FloatField(blank=True, null=True)
+    moments_yy = models.FloatField(blank=True, null=True)
+    diff_npos = models.IntegerField(blank=True, null=True)
+    diff_fratio = models.FloatField(blank=True, null=True)
+    diff_nratio_bad = models.FloatField(blank=True, null=True)
+    diff_nratio_mask = models.FloatField(blank=True, null=True)
+    diff_nratio_all = models.FloatField(blank=True, null=True)
+    flags = models.IntegerField(blank=True, null=True)
+    n_frames = models.IntegerField(blank=True, null=True)
+    padding = models.IntegerField(blank=True, null=True)
+    zero_pt_skycell_corrected = models.FloatField(blank=True, null=True)
+    pscamera = models.CharField(max_length=30, blank=True)
+    fptype = models.IntegerField(blank=False, null=False)
+
+    class Meta:
+        """Meta.
+        """
+
+        managed = False
+        db_table = 'tcs_forced_photometry'
+
+

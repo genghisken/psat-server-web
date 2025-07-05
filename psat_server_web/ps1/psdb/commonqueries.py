@@ -330,8 +330,9 @@ FOLLOWUP_PHOTOMETRY_QUERY = """\
 
 # Get forced photometry only if the flux s/n ratio > 3 and limit to a minimum MJD.
 # 2021-12-18 KWS Added pscamera (GPC1 or GPC2) to the forced photometry raw query.
+# 2025-06-30 KWS Added fptype to the forced photometry raw query.
 FORCED_PHOTOMETRY_QUERY = """\
-          select id, transient_object_id, mjd_obs, ra_psf, dec_psf, skycell, exptime, psf_inst_mag, psf_inst_mag_sig, cal_psf_mag, psf_inst_flux, psf_inst_flux_sig, filter, zero_pt, fpa_id, pscamera
+          select id, transient_object_id, mjd_obs, ra_psf, dec_psf, skycell, exptime, psf_inst_mag, psf_inst_mag_sig, cal_psf_mag, psf_inst_flux, psf_inst_flux_sig, filter, zero_pt, fpa_id, pscamera, fptype
             from tcs_forced_photometry
            where transient_object_id = %s
              and mjd_obs > %s

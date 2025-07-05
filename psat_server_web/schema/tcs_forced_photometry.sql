@@ -6,6 +6,7 @@
 -- 2021-12-28 KWS Added pscamera to the list of columns.
 -- 2023-04-17 KWS Switched to using InnoDB as backend. Requires the database to be small or
 --                regularly purged (as has been done with ATLAS).
+-- 2025-06-30 KWS Added new column "type" whose value is 0 for diff and 1 for reduced (new).
 drop table if exists `tcs_forced_photometry`;
 
 create table `tcs_forced_photometry` (
@@ -60,6 +61,7 @@ create table `tcs_forced_photometry` (
 `padding` smallint,
 `zero_pt_skycell_corrected` float,
 `pscamera` varchar(10),
+`fptype` tinyint not null default 0,
 PRIMARY KEY `key_id` (`id`),
 UNIQUE KEY `idx_transient_object_id_fpa_id` (`transient_object_id`,`fpa_id`),
 KEY `idx_ra_psf_dec_psf` (`ra_psf`,`dec_psf`),
