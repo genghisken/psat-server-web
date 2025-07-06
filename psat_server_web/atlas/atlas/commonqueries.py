@@ -841,15 +841,29 @@ def getNonDetectionsUsingATLASFootprint(recurrences, filters = FILTERS, ndQuery=
     averageObjectCoords, rmsScatter = getRecurrenceData(recurrenceCoords)
     recurrenceDetections = [r.atlas_metadata_id for r in recurrences]
 
-    from gkutils.commonutils import coneSearchHTM, QUICK, FULL, COUNT, CAT_ID_RA_DEC_COLS, Struct, isObjectInsideATLASFootprint
+    from gkutils.commonutils import coneSearchHTM, QUICK, FULL, COUNT, CAT_ID_RA_DEC_COLS, Struct, isObjectInsideATLASFootprint, isObjectInsideATLASFootprintGeneric
+
+    if catalogueName == 'atlas_metadata':
+        exp = 'expname'
+    else:
+        # it must be atlas_metadataddc
+        exp = 'obs'
 
     message, xmObjects = coneSearchHTM(averageObjectCoords['RA'], averageObjectCoords['DEC'], searchRadius, catalogueName, queryType = FULL, conn = conn, django = True)
     metadataIds = []
     uniqueMetadataIds = []
     if xmObjects:
         for xm in xmObjects:
-            # Eliminate exposures where the object is outside the ATLAS footprint.
-            inside = isObjectInsideATLASFootprint(averageObjectCoords['RA'], averageObjectCoords['DEC'], xm[1]['ra'], xm[1]['dec'], separation = xm[0])
+            if xm[1][exp][0:3] == '05r':
+                # 2025-07-06 KWS Use the new generic functionality for checking if a coordinate is inside the exposure.
+                #                Note that a) we can use this for all footprint checks, but we choose to do it first
+                #                for TDO exposures. And b) default cone search radius is for the standard ATLAS square
+                #                footprint, and will return a superset of data for the TDO telescope. That's fine, we
+                #                eliminate the exposure using the footprint check.
+                inside = isObjectInsideATLASFootprintGeneric(averageObjectCoords['RA'], averageObjectCoords['DEC'], xm[1]['ra'], xm[1]['dec'], xm[1]['nx'], xm[1]['ny'], xm[1]['scale'])
+            else:
+                # Eliminate exposures where the object is outside the ATLAS footprint.
+                inside = isObjectInsideATLASFootprint(averageObjectCoords['RA'], averageObjectCoords['DEC'], xm[1]['ra'], xm[1]['dec'], separation = xm[0])
             if inside:
                 metadataIds.append(xm[1]['id'])
         uniqueMetadataIds = list(set(metadataIds))
@@ -935,10 +949,15 @@ def getNonDetectionsUsingATLASFootprintAPI(recurrences, filters = FILTERS, ndQue
         recurrenceCoords = [{"RA": row.ra, "DEC": row.dec} for row in recurrences]
         averageObjectCoords, rmsScatter = getRecurrenceData(recurrenceCoords)
 
+    if catalogueName == 'atlas_metadata':
+        exp = 'expname'
+    else:
+        # it must be atlas_metadataddc
+        exp = 'obs'
 
     recurrenceDetections = [r.atlas_metadata_id for r in recurrences]
 
-    from gkutils.commonutils import coneSearchHTMWithExtraWhereClause, QUICK, FULL, COUNT, CAT_ID_RA_DEC_COLS, Struct, isObjectInsideATLASFootprint
+    from gkutils.commonutils import coneSearchHTMWithExtraWhereClause, QUICK, FULL, COUNT, CAT_ID_RA_DEC_COLS, Struct, isObjectInsideATLASFootprint, isObjectInsideATLASFootprintGeneric
 
     # TODO Include time threshold actually in the cone search. Fundamental change to the cone search code.
     # 2024-03-06 KWS Inject additional SQL into the cone search (requires gkutils >= 0.3.0)
@@ -951,8 +970,17 @@ def getNonDetectionsUsingATLASFootprintAPI(recurrences, filters = FILTERS, ndQue
     uniqueMetadataIds = []
     if xmObjects:
         for xm in xmObjects:
-            # Eliminate exposures where the object is outside the ATLAS footprint.
-            inside = isObjectInsideATLASFootprint(averageObjectCoords['RA'], averageObjectCoords['DEC'], xm[1]['ra'], xm[1]['dec'], separation = xm[0])
+            if xm[1][exp][0:3] == '05r':
+                # 2025-07-06 KWS Use the new generic functionality for checking if a coordinate is inside the exposure.
+                #                Note that a) we can use this for all footprint checks, but we choose to do it first
+                #                for TDO exposures. And b) default cone search radius is for the standard ATLAS square
+                #                footprint, and will return a superset of data for the TDO telescope. That's fine, we
+                #                eliminate the exposure using the footprint check.
+                inside = isObjectInsideATLASFootprintGeneric(averageObjectCoords['RA'], averageObjectCoords['DEC'], xm[1]['ra'], xm[1]['dec'], xm[1]['nx'], xm[1]['ny'], xm[1]['scale'])
+            else:
+                # Eliminate exposures where the object is outside the ATLAS footprint.
+                inside = isObjectInsideATLASFootprint(averageObjectCoords['RA'], averageObjectCoords['DEC'], xm[1]['ra'], xm[1]['dec'], separation = xm[0])
+
             if inside:
                 metadataIds.append(xm[1]['id'])
         uniqueMetadataIds = list(set(metadataIds))
