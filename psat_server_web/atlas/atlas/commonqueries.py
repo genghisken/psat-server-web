@@ -144,7 +144,7 @@ def filterWhereClause(filters = FILTERS):
     return 'and (' + whereClause + ')' + orderBy
 
 
-
+# 2025-07-06 KWS Added nx, ny, scale.
 ATLAS_METADATA = '''
           select id,
                  mjd_obs mjd,
@@ -157,7 +157,10 @@ ATLAS_METADATA = '''
                  input,
                  reference,
                  object pointing,
-                 mag5sig
+                 mag5sig,
+                 nx,
+                 ny,
+                 scale
             from atlas_metadata
           '''
 
@@ -262,6 +265,7 @@ def filterWhereClauseddc(filters = FILTERS):
     return 'and (' + whereClause + ')' + orderBy
 
 
+# 2025-07-06 KWS Added nx, ny, scale.
 ATLAS_METADATADDC = '''
           select id,
                  mjd,
@@ -275,7 +279,10 @@ ATLAS_METADATADDC = '''
                  reference,
                  obj pointing,
                  mag5sig,
-                 date_inserted
+                 date_inserted,
+                 nx,
+                 ny,
+                 scale
             from atlas_metadataddc
           '''
 
