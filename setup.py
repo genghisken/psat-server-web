@@ -40,7 +40,7 @@ setup(
           'docopt',
           'python-dotenv',
           'gkhtm',
-          'gkutils>=0.3.9',
+          'gkutils>=0.3.10',
           'requests',
           'lasair',
           'dustmaps',
