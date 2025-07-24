@@ -240,7 +240,7 @@
       <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
         {% if form_searchobject %}
         <li class="nav-item">
-          <form class="form-inline my-2 my-lg-0" id="search_form" action="{% url " searchresults" %}" method="post">{%
+          <form class="form-inline my-2 my-lg-0" id="search_form" action="{% url "searchresults" %}" method="post">{%
             csrf_token %}
             {{ form_searchobject.searchText.errors }}
             {{ form_searchobject.searchText }}
