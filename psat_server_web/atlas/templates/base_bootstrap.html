@@ -74,169 +74,217 @@
 <!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <!-- Generic nav bar for all the bootstrap pages -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <a class="navbar-brand" href="{% url 'home' %}"><img src="{{ STATIC_URL }}images/atlas_logo.png" height="50" class="d-inline-block align-top" alt=""></a>
+<header>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03"
+      aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="{% url 'home' %}"><img src="{{ STATIC_URL }}images/atlas_logo.png" height="50"
+        class="d-inline-block align-top" alt=""></a>
 
-  <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-      {% if not public %}
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bullseye" title="Followup Targets"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> followup</span></a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=1 %}">quick view</a>
-          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=1 %}">old quick view</a>
-          <a class="dropdown-item" href="{% url 'followup' listNumber=1 %}">table view</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-check" title="Good Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> good</span></a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=2 %}">quick view</a>
-          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=2 %}">old quick view</a>
-          <a class="dropdown-item" href="{% url 'followup' listNumber=2 %}">table view</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bed" title="Snoozed Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> snooze</span></a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=3 %}">quick view</a>
-          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=3 %}">old quick view</a>
-          <a class="dropdown-item" href="{% url 'followup' listNumber=3 %}">table view</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-warehouse" title="Attic Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> attic</span></a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=5 %}">quick view</a>
-          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=5 %}">old quick view</a>
-          <a class="dropdown-item" href="{% url 'followup' listNumber=5 %}">table view</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-burst" title="New Objects to Eyeball"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> extragalactic</span></a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=4 %}">quick view</a>
-          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=4 %}">old quick view</a>
-          <a class="dropdown-item" href="{% url 'followup' listNumber=4 %}">table view</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-brands fa-superpowers" title="Galactic Objects to Eyeball"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> galactic</span></a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=12 %}">quick view</a>
-          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=12 %}">old quick view</a>
-          <a class="dropdown-item" href="{% url 'followup' listNumber=12 %}">table view</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bell" title="New Fast Track Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> fast-track</span></a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=8 %}">quick view</a>
-          <a class="dropdown-item" href="{% url 'followupquickview' listNumber=8 %}">old quick view</a>
-          <a class="dropdown-item" href="{% url 'followup' listNumber=8 %}">table view</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bullhorn" title="Fast Track Custom List"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> current-fast-track</span></a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{% url 'userdefinedlistsquickview' userDefinedListNumber=44 %}">old quick view</a>
-          <a class="dropdown-item" href="{% url 'userdefinedlists' userDefinedListNumber=44 %}">table view</a>
-        </div>
-      </li>
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        {% if not public %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i
+              class="fa-solid fa-bullseye" title="Followup Targets"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> followup</span></a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=1 %}">quick view</a>
+            <a class="dropdown-item" href="{% url 'followupquickview' listNumber=1 %}">old quick view</a>
+            <a class="dropdown-item" href="{% url 'followup' listNumber=1 %}">table view</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i
+              class="fa-solid fa-check" title="Good Objects"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> good</span></a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=2 %}">quick view</a>
+            <a class="dropdown-item" href="{% url 'followupquickview' listNumber=2 %}">old quick view</a>
+            <a class="dropdown-item" href="{% url 'followup' listNumber=2 %}">table view</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bed"
+              title="Snoozed Objects"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> snooze</span></a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=3 %}">quick view</a>
+            <a class="dropdown-item" href="{% url 'followupquickview' listNumber=3 %}">old quick view</a>
+            <a class="dropdown-item" href="{% url 'followup' listNumber=3 %}">table view</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i
+              class="fa-solid fa-warehouse" title="Attic Objects"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> attic</span></a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=5 %}">quick view</a>
+            <a class="dropdown-item" href="{% url 'followupquickview' listNumber=5 %}">old quick view</a>
+            <a class="dropdown-item" href="{% url 'followup' listNumber=5 %}">table view</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i
+              class="fa-solid fa-burst" title="New Objects to Eyeball"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> extragalactic</span></a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=4 %}">quick view</a>
+            <a class="dropdown-item" href="{% url 'followupquickview' listNumber=4 %}">old quick view</a>
+            <a class="dropdown-item" href="{% url 'followup' listNumber=4 %}">table view</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i
+              class="fa-brands fa-superpowers" title="Galactic Objects to Eyeball"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> galactic</span></a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=12 %}">quick view</a>
+            <a class="dropdown-item" href="{% url 'followupquickview' listNumber=12 %}">old quick view</a>
+            <a class="dropdown-item" href="{% url 'followup' listNumber=12 %}">table view</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i
+              class="fa-solid fa-bell" title="New Fast Track Objects"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> fast-track</span></a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=8 %}">quick view</a>
+            <a class="dropdown-item" href="{% url 'followupquickview' listNumber=8 %}">old quick view</a>
+            <a class="dropdown-item" href="{% url 'followup' listNumber=8 %}">table view</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i
+              class="fa-solid fa-bullhorn" title="Fast Track Custom List"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> current-fast-track</span></a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'userdefinedlistsquickview' userDefinedListNumber=44 %}">old quick
+              view</a>
+            <a class="dropdown-item" href="{% url 'userdefinedlists' userDefinedListNumber=44 %}">table view</a>
+          </div>
+        </li>
 
 
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-list" title="Other Lists"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> other</span></a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i
+              class="fa-solid fa-list" title="Other Lists"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> other</span></a>
 
-            <div class="dropdown-menu" aria-labelledby="mainDropdown">
+          <div class="dropdown-menu" aria-labelledby="mainDropdown">
 
-                <!-- Nested Dropdown -->
-                <div class="dropdown-submenu">
-                    <a class="dropdown-item dropdown-toggle" href="#"><i class="fa-solid fa-hurricane" title="Known AGNs"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> agns</span></a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=7 %}">quick view</a>
-                        <a class="dropdown-item" href="{% url 'followupquickview' listNumber=7 %}">old quick view</a>
-                        <a class="dropdown-item" href="{% url 'followup' listNumber=7 %}">table view</a>
-                    </div>
-                </div>
-
-                <!-- Nested Dropdown -->
-                <div class="dropdown-submenu">
-                    <a class="dropdown-item dropdown-toggle" href="#"><i class="fa-solid fa-cloud-meatball" title="LMC/SMC"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> LMC/SMC</span></a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=10 %}">quick view</a>
-                        <a class="dropdown-item" href="{% url 'followupquickview' listNumber=10 %}">old quick view</a>
-                        <a class="dropdown-item" href="{% url 'followup' listNumber=10 %}">table view</a>
-                    </div>
-                </div>
-
-                <!-- Nested Dropdown -->
-                <div class="dropdown-submenu">
-                    <a class="dropdown-item dropdown-toggle" href="#"><i class="fa-solid fa-meteor" title="Known Movers"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> movers</span></a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=9 %}">quick view</a>
-                        <a class="dropdown-item" href="{% url 'followupquickview' listNumber=9 %}">old quick view</a>
-                        <a class="dropdown-item" href="{% url 'followup' listNumber=9 %}">table view</a>
-                    </div>
-                </div>
-
+            <!-- Nested Dropdown -->
+            <div class="dropdown-submenu">
+              <a class="dropdown-item dropdown-toggle" href="#"><i class="fa-solid fa-hurricane"
+                  title="Known AGNs"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> agns</span></a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=7 %}">quick view</a>
+                <a class="dropdown-item" href="{% url 'followupquickview' listNumber=7 %}">old quick view</a>
+                <a class="dropdown-item" href="{% url 'followup' listNumber=7 %}">table view</a>
+              </div>
             </div>
 
-      </li>
+            <!-- Nested Dropdown -->
+            <div class="dropdown-submenu">
+              <a class="dropdown-item dropdown-toggle" href="#"><i class="fa-solid fa-cloud-meatball"
+                  title="LMC/SMC"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> LMC/SMC</span></a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=10 %}">quick
+                  view</a>
+                <a class="dropdown-item" href="{% url 'followupquickview' listNumber=10 %}">old quick view</a>
+                <a class="dropdown-item" href="{% url 'followup' listNumber=10 %}">table view</a>
+              </div>
+            </div>
+
+            <!-- Nested Dropdown -->
+            <div class="dropdown-submenu">
+              <a class="dropdown-item dropdown-toggle" href="#"><i class="fa-solid fa-meteor"
+                  title="Known Movers"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none">
+                  movers</span></a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'followupquickviewbootstrapplotly' listNumber=9 %}">quick view</a>
+                <a class="dropdown-item" href="{% url 'followupquickview' listNumber=9 %}">old quick view</a>
+                <a class="dropdown-item" href="{% url 'followup' listNumber=9 %}">table view</a>
+              </div>
+            </div>
+
+          </div>
+
+        </li>
 
 
-      <li class="nav-item"><a class="nav-link" href="{% url 'userdefinedlistdefs' %}"><i class="fa-solid fa-clipboard-list" title="Custom object lists"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> custom</span></a></li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-gauge-high" title="Useful Status/Dashboard Links"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> dashboard</span></a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="http://dashboard.fallingstar.com/md/" target="_blank">Master Dash</a>
-          <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/mlo.html" target="_blank">Mauna Loa</a>
-          <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/hko.html" target="_blank">Haleakala</a>
-          <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/sth.html" target="_blank">Sutherland</a>
-          <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/chl.html" target="_blank">El Sauce</a>
-        </div>
-      </li>
-      {% else %}
-      <li class="nav-item"><a class="nav-link" HREF="../{% if listHeader or transient %}../{% endif %}public/">object list</a></li>
-      <li class="nav-item"><a class="nav-link" HREF="../{% if listHeader or transient %}../{% endif %}public_quickview/">object quickview list</a></li>
-      {% endif %}
-    </ul>
-    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-      {% if form_searchobject %}
-      <li class="nav-item">
-      <form class="form-inline my-2 my-lg-0" id="search_form" action="{% url "searchresults" %}" method="post">{% csrf_token %}
-        {{ form_searchobject.searchText.errors }}
-        {{ form_searchobject.searchText }}
-        <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Find Object" name="find_object"><i class="fa-solid fa-search"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> Search</span></button>
-      </form>
-      {% if form_searchobject.errors %}{{ form_searchobject.errors|pluralize }}{% endif %}
-      </li>
-      {% endif %}
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bug" title="Raise a Bug Report or Suggest Improvements"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> bug/feature request</span></a>
-        <div class="dropdown-menu dropdown-menu-right">
-          <a class="dropdown-item" href="https://github.com/genghisken/psat-server-web/issues" target="_blank">Webserver issues</a>
-          <a class="dropdown-item" href="https://github.com/thespacedoctor/sherlock/issues" target="_blank">Context issues</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-solid fa-spaghetti-monster-flying" title="Change Password"></i> {{request.user.username}}</a>
-        <div class="dropdown-menu dropdown-menu-right">
-          <a class="dropdown-item" href="{% url 'change_password' %}"><i class="fa-solid fa-user-secret"></i> change password</a>
-          <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-solid fa-sign-out-alt" title="Sign out"></i> logout</a>
-        </div>
+        <li class="nav-item"><a class="nav-link" href="{% url 'userdefinedlistdefs' %}"><i
+              class="fa-solid fa-clipboard-list" title="Custom object lists"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> custom</span></a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i
+              class="fa-solid fa-gauge-high" title="Useful Status/Dashboard Links"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> dashboard</span></a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="http://dashboard.fallingstar.com/md/" target="_blank">Master Dash</a>
+            <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/mlo.html" target="_blank">Mauna Loa</a>
+            <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/hko.html" target="_blank">Haleakala</a>
+            <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/sth.html"
+              target="_blank">Sutherland</a>
+            <a class="dropdown-item" href="http://dashboard.fallingstar.com/dash/chl.html" target="_blank">El Sauce</a>
+          </div>
+        </li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link" HREF="../{% if listHeader or transient %}../{% endif %}public/">object
+            list</a></li>
+        <li class="nav-item"><a class="nav-link"
+            HREF="../{% if listHeader or transient %}../{% endif %}public_quickview/">object quickview list</a></li>
+        {% endif %}
+      </ul>
+      <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+        {% if form_searchobject %}
+        <li class="nav-item">
+          <form class="form-inline my-2 my-lg-0" id="search_form" action="{% url " searchresults" %}" method="post">{%
+            csrf_token %}
+            {{ form_searchobject.searchText.errors }}
+            {{ form_searchobject.searchText }}
+            <button class="btn btn-outline-info my-2 my-sm-0" type="submit" value="Find Object" name="find_object"><i
+                class="fa-solid fa-search"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none">
+                Search</span></button>
+          </form>
+          {% if form_searchobject.errors %}{{ form_searchobject.errors|pluralize }}{% endif %}
+        </li>
+        {% endif %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bug"
+              title="Raise a Bug Report or Suggest Improvements"></i><span
+              class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> bug/feature request</span></a>
+          <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="https://github.com/genghisken/psat-server-web/issues"
+              target="_blank">Webserver issues</a>
+            <a class="dropdown-item" href="https://github.com/thespacedoctor/sherlock/issues" target="_blank">Context
+              issues</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i
+              class="fa-solid fa-spaghetti-monster-flying" title="Change Password"></i> {{request.user.username}}</a>
+          <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="{% url 'change_password' %}"><i class="fa-solid fa-user-secret"></i> change
+              password</a>
+            <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-solid fa-sign-out-alt" title="Sign out"></i>
+              logout</a>
+          </div>
 
-      </li>
-    </ul>
-  </div>
-</nav>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
 
-
+<main>
 {% block content %}
 Unset Content
+{% endblock %}
+</main>
+
+{% block scripts %}
 {% endblock %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -263,12 +311,14 @@ Unset Content
 {% block flotplots %}
 {% endblock %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-      <li class="nav-item"><a class="nav-link" href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
-    </ul>
-  </div>
-</nav>
+<footer>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li class="nav-item"><a class="nav-link" href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </nav>
+</footer>
 </body>
 </html>
