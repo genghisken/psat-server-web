@@ -7,9 +7,11 @@ moduleDirectory = os.path.dirname(os.path.realpath(__file__))
 __version__ = ''
 exec(open(moduleDirectory + "/psat_server_web/__version__.py").read())
 
+
 def readme():
     with open(moduleDirectory + '/README.md') as f:
         return f.read()
+
 
 setup(
     name="psat-server-web",
@@ -44,6 +46,7 @@ setup(
           'requests',
           'lasair',
           'dustmaps',
+          'django-debug-toolbar',
       ],
     python_requires='>=3.6',
     include_package_data=True,
