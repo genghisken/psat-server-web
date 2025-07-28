@@ -34,6 +34,10 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
 ALLOWED_HOSTS = ['*']
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
 ROOT_URLCONF = 'atlas.urls'
 
 WSGI_APPLICATION = 'atlas.wsgi.application'
@@ -250,3 +254,17 @@ TOKEN_EXPIRY = int(os.environ.get("API_TOKEN_EXPIRY") or 86400) # seconds
 # Variables for the django_registration app
 ACCOUNT_ACTIVATION_DAYS = int(os.environ.get("ACCOUNT_ACTIVATION_DAYS") or 7)
 REGISTRATION_OPEN = True
+
+if DEBUG:
+    INSTALLED_APPS = [
+        *INSTALLED_APPS,
+        "debug_toolbar",
+    ]
+    MIDDLEWARE = [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+        *MIDDLEWARE,
+    ]
+    DEBUG_TOOLBAR_CONFIG = {
+        # Always show the toolbar in debug mode
+        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+    }
