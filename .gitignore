@@ -46,7 +46,7 @@ lookup
 wsgi.atlas.conf
 
 # Symlinks and directories
-data
+/data
 lightcurves
 location_maps
 recurrence_plots
