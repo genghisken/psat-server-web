@@ -1,6 +1,15 @@
 /* 2018-07-06 KWS Bootstrap stuff starts here */
 
-body {background-color: LightSteelBlue;}
+body {
+  background-color: LightSteelBlue;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex-grow: 1;
+}
 
 .row-striped:nth-of-type(odd){
   background-color: #efefef;
