@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import auth
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import Group
 
 from django.db import IntegrityError
 from accounts.permissions import has_write_permissions
@@ -272,6 +273,83 @@ class AtlasPasswordChangeView(auth_views.PasswordChangeView):
             logger.warning(f'User {self.request.user} has no profile.')
             context_data['password_unuseable_fl'] = False
         return context_data
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff, login_url='invalid')
+def create_user(request):
+    """
+    Create a new user with profile settings.
+    Only accessible by admin users.
+    """
+    from accounts.forms import CreateUserForm
+    from accounts.models import UserProfile, GroupProfile
+    from django.contrib.auth.models import User
+    from django.contrib import messages
+    
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            try:
+                # Create the user
+                user = User.objects.create_user(
+                    username=form.cleaned_data['username'],
+                    email=form.cleaned_data['email'],
+                    first_name=form.cleaned_data['first_name'],
+                    last_name=form.cleaned_data['last_name']
+                )
+                
+                # Make password unusable as per requirement
+                user.set_unusable_password()
+                user.save()
+                
+                # Add user to selected group
+                group = form.cleaned_data['group']
+                user.groups.add(group)
+                
+                # Create or update user profile
+                profile, created = UserProfile.objects.get_or_create(user=user)
+                profile.password_unuseable_fl = True  # Automatically set as per requirement
+                profile.save()
+                
+                messages.success(request, f'User {user.username} created successfully!')
+                
+                # Clear form for next user creation
+                form = CreateUserForm()
+                
+            except Exception as e:
+                messages.error(request, f'Error creating user: {str(e)}')
+                
+    else:
+        form = CreateUserForm()
+    
+    # Get group information for display
+    groups_info = []
+    for group in Group.objects.all():
+        try:
+            group_profile = GroupProfile.objects.get(group=group)
+            groups_info.append({
+                'group': group,
+                'token_expiration': group_profile.token_expiration_time,
+                'api_write_access': group_profile.api_write_access,
+                'description': group_profile.description
+            })
+        except GroupProfile.DoesNotExist:
+            groups_info.append({
+                'group': group,
+                'token_expiration': 'Not set',
+                'api_write_access': False,
+                'description': 'No profile configured'
+            })
+    
+    context = {
+        'form': form,
+        'groups_info': groups_info,
+        'title': 'Create New User'
+    }
+    
+    return render(request, 'atlas/create_user.html', context)
+
 
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.
