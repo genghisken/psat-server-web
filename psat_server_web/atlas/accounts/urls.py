@@ -22,5 +22,6 @@ urlpatterns = [
         ),
         name="password_change_done"
     ),
+    re_path(r'^create_user/$', views.create_user, name="create_user"),
     path("", include("django_registration.backends.activation.urls")),
 ]

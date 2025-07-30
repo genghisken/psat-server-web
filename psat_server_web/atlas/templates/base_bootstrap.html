@@ -265,6 +265,10 @@
           <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i
               class="fa-solid fa-spaghetti-monster-flying" title="Change Password"></i> {{request.user.username}}</a>
           <div class="dropdown-menu dropdown-menu-right">
+            {% if user.is_staff %}
+            <a class="dropdown-item" href="{% url 'create_user' %}"><i class="fa-solid fa-user-plus"></i> create user</a>
+            <div class="dropdown-divider"></div>
+            {% endif %}
             <a class="dropdown-item" href="{% url 'change_password' %}"><i class="fa-solid fa-user-secret"></i> change
               password</a>
             <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-solid fa-sign-out-alt" title="Sign out"></i>

@@ -1,0 +1,165 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title %}Create New User - ATLAS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fa-solid fa-user-plus"></i> Create New User</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.username.id_for_label }}">Username *</label>
+                                    {{ form.username }}
+                                    {% if form.username.errors %}
+                                        <div class="text-danger">{{ form.username.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ form.username.help_text }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.email.id_for_label }}">Email *</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ form.email.help_text }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">{{ form.first_name.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ form.first_name.help_text }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">{{ form.last_name.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ form.last_name.help_text }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.group.id_for_label }}">Group *</label>
+                            {{ form.group }}
+                            {% if form.group.errors %}
+                                <div class="text-danger">{{ form.group.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">{{ form.group.help_text }}</small>
+                        </div>
+
+                        <!-- Group Information Display -->
+                        <div class="card mt-3 mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Available Groups and Settings</h6>
+                            </div>
+                            <div class="card-body">
+                                {% if groups_info %}
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Group</th>
+                                                    <th>Token Expiration</th>
+                                                    <th>API Write Access</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for group_info in groups_info %}
+                                                <tr>
+                                                    <td><strong>{{ group_info.group.name }}</strong></td>
+                                                    <td>{{ group_info.token_expiration }}</td>
+                                                    <td>
+                                                        {% if group_info.api_write_access %}
+                                                            <i class="fa-solid fa-check text-success"></i> Yes
+                                                        {% else %}
+                                                            <i class="fa-solid fa-times text-danger"></i> No
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ group_info.description|default:"No description" }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No groups available.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Profile Image</label>
+                            <div class="mt-2">
+                                {% for choice in form.profile_image %}
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                            {% if choice.data.value == 'spaghetti_monster' %}
+                                                <i class="fa-solid fa-spaghetti-monster-flying text-primary"></i>
+                                            {% elif choice.data.value == 'crab' %}
+                                                🦀
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.profile_image.errors %}
+                                <div class="text-danger">{{ form.profile_image.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">{{ form.profile_image.help_text }}</small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <strong>Note:</strong> The password will be automatically set as unusable. 
+                            The user will need to use the password reset functionality to set their initial password.
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-user-plus"></i> Create User
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-secondary ml-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
