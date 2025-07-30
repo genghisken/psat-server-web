@@ -4,7 +4,6 @@ Forms for user account management.
 from django import forms
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
-from .models import UserProfile, GroupProfile
 
 
 class CreateUserForm(forms.Form):
@@ -19,7 +18,7 @@ class CreateUserForm(forms.Form):
             'class': 'form-control',
             'placeholder': 'Enter username'
         }),
-        help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'
+        help_text='Required. Letters, digits and @/./+/-/_ only.'
     )
     
     email = forms.EmailField(
@@ -36,7 +35,7 @@ class CreateUserForm(forms.Form):
             'class': 'form-control',
             'placeholder': 'Enter first name'
         }),
-        help_text='Optional. First name of the user.'
+        help_text='Required. First name of the user.'
     )
     
     last_name = forms.CharField(
@@ -45,7 +44,7 @@ class CreateUserForm(forms.Form):
             'class': 'form-control',
             'placeholder': 'Enter last name'
         }),
-        help_text='Optional. Last name of the user.'
+        help_text='Required. Last name of the user.'
     )
     
     # Group selection for token expiration and write access
@@ -55,7 +54,10 @@ class CreateUserForm(forms.Form):
         widget=forms.Select(attrs={
             'class': 'form-control'
         }),
-        help_text='Select group to determine API token expiration time and write access permissions.'
+        help_text=(
+            'Select group to determine API token expiration time and '
+            'write access permissions.'
+        )
     )
     
     # Profile image selection

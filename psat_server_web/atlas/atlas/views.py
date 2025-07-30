@@ -275,8 +275,8 @@ class AtlasPasswordChangeView(auth_views.PasswordChangeView):
         return context_data
 
 
-@login_required
 @user_passes_test(lambda u: u.is_staff, login_url='invalid')
+@login_required
 def create_user(request):
     """
     Create a new user with profile settings.
@@ -296,11 +296,10 @@ def create_user(request):
                     username=form.cleaned_data['username'],
                     email=form.cleaned_data['email'],
                     first_name=form.cleaned_data['first_name'],
-                    last_name=form.cleaned_data['last_name']
+                    last_name=form.cleaned_data['last_name'],
+                    password='atlas'
                 )
                 
-                # Make password unusable as per requirement
-                user.set_unusable_password()
                 user.save()
                 
                 # Add user to selected group
@@ -348,7 +347,7 @@ def create_user(request):
         'title': 'Create New User'
     }
     
-    return render(request, 'atlas/create_user.html', context)
+    return render(request, 'create_user.html', context)
 
 
 class TcsDetectionListsForm(forms.Form):
