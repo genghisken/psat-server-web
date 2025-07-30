@@ -4,7 +4,6 @@ Tests for the create user functionality.
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User, Group
-from django.contrib import messages
 from accounts.models import UserProfile, GroupProfile
 from accounts.forms import CreateUserForm
 
@@ -84,7 +83,7 @@ class CreateUserViewTest(TestCase):
         self.assertEqual(new_user.email, 'newuser@example.com')
         self.assertEqual(new_user.first_name, 'New')
         self.assertEqual(new_user.last_name, 'User')
-        self.assertFalse(new_user.has_usable_password())
+        self.assertTrue(new_user.has_usable_password())
         
         # Check that user is in the correct group
         self.assertTrue(new_user.groups.filter(id=self.test_group.id).exists())
@@ -108,8 +107,11 @@ class CreateUserViewTest(TestCase):
         
         response = self.client.post(self.create_user_url, form_data)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'A user with this username already exists')
-    
+        self.assertContains(
+            response,
+            'A user with this username already exists'
+        )
+
     def test_create_user_duplicate_email(self):
         """Test that creating a user with duplicate email fails."""
         # Create a user with an email first

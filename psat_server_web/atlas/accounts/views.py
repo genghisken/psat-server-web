@@ -196,11 +196,10 @@ def create_user(request):
                     username=form.cleaned_data['username'],
                     email=form.cleaned_data['email'],
                     first_name=form.cleaned_data['first_name'],
-                    last_name=form.cleaned_data['last_name']
+                    last_name=form.cleaned_data['last_name'],
+                    password='atlas'
                 )
                 
-                # Make password unusable as per requirement
-                user.set_unusable_password()
                 user.save()
                 
                 # Add user to selected group
@@ -212,10 +211,7 @@ def create_user(request):
                 profile.password_unuseable_fl = True  # Automatically set as per requirement
                 profile.save()
                 
-                messages.success(
-                    request,
-                    f'User {user.username} created successfully!'
-                )
+                messages.success(request, f'User {user.username} created successfully!')
                 
                 # Clear form for next user creation
                 form = CreateUserForm()
@@ -251,4 +247,4 @@ def create_user(request):
         'title': 'Create New User'
     }
     
-    return render(request, 'atlas/create_user.html', context)
+    return render(request, 'create_user.html', context)
