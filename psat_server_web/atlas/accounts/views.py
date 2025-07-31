@@ -210,6 +210,10 @@ def create_user(request):
                 profile, created = UserProfile.objects.get_or_create(user=user)
                 profile.password_unuseable_fl = True  # Automatically set as per requirement
                 profile.save()
+                image = form.cleaned_data.get('image')
+                if image:
+                    profile.image = image
+                    profile.save()
                 
                 messages.success(request, f'User {user.username} created successfully!')
                 

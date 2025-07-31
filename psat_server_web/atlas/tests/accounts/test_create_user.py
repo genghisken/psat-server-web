@@ -6,6 +6,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User, Group
 from accounts.models import UserProfile, GroupProfile
 from accounts.forms import CreateUserForm
+import os
+
+moduleDirectory = os.path.dirname(os.path.realpath(__file__))
 
 
 class CreateUserViewTest(TestCase):
@@ -72,8 +75,10 @@ class CreateUserViewTest(TestCase):
             'first_name': 'New',
             'last_name': 'User',
             'group': self.test_group.id,
-            'profile_image': 'spaghetti_monster'
         }
+
+        img_file = open(moduleDirectory + '/test-image.jpg', 'rb')
+        form_data['image'] = img_file
         
         response = self.client.post(self.create_user_url, form_data)
         self.assertEqual(response.status_code, 200)
@@ -102,7 +107,6 @@ class CreateUserViewTest(TestCase):
             'first_name': 'Different',
             'last_name': 'User',
             'group': self.test_group.id,
-            'profile_image': 'crab'
         }
         
         response = self.client.post(self.create_user_url, form_data)
@@ -129,7 +133,6 @@ class CreateUserViewTest(TestCase):
             'first_name': 'New',
             'last_name': 'User',
             'group': self.test_group.id,
-            'profile_image': 'spaghetti_monster'
         }
         
         response = self.client.post(self.create_user_url, form_data)
@@ -152,7 +155,7 @@ class CreateUserFormTest(TestCase):
             'first_name': 'Test',
             'last_name': 'User',
             'group': self.test_group.id,
-            'profile_image': 'spaghetti_monster'
+            'image': None  # No image uploaded
         }
         
         form = CreateUserForm(data=form_data)
@@ -166,7 +169,6 @@ class CreateUserFormTest(TestCase):
             'first_name': 'Test',
             'last_name': 'User',
             'group': self.test_group.id,
-            'profile_image': 'crab'
         }
         
         form = CreateUserForm(data=form_data)

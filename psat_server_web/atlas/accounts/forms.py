@@ -46,6 +46,14 @@ class CreateUserForm(forms.Form):
         }),
         help_text='Required. Last name of the user.'
     )
+
+    image = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control-file'
+        }),
+        help_text='Optional. Upload a profile image (.gif, .png, .jpg).'
+    )
     
     # Group selection for token expiration and write access
     group = forms.ModelChoiceField(
@@ -58,21 +66,6 @@ class CreateUserForm(forms.Form):
             'Select group to determine API token expiration time and '
             'write access permissions.'
         )
-    )
-    
-    # Profile image selection
-    PROFILE_CHOICES = [
-        ('spaghetti_monster', 'Flying Spaghetti Monster'),
-        ('crab', 'Crab'),
-    ]
-    
-    profile_image = forms.ChoiceField(
-        choices=PROFILE_CHOICES,
-        initial='spaghetti_monster',
-        widget=forms.RadioSelect(attrs={
-            'class': 'form-check-input'
-        }),
-        help_text='Choose default profile image.'
     )
     
     def clean_username(self):
