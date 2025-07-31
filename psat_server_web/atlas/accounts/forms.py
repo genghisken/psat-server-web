@@ -81,3 +81,16 @@ class CreateUserForm(forms.Form):
         if User.objects.filter(email=email).exists():
             raise ValidationError('A user with this email already exists.')
         return email
+
+
+class ChangeProfileImageForm(forms.Form):
+    """
+    Form for changing the user's profile image.
+    """
+    image = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control-file'
+        }),
+        help_text='Optional. Upload a new profile image (.gif, .png, .jpg).'
+    )

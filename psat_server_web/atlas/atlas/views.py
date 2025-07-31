@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
 
 # 2016-02-26 KWS Required for authentication
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import Group
@@ -68,6 +68,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 # We need to know which database we are talking to for the lightcurves.
 from django.conf import settings
+
+from accounts.models import GroupProfile, UserProfile
 
 # 2012-07-18 KWS Moved all raw lightcurve queries to a dedicated file
 from .lightcurvequeries import *
@@ -283,9 +285,6 @@ def create_user(request):
     Only accessible by admin users.
     """
     from accounts.forms import CreateUserForm
-    from accounts.models import UserProfile, GroupProfile
-    from django.contrib.auth.models import User
-    from django.contrib import messages
     
     if request.method == 'POST':
         form = CreateUserForm(request.POST, request.FILES)
@@ -353,6 +352,35 @@ def create_user(request):
     }
     
     return render(request, 'create_user.html', context)
+
+
+@user_passes_test(
+    lambda u: not needs_to_change_password(u),
+    login_url='change_password'
+)
+@login_required
+def change_profile_image(request):
+    """Change the user's profile image.
+    
+    Args:
+        request: The HTTP request object.
+    """
+    from accounts.forms import ChangeProfileImageForm
+    
+    if request.method == 'POST':
+        form = ChangeProfileImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            profile = UserProfile.objects.get(user=request.user)
+            image = form.cleaned_data.get('image')
+            if image:
+                profile.image = image
+                profile.save()
+            messages.success(request, 'Profile image updated successfully!')
+            return redirect('home')
+    else:
+        form = ChangeProfileImageForm()
+    
+    return render(request, 'change_profile_image.html', {'form': form})
 
 
 class TcsDetectionListsForm(forms.Form):

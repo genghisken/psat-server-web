@@ -14,6 +14,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userprofile',
             name='image',
-            field=models.ImageField(blank=True, help_text='Optional. Upload a profile image (.gif, .png, .jpg).', null=True, upload_to='profile_pics/', validators=[django.core.validators.FileExtensionValidator(allowed_extensions=['gif', 'jpeg', 'jpg', 'png'])]),
+            field=models.ImageField(
+                blank=True,
+                help_text='Optional. Upload a profile image (.gif, .png, .jpg).',
+                null=True,
+                upload_to='profile_pics/',
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        allowed_extensions=['gif', 'jpeg', 'jpg', 'png']
+                    )
+                ]
+            ),
         ),
     ]
