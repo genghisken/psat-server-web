@@ -23,5 +23,6 @@ urlpatterns = [
         name="password_change_done"
     ),
     re_path(r'^create_user/$', views.create_user, name="create_user"),
+    re_path(r'^change_profile_image/$', views.change_profile_image, name="change_profile_image"),
     path("", include("django_registration.backends.activation.urls")),
 ]
