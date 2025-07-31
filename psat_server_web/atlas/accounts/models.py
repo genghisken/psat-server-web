@@ -1,14 +1,27 @@
 
+from PIL import Image
 from django.utils.timezone import timedelta
 from django.contrib.auth.models import Group
 from django.db import models
+from django.core.validators import FileExtensionValidator
+from django.conf import settings
+import io
+
+from .utils import bytes2string
+
 
 class UserProfile(models.Model):
     """UserProfile.
     
     Extension of the User model to store additional information, such as token 
-    expiration time.
+    expiration time and avatar image.
     """
+
+    if settings.DEBUG:
+        staticRoot = settings.STATICFILES_DIRS[0]
+    else:
+        staticRoot = settings.STATIC_ROOT
+    
     id = models.AutoField(primary_key=True)
     user = models.OneToOneField(
         'auth.User', 
@@ -19,7 +32,36 @@ class UserProfile(models.Model):
         default=False,
         help_text='If true, password requires changing before login'
     )
-    
+    image = models.ImageField(
+        upload_to='profile_pics/',
+        validators=[FileExtensionValidator(
+            allowed_extensions=['gif', 'jpeg', 'jpg', 'png']
+        )],
+        blank=True,
+        null=True,
+        help_text='Optional. Upload a profile image (.gif, .png, .jpg).'
+    )
+    image_b64 = models.TextField(
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return f'{self.user.username} Profile'
+
+    def save(self, *args, **kwargs):
+        super(UserProfile, self).save(*args, **kwargs)
+        if self.image:
+            img = Image.open(self.image.path)
+            if img.height > 300 or img.width > 300:
+                output_size = (300, 300)
+                img.thumbnail(output_size)
+                img.save(self.image.path)
+            imgByteArr = io.BytesIO()
+            img.save(imgByteArr, format=img.format)
+            self.image_b64 = bytes2string(imgByteArr.getvalue())
+            super(UserProfile, self).save(*args, **kwargs)
+  
     class Meta:
         """Meta.
         """

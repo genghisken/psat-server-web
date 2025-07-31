@@ -22,7 +22,7 @@
                         {% endfor %}
                     {% endif %}
 
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         <div class="row">
@@ -124,24 +124,15 @@
                         <div class="form-group">
                             <label>Profile Image</label>
                             <div class="mt-2">
-                                {% for choice in form.profile_image %}
-                                    <div class="form-check">
-                                        {{ choice.tag }}
-                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
-                                            {{ choice.choice_label }}
-                                            {% if choice.data.value == 'spaghetti_monster' %}
-                                                <i class="fa-solid fa-spaghetti-monster-flying text-primary"></i>
-                                            {% elif choice.data.value == 'crab' %}
-                                                🦀
-                                            {% endif %}
-                                        </label>
-                                    </div>
-                                {% endfor %}
+                                <label for="{{ form.image.id_for_label }}" class="btn btn-secondary">
+                                    <i class="fa-solid fa-upload"></i> Upload Image
+                                </label>
+                                {{ form.image }}
                             </div>
-                            {% if form.profile_image.errors %}
-                                <div class="text-danger">{{ form.profile_image.errors }}</div>
+                            {% if form.image.errors %}
+                                <div class="text-danger">{{ form.image.errors }}</div>
                             {% endif %}
-                            <small class="form-text text-muted">{{ form.profile_image.help_text }}</small>
+                            <small class="form-text text-muted">{{ form.image.help_text }}</small>
                         </div>
 
                         <div class="alert alert-info">

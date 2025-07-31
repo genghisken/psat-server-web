@@ -288,7 +288,7 @@ def create_user(request):
     from django.contrib import messages
     
     if request.method == 'POST':
-        form = CreateUserForm(request.POST)
+        form = CreateUserForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 # Create the user
@@ -310,6 +310,10 @@ def create_user(request):
                 profile, created = UserProfile.objects.get_or_create(user=user)
                 profile.password_unuseable_fl = True  # Automatically set as per requirement
                 profile.save()
+                image = form.cleaned_data.get('image')
+                if image:
+                    profile.image = image
+                    profile.save()
                 
                 messages.success(request, f'User {user.username} created successfully!')
                 
@@ -317,6 +321,7 @@ def create_user(request):
                 form = CreateUserForm()
                 
             except Exception as e:
+                logger.error(e)
                 messages.error(request, f'Error creating user: {str(e)}')
                 
     else:
