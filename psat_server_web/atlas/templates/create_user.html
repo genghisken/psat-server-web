@@ -31,9 +31,19 @@
                                     <label for="{{ form.username.id_for_label }}">Username *</label>
                                     {{ form.username }}
                                     {% if form.username.errors %}
-                                        <div class="text-danger">{{ form.username.errors }}</div>
+                                        <div
+                                            id="{{ form.username.id_for_label }}_errorlist"
+                                            class="text-danger"
+                                            >
+                                                {{ form.username.errors }}
+                                        </div>
                                     {% endif %}
-                                    <small class="form-text text-muted">{{ form.username.help_text }}</small>
+                                    <small
+                                        id="{{ form.username.id_for_label }}_helptext"
+                                        class="form-text text-muted"
+                                    >
+                                        {{ form.username.help_text }}
+                                    </small>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -41,9 +51,9 @@
                                     <label for="{{ form.email.id_for_label }}">Email *</label>
                                     {{ form.email }}
                                     {% if form.email.errors %}
-                                        <div class="text-danger">{{ form.email.errors }}</div>
+                                        <div id="{{ form.email.id_for_label }}_errorlist" class="text-danger">{{ form.email.errors }}</div>
                                     {% endif %}
-                                    <small class="form-text text-muted">{{ form.email.help_text }}</small>
+                                    <small id="{{ form.email.id_for_label }}_helptext" class="form-text text-muted">{{ form.email.help_text }}</small>
                                 </div>
                             </div>
                         </div>
@@ -54,9 +64,9 @@
                                     <label for="{{ form.first_name.id_for_label }}">First Name</label>
                                     {{ form.first_name }}
                                     {% if form.first_name.errors %}
-                                        <div class="text-danger">{{ form.first_name.errors }}</div>
+                                        <div id="{{ form.first_name.id_for_label }}_errorlist" class="text-danger">{{ form.first_name.errors }}</div>
                                     {% endif %}
-                                    <small class="form-text text-muted">{{ form.first_name.help_text }}</small>
+                                    <small id="{{ form.first_name.id_for_label }}_helptext" class="form-text text-muted">{{ form.first_name.help_text }}</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -64,9 +74,9 @@
                                     <label for="{{ form.last_name.id_for_label }}">Last Name</label>
                                     {{ form.last_name }}
                                     {% if form.last_name.errors %}
-                                        <div class="text-danger">{{ form.last_name.errors }}</div>
+                                        <div id="{{ form.last_name.id_for_label }}_errorlist" class="text-danger">{{ form.last_name.errors }}</div>
                                     {% endif %}
-                                    <small class="form-text text-muted">{{ form.last_name.help_text }}</small>
+                                    <small id="{{ form.last_name.id_for_label }}_helptext" class="form-text text-muted">{{ form.last_name.help_text }}</small>
                                 </div>
                             </div>
                         </div>
@@ -75,9 +85,9 @@
                             <label for="{{ form.group.id_for_label }}">Group *</label>
                             {{ form.group }}
                             {% if form.group.errors %}
-                                <div class="text-danger">{{ form.group.errors }}</div>
+                                <div id="{{ form.group.id_for_label }}_errorlist" class="text-danger">{{ form.group.errors }}</div>
                             {% endif %}
-                            <small class="form-text text-muted">{{ form.group.help_text }}</small>
+                            <small id="{{ form.group.id_for_label }}_helptext" class="form-text text-muted">{{ form.group.help_text }}</small>
                         </div>
 
                         <!-- Group Information Display -->
@@ -122,17 +132,16 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Profile Image</label>
+                            <label for="{{ form.image.id_for_label }}" class="btn btn-secondary">
+                                <i aria-hidden="true" class="fa-solid fa-upload"></i> Upload Profile Image
+                            </label>
                             <div class="mt-2">
-                                <label for="{{ form.image.id_for_label }}" class="btn btn-secondary">
-                                    <i class="fa-solid fa-upload"></i> Upload Image
-                                </label>
                                 {{ form.image }}
                             </div>
                             {% if form.image.errors %}
-                                <div class="text-danger">{{ form.image.errors }}</div>
+                                <div id="{{ form.image.id_for_label }}_errorlist" class="text-danger">{{ form.image.errors }}</div>
                             {% endif %}
-                            <small class="form-text text-muted">{{ form.image.help_text }}</small>
+                            <small id="{{ form.image.id_for_label }}_helptext" class="form-text text-muted">{{ form.image.help_text }}</small>
                         </div>
 
                         <div class="alert alert-info">
