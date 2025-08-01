@@ -47,6 +47,7 @@ setup(
           'lasair',
           'dustmaps',
           'django-debug-toolbar',
+          'pillow',
       ],
     python_requires='>=3.6',
     include_package_data=True,

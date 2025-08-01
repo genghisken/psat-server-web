@@ -6,9 +6,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
 
 # 2016-02-26 KWS Required for authentication
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import Group
 
 from django.db import IntegrityError
 from accounts.permissions import has_write_permissions
@@ -67,6 +68,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 # We need to know which database we are talking to for the lightcurves.
 from django.conf import settings
+
+from accounts.models import GroupProfile, UserProfile
 
 # 2012-07-18 KWS Moved all raw lightcurve queries to a dedicated file
 from .lightcurvequeries import *
@@ -272,6 +275,113 @@ class AtlasPasswordChangeView(auth_views.PasswordChangeView):
             logger.warning(f'User {self.request.user} has no profile.')
             context_data['password_unuseable_fl'] = False
         return context_data
+
+
+@user_passes_test(lambda u: u.is_staff, login_url='invalid')
+@login_required
+def create_user(request):
+    """
+    Create a new user with profile settings.
+    Only accessible by admin users.
+    """
+    from accounts.forms import CreateUserForm
+    
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                # Create the user
+                user = User.objects.create_user(
+                    username=form.cleaned_data['username'],
+                    email=form.cleaned_data['email'],
+                    first_name=form.cleaned_data['first_name'],
+                    last_name=form.cleaned_data['last_name'],
+                    password='atlas'
+                )
+                
+                user.save()
+                
+                # Add user to selected group
+                group = form.cleaned_data['group']
+                user.groups.add(group)
+                
+                # Create or update user profile
+                profile, created = UserProfile.objects.get_or_create(user=user)
+                profile.password_unuseable_fl = True  # Automatically set as per requirement
+                profile.save()
+                image = form.cleaned_data.get('image')
+                if image:
+                    profile.image = image
+                    profile.save()
+                
+                messages.success(request, f'User {user.username} created successfully!')
+                
+                # Clear form for next user creation
+                form = CreateUserForm()
+                
+            except Exception as e:
+                logger.error(e)
+                messages.error(request, f'Error creating user: {str(e)}')
+                
+    else:
+        form = CreateUserForm()
+    
+    # Get group information for display
+    groups_info = []
+    for group in Group.objects.all():
+        try:
+            group_profile = GroupProfile.objects.get(group=group)
+            groups_info.append({
+                'group': group,
+                'token_expiration': group_profile.token_expiration_time,
+                'api_write_access': group_profile.api_write_access,
+                'description': group_profile.description
+            })
+        except GroupProfile.DoesNotExist:
+            groups_info.append({
+                'group': group,
+                'token_expiration': 'Not set',
+                'api_write_access': False,
+                'description': 'No profile configured'
+            })
+    
+    context = {
+        'form': form,
+        'groups_info': groups_info,
+        'title': 'Create New User'
+    }
+    
+    return render(request, 'create_user.html', context)
+
+
+@user_passes_test(
+    lambda u: not needs_to_change_password(u),
+    login_url='change_password'
+)
+@login_required
+def change_profile_image(request):
+    """Change the user's profile image.
+    
+    Args:
+        request: The HTTP request object.
+    """
+    from accounts.forms import ChangeProfileImageForm
+    
+    if request.method == 'POST':
+        form = ChangeProfileImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            profile = UserProfile.objects.get(user=request.user)
+            image = form.cleaned_data.get('image')
+            if image:
+                profile.image = image
+                profile.save()
+            messages.success(request, 'Profile image updated successfully!')
+            return redirect('home')
+    else:
+        form = ChangeProfileImageForm()
+    
+    return render(request, 'change_profile_image.html', {'form': form})
+
 
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.

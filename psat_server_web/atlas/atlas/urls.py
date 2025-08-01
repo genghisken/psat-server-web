@@ -23,6 +23,8 @@ urlpatterns = [
     url(r'^accounts/invalid/', views.invalidLogin, name="invalid"),
     url(r'^accounts/change_password/$', views.AtlasPasswordChangeView.as_view(), name="change_password"),
     url(r'^accounts/password_change_done/$', auth_views.PasswordChangeDoneView.as_view(template_name="password_change_done.html"), name="password_change_done"),
+    url(r'^accounts/create_user/$', views.create_user, name="create_user"),
+    url(r'^accounts/change_profile_image/$', views.change_profile_image, name="change_profile_image"),
     path("accounts/", include("django_registration.backends.activation.urls")),
 
     url(r'^$', views.homepage, name='home'),
