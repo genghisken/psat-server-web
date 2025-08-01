@@ -67,7 +67,19 @@ class CreateUserForm(forms.Form):
             'write access permissions.'
         )
     )
-    
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            auto_id = self.auto_id % field_name
+            id_for_error = f"{auto_id}_errorlist"
+            id_for_help = f"{auto_id}_helptext"
+            field.widget.attrs.update(
+                {
+                    "aria-describedby": f"{id_for_error} {id_for_help}",
+                }
+            )
+
     def clean_username(self):
         """Validate that username is unique."""
         username = self.cleaned_data['username']
