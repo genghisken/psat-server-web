@@ -2,13 +2,9 @@
 
 #from django.conf.urls.defaults import *
 #from django.shortcuts import render_to_response, get_object_or_404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 
-# 2016-02-26 KWS Required for authentication
-from django.contrib import auth
-from django.contrib.auth import views as auth_views
-from django.contrib.auth.forms import PasswordChangeForm
 
 from django.db import IntegrityError
 from accounts.permissions import has_write_permissions
@@ -110,84 +106,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class LoginForm(forms.Form):
-    """LoginForm.
-    """
-
-    username = forms.CharField(required=False, widget=forms.TextInput(attrs={'size':'50', 'class':'form-control'}))
-    password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'size':'50', 'class':'form-control'}))
-
-def loginView(request):
-    """login.
-
-    Args:
-        request:
-    """
-    auth.logout(request)
-    username = password = ''
-    form = LoginForm()
-    return render(request, 'login.html', {'form': form})
-
-
-def authView(request):
-    """authView.
-
-    Args:
-        request:
-    """
-    # Although we picked up the "next" parameter via GET in our template,
-    # we submitted it via POST.
-    next = request.POST.get('next', '')
-
-    username = request.POST.get('username', '')
-    password = request.POST.get('password', '')
-    user = auth.authenticate(username=username, password=password)
-
-    if user is not None:
-        # Expire the login session after 1 day.
-        # 2017-11-28 KWS Changed expiry to 30 days. 1 day expiry too irritating.
-        request.session.set_expiry(30 * 86400)
-        auth.login(request, user)
-        try:
-            if user.profile.password_unuseable_fl:
-                return redirect('change_password')
-        except AttributeError:
-            logger.warning(f'User {user} has no profile.')
-        
-        if next == '':
-            return redirect('home')
-        else:
-            return redirect(next)
-
-    else:
-        return redirect('invalid')
-
-def loggedin(request):
-    """loggedin.
-
-    Args:
-        request:
-    """
-    return render(request, 'loggedin.html',
-                              {'full_name': request.user.username})
-
-def invalidLogin(request):
-    """invalidLogin.
-
-    Args:
-        request:
-    """
-    return render(request, 'invalid_login.html')
-
-def logoutView(request):
-    """logout.
-
-    Args:
-        request:
-    """
-    auth.logout(request)
-    return render(request, 'logout.html')
-
 def csrf_failure(request, reason=""):
     """csrf_failure.
 
@@ -197,81 +115,11 @@ def csrf_failure(request, reason=""):
     """
     return render(request, 'invalid_login.html', {'message': 'CSRF failure'})
 
+
 def privacy_policy(request):
     """View for the privacy_policy.
     """
     return render(request, 'privacy_policy.html')
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-def register_user(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = UserCreationForm()
-    return render(request, 'register.html', {'form': form})
-
-
-class AtlasPasswordChangeForm(PasswordChangeForm):
-    """AtlasPasswordChangeForm.
-    """
-    error_messages = {
-        **PasswordChangeForm.error_messages,
-        'password_old_same_new': "The new password cannot be the same as the old password.",
-        'old_password_incorrect': "The old password is not correct.",
-    }
-
-    def clean_new_password1(self):
-        """ 
-        Further checking on old password to ensure it is not the same as the 
-        new password.
-        """
-        new_password1 = self.cleaned_data['new_password1']
-        try:
-            old_password = self.cleaned_data['old_password']
-        except KeyError:
-            # This is a new password change form, so we don't have an old password
-            # to check against.
-            raise forms.ValidationError(
-                self.error_messages['old_password_incorrect'],
-                code='old_password_incorrect',
-            )
-        
-        if old_password == new_password1:
-            raise forms.ValidationError(
-                self.error_messages['password_old_same_new'],
-                code='password_old_same_new',
-            )
-        return new_password1
-        
-class AtlasPasswordChangeView(auth_views.PasswordChangeView):
-    """AtlasPasswordChangeView.
-    """
-    form_class = AtlasPasswordChangeForm
-    template_name = 'change_password.html'
-    
-    def form_valid(self, form):
-        # Unset the password_unuseable flag in the user profile
-        try:
-            form.user.profile.password_unuseable_fl = False
-            form.user.profile.save()
-        except AttributeError:
-            logger.warning(f'User {form.user} has no profile.')
-        
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        try:
-            context_data['password_unuseable_fl'] = self.request.user.profile.password_unuseable_fl
-        except AttributeError:
-            logger.warning(f'User {self.request.user} has no profile.')
-            context_data['password_unuseable_fl'] = False
-        return context_data
 
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.
