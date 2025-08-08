@@ -1564,7 +1564,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                        request.session['error'] = "WARNING: Please add a comment before promoting to the Possible list, so other users know why it is there!"
                        redirect_to = "../../error/"
                        return HttpResponseRedirect(redirect_to)
-                   if originalListId in [EYEBALL, FASTEYE, POSSIBLE, ATTIC, STAR, SMCLMC, HPMSTAR, GALCAND] and listId in [GOOD, FOLLOWUP]:
+                   if originalListId in [EYEBALL, FASTEYE, POSSIBLE, ATTIC, STAR, SMCLMC, HPMSTAR, GALCAND, MOVERS] and listId in [GOOD, FOLLOWUP]:
                        # Is there an object already in the good or confirmed lists within 2.0 arcsec?
                        message, goodObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup2', queryType = FULL, conn = connection, django = True)
                        message, confirmedObjects = coneSearchHTM(transient.ra, transient.dec, 2.0, 'atlas_v_followup1', queryType = FULL, conn = connection, django = True)
@@ -3283,6 +3283,7 @@ AtlasDiffObjectsTables = [AtlasDiffObjectsTableGarbageOptions,
                           AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableEyeballOptions,
+                          AtlasDiffObjectsTableEyeballOptions,
                           AtlasDiffObjectsTableEyeballOptions]
 
 PROMOTE_DEMOTE = {'C': 1, 'G': 2, 'P': 3, 'E': 4, 'A': 5, 'S': 11, 'T': 0}
@@ -3529,7 +3530,7 @@ def followupQuickView(request, listNumber):
         nobjects = 100
 
     try:
-        if int(list_id) in (0,1,2,3,4,5,6,7,8,9,10):
+        if int(list_id) in (0,1,2,3,4,5,6,7,8,9,10,11,12):
             #table = AtlasDiffObjectsTables[list_id]
             table = AtlasDiffObjectsTables[list_id](objectsQueryset, order_by=request.GET.get('sort', '-followup_id'))
         else:
