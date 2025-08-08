@@ -71,9 +71,8 @@
 </head>
 
 <body onload="TimerThread()">
-<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<!-- Generic nav bar for all the bootstrap pages -->
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f" crossorigin="anonymous"></script>
+  <!-- Generic nav bar for all the bootstrap pages -->
 <header>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03"
@@ -262,11 +261,29 @@
           </div>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i
-              class="fa-solid fa-spaghetti-monster-flying" title="Change Password"></i> {{request.user.username}}</a>
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+            {% if request.user.profile.image_b64 %}
+            <img
+              src="data:image/png;base64,{{ request.user.profile.image_b64 }}"
+              alt="{{ request.user.username }}'s profile picture"
+              class="rounded-circle"
+              width="30"
+              height="30"
+            >
+            {% else %}
+            <i class="fa-solid fa-spaghetti-monster-flying" title="User Profile"></i>
+            {% endif %}
+            {{ request.user.username }}
+          </a>
           <div class="dropdown-menu dropdown-menu-right">
+            {% if user.is_staff %}
+            <a class="dropdown-item" href="{% url 'create_user' %}"><i class="fa-solid fa-user-plus"></i> create user</a>
+            <div class="dropdown-divider"></div>
+            {% endif %}
             <a class="dropdown-item" href="{% url 'change_password' %}"><i class="fa-solid fa-user-secret"></i> change
               password</a>
+            <a class="dropdown-item" href="{% url 'change_profile_image' %}"><i class="fa-solid fa-image"></i> change
+              profile image</a>
             <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-solid fa-sign-out-alt" title="Sign out"></i>
               logout</a>
           </div>
