@@ -171,7 +171,9 @@ class AtlasPasswordChangeView(auth_views.PasswordChangeView):
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         try:
-            context_data['password_unuseable_fl'] = self.request.user.profile.password_unuseable_fl
+            context_data['password_unuseable_fl'] = (
+                self.request.user.profile.password_unuseable_fl
+            )
         except AttributeError:
             logger.warning(f'User {self.request.user} has no profile.')
             context_data['password_unuseable_fl'] = False
@@ -211,14 +213,18 @@ def create_user(request):
                 
                 # Create or update user profile
                 profile, created = UserProfile.objects.get_or_create(user=user)
-                profile.password_unuseable_fl = True  # Automatically set as per requirement
+                # Temp password must be changed by user
+                profile.password_unuseable_fl = True 
                 profile.save()
                 image = form.cleaned_data.get('image')
                 if image:
                     profile.image = image
                     profile.save()
                 
-                messages.success(request, f'User {user.username} created successfully!')
+                messages.success(
+                    request,
+                    f'User {user.username} created successfully!'
+                )
                 
                 # Clear form for next user creation
                 form = CreateUserForm()
