@@ -81,6 +81,20 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.has_write_access }}
+                                    <label for="{{ form.has_write_access.id_for_label }}">Can edit observations</label>
+                                    {% if form.has_write_access.errors %}
+                                        <div id="{{ form.has_write_access.id_for_label }}_errorlist" class="text-danger">{{ form.has_write_access.errors }}</div>
+                                    {% endif %}
+                                    <small id="{{ form.has_write_access.id_for_label }}_helptext" class="form-text text-muted">
+                                        {{ form.has_write_access.help_text }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="{{ form.group.id_for_label }}">Group *</label>
                             {{ form.group }}
