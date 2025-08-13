@@ -193,7 +193,7 @@ def create_user(request):
     from django.contrib import messages
     
     if request.method == 'POST':
-        form = CreateUserForm(request.POST)
+        form = CreateUserForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 # Create the user
@@ -279,7 +279,9 @@ def change_profile_image(request):
     if request.method == 'POST':
         form = ChangeProfileImageForm(request.POST, request.FILES)
         if form.is_valid():
-            profile = UserProfile.objects.get(user=request.user)
+            profile, created = UserProfile.objects.get_or_create(
+                user=request.user
+            )
             image = form.cleaned_data.get('image')
             if image:
                 profile.image = image

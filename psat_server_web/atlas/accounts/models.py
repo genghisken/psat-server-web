@@ -6,8 +6,20 @@ from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.conf import settings
 import io
+import os
+import re
 
 from .utils import bytes2string
+
+
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/profile_pics/<username>/<filename>
+    # Securely extract the base filename and validate it
+    base_filename = os.path.basename(filename)
+    # Allow only alphanumerics, underscores, hyphens, and dots in filenames
+    if not re.fullmatch(r'[\w.\-]+', base_filename):
+        raise ValueError("Invalid profile image filename.")
+    return f'profile_pics/{instance.user.username}/{base_filename}'
 
 
 class UserProfile(models.Model):
@@ -32,8 +44,9 @@ class UserProfile(models.Model):
         default=False,
         help_text='If true, password requires changing before login'
     )
+
     image = models.ImageField(
-        upload_to='profile_pics/',
+        upload_to=user_directory_path,
         validators=[FileExtensionValidator(
             allowed_extensions=['gif', 'jpeg', 'jpg', 'png']
         )],
