@@ -3,7 +3,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib import auth, messages
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.contrib.auth.decorators import login_required, user_passes_test
 import logging
 
@@ -206,6 +206,15 @@ def create_user(request):
                 )
                 
                 user.save()
+
+                if form.cleaned_data.get('has_write_access'):
+                    # Grant write access if the checkbox is checked
+                    permission = Permission.objects.get(
+                        codename='has_write_access'
+                    )
+                    user.user_permissions.add(
+                        permission
+                    )
                 
                 # Add user to selected group
                 group = form.cleaned_data['group']

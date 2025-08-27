@@ -68,6 +68,13 @@ class CreateUserForm(forms.Form):
         )
     )
 
+    has_write_access = forms.BooleanField(
+        required=False,
+        label='Can edit observations',
+        widget=forms.CheckboxInput(),
+        help_text='Grant the user permission to edit observations.'
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
