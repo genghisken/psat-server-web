@@ -617,7 +617,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         </div>
         {% for row in gw %}
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <span class="parameter-value"><a href="https://gracedb.ligo.org/superevents/{{ row.gravity_event_id }}/view/">{{ row.gravity_event_id }}</a>{% if row.map_iteration.mjd_obs %} <a href="https://psweb.mp.qub.ac.uk/o4_events/superevents/{{ row.gravity_event_id }}/{{ row.map_iteration.map_iteration }}/skymap.png">qub map</a> (MJD = {{ row.map_iteration.mjd_obs|floatformat:"5" }}).{% endif %}{% if row.days_since_event %} Time since GW trigger {{ row.days_since_event|floatformat:"2" }} days.{% endif %} {% if row.enclosing_contour %} Within {{ row.enclosing_contour|default_if_none:"" }}&#37; contour{% endif %}{% if row.probability %} ({{ row.probability }}&#37;).{% endif %}{% if row.map_iteration.alert_time %}{% if row.map_iteration.distmean %} Position specific distance {{ row.map_iteration.distmean|floatformat:"1" }} (+/- {{ row.map_iteration.diststd|floatformat:"1" }}) Mpc. {% endif %}{% if row.map_iteration.class_bbh %}BBH ({{ row.map_iteration.class_bbh_pc|floatformat:"0" }}&#37) {% endif %}{% if row.map_iteration.class_bns %}BNS ({{ row.map_iteration.class_bns_pc|floatformat:"0" }}&#37) {% endif %}{% if row.map_iteration.class_nsbh %}NSBH ({{ row.map_iteration.class_nsbh_pc|floatformat:"0" }}&#37) {% endif %}{% if row.map_iteration.class_terrestrial %}Terr ({{ row.map_iteration.class_terrestrial_pc|floatformat:"0" }}&#37) {% endif %}Alert time: {{ row.map_iteration.alert_time }}.{% endif %}{% if row.map_iteration.alert_type %} Alert type: {{ row.map_iteration.alert_type }}.{% endif %}</span>
+          <span class="parameter-value"><a href="https://gracedb.ligo.org/superevents/{{ row.gravity_event_id }}/view/">{{ row.gravity_event_id }}</a>{% if row.map_iteration.mjd_obs %} <a href="https://psweb.mp.qub.ac.uk/o4_events/superevents/{{ row.gravity_event_id }}/{{ row.map_iteration.map_iteration }}/skymap.png">qub map</a> (MJD = {{ row.map_iteration.mjd_obs|floatformat:"5" }}).{% endif %}{% if row.days_since_event %} Time since GW trigger {{ row.days_since_event|floatformat:"2" }} days.{% endif %} {% if row.enclosing_contour %} Within {{ row.enclosing_contour|default_if_none:"" }}&#37; contour{% endif %}{% if row.probability %} ({{ row.probability }}&#37;).{% endif %}{% if row.map_iteration.alert_time %}{% if row.distance %} Position specific distance {{ row.distance|floatformat:"0" }} (+/- {{ row.distance_sigma|floatformat:"0" }}) Mpc. {% endif %}{% if row.map_iteration.class_bbh %}BBH ({{ row.map_iteration.class_bbh_pc|floatformat:"0" }}&#37) {% endif %}{% if row.map_iteration.class_bns %}BNS ({{ row.map_iteration.class_bns_pc|floatformat:"0" }}&#37) {% endif %}{% if row.map_iteration.class_nsbh %}NSBH ({{ row.map_iteration.class_nsbh_pc|floatformat:"0" }}&#37) {% endif %}{% if row.map_iteration.class_terrestrial %}Terr ({{ row.map_iteration.class_terrestrial_pc|floatformat:"0" }}&#37) {% endif %}Alert time: {{ row.map_iteration.alert_time }}.{% endif %}{% if row.map_iteration.alert_type %} Alert type: {{ row.map_iteration.alert_type }}.{% endif %}</span>
         </div>
         {% endfor %}
         {% endif %}
@@ -840,6 +840,12 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
         <div class="col-lg-12 col-md-12 col-sm-12">
         <a href="http://nedwww.ipac.caltech.edu/cgi-bin/nph-calc?in_csys=Equatorial&in_equinox=J2000.0&obs_epoch=2000.0&lon={{ avg_coords.ra }}d&lat={{ avg_coords.dec }}d&pa=0.0&out_csys=Equatorial&out_equinox=J2000.0" target="blank">Galactic Extinction</a>
+        </div>
+
+      <!-- Legacy Survey -->
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+        <a href="https://www.legacysurvey.org/viewer?ra={{ avg_coords.ra }}&dec={{ avg_coords.dec }}&zoom=15&mark={{ avg_coords.ra }},{{ avg_coords.dec }}" target="_blank">Legacy Survey</a>
         </div>
 
       </div>
