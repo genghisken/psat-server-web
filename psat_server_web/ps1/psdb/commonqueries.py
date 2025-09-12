@@ -338,6 +338,7 @@ FORCED_PHOTOMETRY_QUERY = """\
              and mjd_obs > %s
              and psf_inst_flux_sig > 0
              and abs(psf_inst_flux / psf_inst_flux_sig) > 0.0
+             and fptype = %s
         order by filter, mjd_obs
       """
 
@@ -416,7 +417,7 @@ def getFollowupPhotometry(candidate, djangoRawObject = None, conn = None):
     return filterData, filterDataBlanks, fullList, fullListBlanks
 
 
-def forcedPhotometryQuery(candidate, djangoRawObject = None, conn = None):
+def forcedPhotometryQuery(candidate, djangoRawObject = None, conn = None, fpType = 0):
    """This method exists to allow extraction of all the column data for display as raw data"""
    from gkutils.commonutils import Struct
 
@@ -425,13 +426,13 @@ def forcedPhotometryQuery(candidate, djangoRawObject = None, conn = None):
 
    if djangoRawObject:
       # Assume a Django query by default
-      resultset = djangoRawObject.objects.raw(FORCED_PHOTOMETRY_QUERY, [candidate, mjdLimit])
+      resultset = djangoRawObject.objects.raw(FORCED_PHOTOMETRY_QUERY, [candidate, mjdLimit, fpType])
    elif conn:
       # Otherwise try a raw MySQL query if we have a connecton object
       import MySQLdb
       try:
           cursor = conn.cursor(MySQLdb.cursors.DictCursor)
-          cursor.execute (FORCED_PHOTOMETRY_QUERY, [candidate, mjdLimit])
+          cursor.execute (FORCED_PHOTOMETRY_QUERY, [candidate, mjdLimit, fpType])
           results = cursor.fetchall ()
           cursor.close ()
           if results:
@@ -446,15 +447,15 @@ def forcedPhotometryQuery(candidate, djangoRawObject = None, conn = None):
 
    return resultset
 
-
-def getForcedPhotometry(candidate, djangoRawObject = None, conn = None, limits = LIMITS):
+# 2025-09-10 KWS Added forced photometry type. 0 = diff, 1 = input (so far).
+def getForcedPhotometry(candidate, djangoRawObject = None, conn = None, limits = LIMITS, fpType = 0):
     """Use the query forcedPhotometryQuery but organise the data for plotting.
        Grab all the flux data while we're at it, so we can do both mags and flux."""
 
     from collections import defaultdict
     from gkutils.commonutils import fluxToMicroJansky
 
-    recurrences = forcedPhotometryQuery(candidate, djangoRawObject = djangoRawObject, conn = conn)
+    recurrences = forcedPhotometryQuery(candidate, djangoRawObject = djangoRawObject, conn = conn, fpType = fpType)
 
     fullList = []
     fullListBlanks = []
@@ -526,7 +527,7 @@ def lightcurvePlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = None, 
 
 
 # 2015-10-13 KWS Plain text forced photometry query
-def lightcurveForcedPlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = None, conn = None):
+def lightcurveForcedPlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = None, conn = None, fpType = 0):
    """lightcurveForcedPlainQuery.
 
    Args:
@@ -541,13 +542,13 @@ def lightcurveForcedPlainQuery(candidate, mjdLimit = 55347.0, djangoRawObject = 
 
    if djangoRawObject:
       # Assume a Django query by default
-      recurrences = djangoRawObject.objects.raw(FORCED_PHOTOMETRY_QUERY, [candidate, mjdLimit])
+      recurrences = djangoRawObject.objects.raw(FORCED_PHOTOMETRY_QUERY, [candidate, mjdLimit, fpType])
    elif conn:
       # Otherwise try a raw MySQL query if we have a connecton object
       import MySQLdb
       try:
           cursor = conn.cursor(MySQLdb.cursors.DictCursor)
-          cursor.execute (FORCED_PHOTOMETRY_QUERY, [candidate, mjdLimit])
+          cursor.execute (FORCED_PHOTOMETRY_QUERY, [candidate, mjdLimit, fpType])
           results = cursor.fetchall ()
           cursor.close ()
           if results:

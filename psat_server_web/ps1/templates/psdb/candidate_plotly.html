@@ -157,6 +157,51 @@ jslabelsglobal["#flot-lightcurve-forced-flux"] = jslabelsforcedflux;
 {% endif %}
 {% endblock %}
 
+
+
+
+
+
+{% block lightcurvedataforcedfluxinput %}
+{% if lcdataforcedfluxinput.0 %}
+<script language="javascript" type="text/javascript">
+// lcDataForcedInputFlux = [forcedDetectionDataInputFlux, plotLabelsFlux, fluxLimits]
+var jslcdataforcedfluxinput = new Array();
+var jslabelsforcedfluxinput = new Array();
+var jslclimitsforcedfluxinput = { {% if transient.tcs_cmf_metadata_id.filename|slice:"4" == "RING"  %} "xmin": {{ lcdataforcedfluxinput.2.xmin|last }}, {% else %} "xmin": {{ lcdataforcedfluxinput.2.xmin.0|add:"-30" }}, {% endif %}
+                             "xmax": {{ lcdataforcedfluxinput.2.today }},
+                             "ymin": {{ lcdataforcedfluxinput.2.ymin|last }},
+                             "ymax": {{ lcdataforcedfluxinput.2.ymax|last }},
+                             "discoveryDate": {{ lcdataforcedfluxinput.2.discoveryDate }},
+                             "today": {{ lcdataforcedfluxinput.2.today }} };
+
+jslimitsglobal["#flot-lightcurve-forced-input-flux"] = jslclimitsforcedfluxinput;
+
+console.log(jslclimitsforcedfluxinput);
+
+{% for dataseries in lcdataforcedfluxinput|slice:":-2" %}
+  {% for filterdata in dataseries %}
+    jslcdataforcedfluxinput.push({{filterdata}});
+  {% endfor %}
+{% endfor %}
+
+jslcdataglobal["#flot-lightcurve-forced-input-flux"] = jslcdataforcedfluxinput;
+
+// The last item is the data labels. The length of this array must be the same as the
+// length of the filterdata (minus the last element).
+{% for lclabels in lcdataforcedfluxinput.1 %}
+  jslabelsforcedfluxinput.push({{lclabels|safe}});
+{% endfor %}
+
+jslabelsglobal["#flot-lightcurve-forced-input-flux"] = jslabelsforcedfluxinput;
+
+</script>
+{% endif %}
+{% endblock %}
+
+
+
+
 {% block lightcurvedataforcedstackflux %}
 {% if lcdataforcedstackflux.0 %}
 <script language="javascript" type="text/javascript">
@@ -665,18 +710,33 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         </div>
         -->
 
-        <div class="col-lg-12 col-md-12 col-sm-12">
-        <span class="parameter-value"><a href="../../lightcurveforced/{{transient.id}}/">Raw Forced Data</a></span>
-        </div>
         {% endif %}
 
         {% if lcdataforcedflux.0 %}
         <div class="col-lg-12 col-md-12 col-sm-12">
-        <span class="parameter-value">Forced Photometry Flux</span>
+        <span class="parameter-value">Forced Difference Photometry Flux</span>
         </div>
 
         <div class="col-lg-12 col-md-12 col-sm-12">
           <div id="flot-lightcurve-forced-flux"></div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+        <span class="parameter-value"><a href="../../lightcurveforced/{{transient.id}}/">Raw Forced Difference Data</a></span>
+        </div>
+        {% endif %}
+
+        {% if lcdataforcedfluxinput.0 %}
+        <div class="col-lg-12 col-md-12 col-sm-12">
+        <span class="parameter-value">Forced Input Photometry Flux</span>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <div id="flot-lightcurve-forced-input-flux"></div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+        <span class="parameter-value"><a href="../../lightcurveforced/{{transient.id}}/?fptype=1">Raw Forced Input Data</a></span>
         </div>
         {% endif %}
 
@@ -975,6 +1035,12 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
 {% if lcdataforcedflux.0 %}
 <script language="javascript" type="text/javascript">var lcdivname = "#flot-lightcurve-forced-flux", lcplotheight = 400, markersize = 15, errorbarsize = 4, arrowsize = 7;</script>
+<script src="{{ STATIC_URL }}js/lightcurveplotly.js"></script>
+</script>
+{% endif %}
+
+{% if lcdataforcedfluxinput.0 %}
+<script language="javascript" type="text/javascript">var lcdivname = "#flot-lightcurve-forced-input-flux", lcplotheight = 400, markersize = 15, errorbarsize = 4, arrowsize = 7;</script>
 <script src="{{ STATIC_URL }}js/lightcurveplotly.js"></script>
 </script>
 {% endif %}
