@@ -435,13 +435,24 @@ def candidateflot(request, tcs_transient_objects_id):
     colourData = [colourPlotData, colourPlotLabels]
 
     forcedDetectionData = forcedDetectionDataBlanks = plotLabels = plotLimits = forcedDetectionDataFlux = plotLabelsFlux = fluxLimits = colourPlotDataForced = colourPlotLimitsForced = colourPlotLabelsForced = []
-    forcedDataList = getForcedLCData(transient.id, getColours = True, limits = detectionLimits)
+
+    # 2025-09-10 KWS Added an FP Type flag to indicate which type of forced phot we want. 0 = diff, 1 = input.
+    forcedDataList = getForcedLCData(transient.id, getColours = True, limits = detectionLimits, fpType = 0)
     if forcedDataList:
        forcedDetectionData, forcedDetectionDataBlanks, plotLabels, plotLimits, forcedDetectionDataFlux, plotLabelsFlux, fluxLimits, colourPlotDataForced, colourPlotLimitsForced, colourPlotLabelsForced = forcedDataList 
 
     lcDataForced = [forcedDetectionData, forcedDetectionDataBlanks, plotLabels, plotLimits]
     lcDataForcedFlux = [forcedDetectionDataFlux, plotLabelsFlux, fluxLimits]
     colourDataForced = [colourPlotDataForced, colourPlotLimitsForced, colourPlotLabelsForced]
+
+    # 2025-09-10 KWS Get the input forced photometry, if it exists.
+    forcedDataList = getForcedLCData(transient.id, getColours = True, limits = detectionLimits, fpType = 1)
+    if forcedDataList:
+       forcedDetectionData, forcedDetectionDataBlanks, plotLabels, plotLimits, forcedDetectionDataFlux, plotLabelsFlux, fluxLimits, colourPlotDataForced, colourPlotLimitsForced, colourPlotLabelsForced = forcedDataList
+
+    lcDataForcedInput = [forcedDetectionData, forcedDetectionDataBlanks, plotLabels, plotLimits]
+    lcDataForcedFluxInput = [forcedDetectionDataFlux, plotLabelsFlux, fluxLimits]
+    colourDataForcedInput = [colourPlotDataForced, colourPlotLimitsForced, colourPlotLabelsForced]
 
     # 2010-12-02 KWS Get the list ID of the object.  The value of this will determine
     #                which options are presented.
@@ -934,7 +945,7 @@ def candidateflot(request, tcs_transient_objects_id):
     # 2011-04-04 KWS Add the user defined list to the objects passed to the web page.
     # 2013-10-24 KWS Added context_instance=RequestContext(request) to the render_to_response call.
     #                If not included, the specified template won't understand STATIC_URL.
-    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'atlasCrossmatches': atlasCrossmatches, 'atlasBaseURL': settings.ATLAS_BASE_URL, 'displayagns': settings.DISPLAY_AGNS})
+    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedinput': lcDataForcedInput, 'lcdataforcedfluxinput': lcDataForcedFluxInput, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'colourdataforcedInput': colourDataForcedInput, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'atlasCrossmatches': atlasCrossmatches, 'atlasBaseURL': settings.ATLAS_BASE_URL, 'displayagns': settings.DISPLAY_AGNS})
 
 
 
@@ -1062,9 +1073,19 @@ def lightcurveforcedplain(request, tcs_transient_objects_id):
     """
     transient = get_object_or_404(TcsTransientObjects, pk=tcs_transient_objects_id)
     mjdLimit = 55347.0 # Hard wired to 31st May 2010
+
+    # 2025-09-12 KWS Get the forced photometry type. 0 = diff, 1 = input.
+
+    fpType = 0
+    fpType = request.GET.get('fptype', '0')
+    try:
+        fpType = int(fpType)
+    except ValueError as e:
+        fpType = 0
+
     # 2012-07-18 KWS Changed this code to call the custom query from a
     #                dedicated file full of custom queries for lightcurves.
-    recurrences = lightcurveForcedPlainQuery(transient.id, mjdLimit = mjdLimit, djangoRawObject = CustomAllObjectOcurrencesPresentation)
+    recurrences = lightcurveForcedPlainQuery(transient.id, mjdLimit = mjdLimit, djangoRawObject = CustomAllObjectOcurrencesPresentation, fpType = fpType)
     for row in recurrences:
         if row.exptime is not None and row.zero_pt is not None and row.psf_inst_flux is not None and row.psf_inst_flux_sig is not None:
             row.ujy = fluxToMicroJansky(row.psf_inst_flux, row.exptime, row.zero_pt)

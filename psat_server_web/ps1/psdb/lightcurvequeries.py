@@ -265,7 +265,7 @@ def getAllLCData(candidate, applyFudge = True, getColours = True, conn = None, g
 
 
 
-def getForcedLCData(candidate, getColours = True, conn = None, limits = LIMITS):
+def getForcedLCData(candidate, getColours = True, conn = None, limits = LIMITS, fpType = 0):
     """Get Forced Photometry plot data, including colours if necessary"""
 
     from .dbviews import CustomForcedLCData
@@ -282,7 +282,7 @@ def getForcedLCData(candidate, getColours = True, conn = None, limits = LIMITS):
     forcedDetectionDataFlux = []
     plotLabelsFlux = []
 
-    forcedFilterData, forcedFilterDataBlanks, forcedFullList, forcedFullListBlanks, forcedFilterDataFlux, forcedFullListFlux = getForcedPhotometry(candidate, djangoRawObject = CustomForcedLCData, conn = conn, limits = limits)
+    forcedFilterData, forcedFilterDataBlanks, forcedFullList, forcedFullListBlanks, forcedFilterDataFlux, forcedFullListFlux = getForcedPhotometry(candidate, djangoRawObject = CustomForcedLCData, conn = conn, limits = limits, fpType = fpType)
 
     # If we don't get any data no point proceeding.
     if not forcedFilterData or not forcedFilterDataFlux:
