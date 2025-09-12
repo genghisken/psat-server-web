@@ -436,6 +436,7 @@ def candidateflot(request, tcs_transient_objects_id):
 
     forcedDetectionData = forcedDetectionDataBlanks = plotLabels = plotLimits = forcedDetectionDataFlux = plotLabelsFlux = fluxLimits = colourPlotDataForced = colourPlotLimitsForced = colourPlotLabelsForced = []
 
+
     # 2025-09-10 KWS Added an FP Type flag to indicate which type of forced phot we want. 0 = diff, 1 = input.
     forcedDataList = getForcedLCData(transient.id, getColours = True, limits = detectionLimits, fpType = 0)
     if forcedDataList:
@@ -446,13 +447,15 @@ def candidateflot(request, tcs_transient_objects_id):
     colourDataForced = [colourPlotDataForced, colourPlotLimitsForced, colourPlotLabelsForced]
 
     # 2025-09-10 KWS Get the input forced photometry, if it exists.
-    forcedDataList = getForcedLCData(transient.id, getColours = True, limits = detectionLimits, fpType = 1)
-    if forcedDataList:
-       forcedDetectionData, forcedDetectionDataBlanks, plotLabels, plotLimits, forcedDetectionDataFlux, plotLabelsFlux, fluxLimits, colourPlotDataForced, colourPlotLimitsForced, colourPlotLabelsForced = forcedDataList
+    forcedDetectionDataInput = forcedDetectionDataBlanksInput = plotLabelsInput = plotLimitsInput = forcedDetectionDataFluxInput = plotLabelsFluxInput = fluxLimitsInput = colourPlotDataForcedInput = colourPlotLimitsForcedInput = colourPlotLabelsForcedInput = []
 
-    lcDataForcedInput = [forcedDetectionData, forcedDetectionDataBlanks, plotLabels, plotLimits]
-    lcDataForcedFluxInput = [forcedDetectionDataFlux, plotLabelsFlux, fluxLimits]
-    colourDataForcedInput = [colourPlotDataForced, colourPlotLimitsForced, colourPlotLabelsForced]
+    forcedDataListInput = getForcedLCData(transient.id, getColours = True, limits = detectionLimits, fpType = 1)
+    if forcedDataListInput:
+       forcedDetectionDataInput, forcedDetectionDataBlanksInput, plotLabelsInput, plotLimitsInput, forcedDetectionDataFluxInput, plotLabelsFluxInput, fluxLimitsInput, colourPlotDataForcedInput, colourPlotLimitsForcedInput, colourPlotLabelsForcedInput = forcedDataListInput
+
+    lcDataForcedInput = [forcedDetectionDataInput, forcedDetectionDataBlanksInput, plotLabelsInput, plotLimitsInput]
+    lcDataForcedFluxInput = [forcedDetectionDataFluxInput, plotLabelsFluxInput, fluxLimitsInput]
+    colourDataForcedInput = [colourPlotDataForcedInput, colourPlotLimitsForcedInput, colourPlotLabelsForcedInput]
 
     # 2010-12-02 KWS Get the list ID of the object.  The value of this will determine
     #                which options are presented.
