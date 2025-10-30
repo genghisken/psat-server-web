@@ -63,7 +63,7 @@ create table `tcs_forced_photometry` (
 `pscamera` varchar(10),
 `fptype` tinyint not null default 0,
 PRIMARY KEY `key_id` (`id`),
-UNIQUE KEY `idx_transient_object_id_fpa_id` (`transient_object_id`,`fpa_id`),
+UNIQUE KEY `idx_transient_object_id_fpa_id_fptype` (`transient_object_id`,`fpa_id`,`fptype`),
 KEY `idx_ra_psf_dec_psf` (`ra_psf`,`dec_psf`),
 KEY `idx_ps_req_id` (`postage_stamp_request_id`),
 KEY `idx_skycell` (`skycell`),
