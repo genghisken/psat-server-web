@@ -68,7 +68,9 @@ else
     mkdir -p APACHEPATH
 fi
 
-CMD="mod_wsgi-express setup-server --working-directory atlas --url-alias $PREFIX/static static --url-alias $PREFIX/media media --application-type module atlas.wsgi --server-root $APACHEPATH --port $PORT --mount-point $PREFIX"
+# 2025-11-14 KWS Added a request & socket timeout of 600 seconds in case we want to request
+#                very large batches of objects directly from the webserver.
+CMD="mod_wsgi-express setup-server --working-directory atlas --url-alias $PREFIX/static static --url-alias $PREFIX/media media --application-type module atlas.wsgi --server-root $APACHEPATH --port $PORT --mount-point $PREFIX --request-timeout 600 --socket-timeout 600"
 echo $CMD
 $CMD
 

@@ -100,8 +100,8 @@ class ObjectsSerializer(serializers.Serializer):
         for tok in objects.split(','):
             olist.append(tok.strip())
 
-        if len(olist) > 100:
-            return {"info": "Max number of objects for each requests is 100"}
+        if len(olist) > 50_000:
+            return {"info": "Max number of objects for each requests is 50,000"}
 #        olist = olist[:10] # restrict to 10
 
         # Get the authenticated user, if it exists.

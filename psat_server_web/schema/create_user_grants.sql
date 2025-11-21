@@ -96,3 +96,15 @@ grant select on *.* to 'mdf'@'%';
 grant file on *.* to 'mdf'@'%';
 grant execute on *.* to 'mdf'@'%';
 
+-- HFS User -- Read-Only access and file-write permissions (for reports)
+drop user 'hfs'@'localhost';
+create user 'hfs'@'localhost';
+grant select on *.* to 'hfs'@'localhost';
+grant file on *.* to 'hfs'@'localhost';
+grant execute on *.* to 'hfs'@'localhost';
+drop user 'hfs'@'%';
+create user 'hfs'@'%';
+grant select on *.* to 'hfs'@'%';
+grant file on *.* to 'hfs'@'%';
+grant execute on *.* to 'hfs'@'%';
+

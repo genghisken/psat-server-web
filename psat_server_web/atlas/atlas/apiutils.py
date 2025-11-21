@@ -41,7 +41,26 @@ def candidateddcApi(request, atlas_diff_objects_id, mjdThreshold = None):
     # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
     from lasair import LasairError, lasair_client as lasair
 
-    transient = AtlasDiffObjects.objects.get(pk=atlas_diff_objects_id)
+
+    try:
+        transient = AtlasDiffObjects.objects.get(pk=atlas_diff_objects_id)
+    except ObjectDoesNotExist as e:
+        # 2025-11-14 KWS Return an empty object if the object does not exist.
+        # This protects the API from generating a 500 error if a bogus object
+        # is sent. But since the keys are the same the client code should be
+        # able to read and interpet this result.
+        data = {
+            'object': e.to_dict() if hasattr(e, 'to_dict') else str(e),
+            'lc': None,
+            'lcnondets': None,
+            'fp': None,
+            'sherlock_crossmatches': None,
+            'sherlock_classifications': None,
+            'tns_crossmatches': None,
+            'external_crossmatches': None,
+        }
+        return data
+
 
     # 2017-03-21 KWS Get Gravity Wave annotations and Sherlock Classifications
     sc = SherlockClassifications.objects.filter(transient_object_id_id = transient.id)
