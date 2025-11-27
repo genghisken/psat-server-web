@@ -533,6 +533,45 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         {% endfor %}
         {% endif %}
 
+        {% if extinction %}
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <span class="parameter-label">Galactic Extinction </span>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+           <style>
+             .ext-table {
+               font-family: "Courier New", Courier, monospace;
+               font-size: 0.7rem;
+             }
+             .ext-table td:nth-child(2),
+             .ext-table th:nth-child(2) {
+               text-align: right;
+             }
+           </style>
+
+           <table class="ext-table">
+             <thead>
+               <tr>
+                 <th>Filter</th>
+                 <th style="text-align: right;">A</th>
+               </tr>
+             </thead>
+             <tbody>
+               {# dictsort is optional, just to keep rows in a predictable order #}
+               {% for key, value in extinction.items %}
+                 <tr>
+                   {# remove the 'A_' prefix by slicing off the first 2 characters #}
+                   <td>{{ key|slice:"2:" }}</td>
+           
+                   {# format the float to 3 decimal places #}
+                   <td style="text-align: right;">{{ value|floatformat:3 }}</td>
+                 </tr>
+               {% endfor %}
+             </tbody>
+           </table>
+        </div>
+        {% endif %}
 
       </div>
     </div>

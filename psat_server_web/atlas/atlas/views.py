@@ -1091,6 +1091,20 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
 
     can_edit_fl = has_write_permissions(request.user)
 
+    # 2025-11-23 KWS Grab the PS1 extinction values from the SFD dustmap so we can display on the page.
+    extinction = {}
+    try:
+        from gkutils.commonutils import getSFDPanSTARRSATLASExtinction
+        extinction = getSFDPanSTARRSATLASExtinction(transient.ra, transient.dec, settings.DUSTMAP_LOCATION, download = True)
+        sys.stderr.write("\n%s\n" % str(extinction))
+
+    except ModuleNotFoundError as e:
+        pass
+
+    except ImportError as e:
+        pass
+
+
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
     processingStatus = None
@@ -1644,6 +1658,7 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
         'panstarrsCrossmatches': panstarrsCrossmatches, 
         'panstarrsBaseURL': settings.PANSTARRS_BASE_URL,
         'can_edit_fl': can_edit_fl,
+        'extinction': extinction,
     }
 
     return render(request, 'atlas/' + template_name, context)
