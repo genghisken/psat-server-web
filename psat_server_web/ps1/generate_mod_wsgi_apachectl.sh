@@ -37,6 +37,11 @@
 # export DJANGO_ATLAS_TOKEN=''
 # export DJANGO_ATLAS_BASE_URL=''
 
+# DJANGO_PANSTARRS_DESCRIPTIONS='Comma,Separated,Descriptions'
+# DJANGO_PANSTARRS_BASE_URLS='https://baseurl1.com/,https://baseurl2.com/,https://baseurl3.com/'
+# DJANGO_PANSTARRS_TOKENS='aaa','bbb','ccc'
+
+
 
 if [ -f ~/.config/django/django_env_$CONDA_DEFAULT_ENV ]; then chmod 600 ~/.config/django/django_env_$CONDA_DEFAULT_ENV; source ~/.config/django/django_env_$CONDA_DEFAULT_ENV; fi
 

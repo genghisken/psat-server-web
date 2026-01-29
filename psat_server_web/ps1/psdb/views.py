@@ -848,6 +848,27 @@ def candidateflot(request, tcs_transient_objects_id):
         sys.stderr.write('%s\n' % str(e))
 
 
+    panstarrsCrossmatches = []
+    if len(settings.PANSTARRS_TOKENS) > 0 and len(settings.PANSTARRS_TOKENS) == len(settings.PANSTARRS_BASE_URLS) and len(settings.PANSTARRS_TOKENS) == len(settings.PANSTARRS_DESCRIPTIONS):
+        for i in range(len(settings.PANSTARRS_TOKENS)):
+            P = psat(settings.PANSTARRS_TOKENS[i], endpoint = settings.PANSTARRS_BASE_URLS[i] + '/api/', timeout = 2.0)
+            try:
+                pc = P.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
+                if len(pc) > 0:
+                    panstarrsCrossmatches.append({'description': settings.PANSTARRS_DESCRIPTIONS[i], 'crossmatches': pc, 'baseurl': settings.PANSTARRS_BASE_URLS[i]})
+            except RequestsConnectionError as e:
+                # If the API URL is incorrect or times out we will get a connection error.
+                sys.stderr.write('Pan-STARRS API Connection Error\n')
+                sys.stderr.write('%s\n' % str(e))
+            except RequestsConnectionTimeoutError as e:
+                # If the API times out, we will get a timeout error.
+                sys.stderr.write('Pan-STARRS API Timeout Error\n')
+                sys.stderr.write('%s\n' % str(e))
+            except PSATAPIError as e:
+                sys.stderr.write('Pan-STARRS Error\n')
+                sys.stderr.write('%s\n' % str(e))
+
+
     coneSearchRadius = 4.0   # arcsec
 
     # Grab all objects within 3 arcsec of this one.
@@ -948,7 +969,7 @@ def candidateflot(request, tcs_transient_objects_id):
     # 2011-04-04 KWS Add the user defined list to the objects passed to the web page.
     # 2013-10-24 KWS Added context_instance=RequestContext(request) to the render_to_response call.
     #                If not included, the specified template won't understand STATIC_URL.
-    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedinput': lcDataForcedInput, 'lcdataforcedfluxinput': lcDataForcedFluxInput, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'colourdataforcedInput': colourDataForcedInput, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'atlasCrossmatches': atlasCrossmatches, 'atlasBaseURL': settings.ATLAS_BASE_URL, 'displayagns': settings.DISPLAY_AGNS})
+    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedinput': lcDataForcedInput, 'lcdataforcedfluxinput': lcDataForcedFluxInput, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'colourdataforcedInput': colourDataForcedInput, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'atlasCrossmatches': atlasCrossmatches, 'atlasBaseURL': settings.ATLAS_BASE_URL, 'displayagns': settings.DISPLAY_AGNS, 'panstarrsCrossmatches': panstarrsCrossmatches})
 
 
 

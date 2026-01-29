@@ -538,6 +538,27 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         {% endfor %}
         {% endif %}
 
+        {% if panstarrsCrossmatches %}
+        {% for p in panstarrsCrossmatches %}
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <span class="parameter-label">{{ p.description }} Crossmatches: </span>
+        </div>
+
+        {% for row in p.crossmatches %}
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <h3><a href="{{ p.baseurl }}/psdb/candidate/{{ row.object }}/">{% if row.objectname %}{{ row.objectname }}{% else %}Pan-STARRS object{% endif %}</a></h3>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <span class="parameter-value">Offset = {{ row.separation|floatformat:"2" }}"</span>
+        </div>
+        {% endfor %}
+
+        {% endfor %}
+        {% endif %}
+
+
         {% if tnsXMs %}
         <div class="col-lg-12 col-md-12 col-sm-12">
           <span class="parameter-label">TNS Crossmatch: </span>

@@ -107,6 +107,11 @@ NAMESERVER_MULTIPLIER = os.environ.get('DJANGO_NAMESERVER_MULTIPLIER')
 ATLAS_TOKEN = os.environ.get('DJANGO_ATLAS_TOKEN')
 ATLAS_BASE_URL = os.environ.get('DJANGO_ATLAS_BASE_URL')
 
+# Pan-STARRS API. Info is comma separated. We will loop through the cone searches.
+PANSTARRS_DESCRIPTIONS = [s for s in os.environ.get('DJANGO_PANSTARRS_DESCRIPTIONS', '').split(',') if s]
+PANSTARRS_BASE_URLS = [s for s in os.environ.get('DJANGO_PANSTARRS_BASE_URLS', '').split(',') if s]
+PANSTARRS_TOKENS = [s for s in os.environ.get('DJANGO_PANSTARRS_TOKENS', '').split(',') if s]
+
 DISPLAY_AGNS = os.environ.get('DJANGO_DISPLAY_AGNS') in ('true', '1', 't', 'True', 'TRUE', 'T')
 
 # 2021-05-06 KWS New settings means that if we edit a static file we MUST rerun the collectstatic
