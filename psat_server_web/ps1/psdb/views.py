@@ -928,31 +928,8 @@ def candidateflot(request, tcs_transient_objects_id):
     oldDBXmList = []
 
     oldDBURL = None
-    try:
-        # HARD WIRED OLD DATABASES DEPEND ON CURRENT DB NAME
-        oldDB = ALTERNATE_DB_CONNECTIONS[dbName]
-        oldDBURL = oldDB[2]
-
-        # We have to make a manual connection to the database
-        try:
-            conn = dbConnect(oldDB[1], 'kws', '', oldDB[0], quitOnError = False)
-
-            catalogueName = 'tcs_transient_objects'
-            message, xmObjects = coneSearch(transient.ra_psf, transient.dec_psf, coneSearchRadius, catalogueName, queryType = QUICK, conn = conn, django = False)
-            conn.close()
-
-            if xmObjects:
-                for xm in xmObjects:
-                    oldDBXmList.append({'separation': xm[0], 'xmid': xm[1][CAT_ID_RA_DEC_COLS[catalogueName][0][0]]})
-
-        except Exception as e:
-            # If for any reason we can't connect to the old database, just continue anyway
-            pass
-
-    except KeyError as e:
-        # If for any reason we can't find the old database in the dictionary, don't bother doing anything
-        pass
-
+    # 2026-01-30 KWS The old way of crossmatching objects in other databases has been deprecated
+    #                in favour of using the ConeSearch API call, which is much, much quicker.
     # ****************************************************************************************************************
 
 
