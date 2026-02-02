@@ -815,9 +815,12 @@ def candidateflot(request, tcs_transient_objects_id):
         for i in range(len(settings.LASAIR_TOKENS)):
             L = lasair(settings.LASAIR_TOKENS[i], endpoint = settings.LASAIR_BASE_URLS[i] + '/api/', timeout = 2.0)
             try:
-                pc = L.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
-                if len(pc) > 0:
-                    lasairCrossmatches.append({'description': settings.LASAIR_DESCRIPTIONS[i], 'crossmatches': pc, 'baseurl': settings.LASAIR_BASE_URLS[i]})
+                lx = L.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
+                # Bit of a hack - LSST returns a dictionary. The equivalent value to ZTF is in the "objects" key.
+                if "LSST" in settings.LASAIR_DESCRIPTIONS[i]:
+                    lx = lx['objects']
+                if len(lx) > 0:
+                    lasairCrossmatches.append({'description': settings.LASAIR_DESCRIPTIONS[i], 'crossmatches': lx, 'baseurl': settings.LASAIR_BASE_URLS[i]})
             except RequestsConnectionError as e:
                 # If the API URL is incorrect or times out we will get a connection error.
                 sys.stderr.write('Lasair API Connection Error\n')
@@ -829,6 +832,10 @@ def candidateflot(request, tcs_transient_objects_id):
             except LasairError as e:
                 sys.stderr.write('Lasair Error\n')
                 sys.stderr.write('%s\n' % str(e))
+            except KeyError as e:
+                sys.stderr.write('KeyError - Description must contain either ZTF or LSST.\n')
+                sys.stderr.write('%s\n' % str(e))
+                lasairCrossmatches = []
 
 
     # 2024-10-15 KWS Talk to the ATLAS API. Are there any ATLAS objects nearby?
