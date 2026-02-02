@@ -79,7 +79,7 @@ class ConeSerializer(serializers.Serializer):
                 info = {}
         if requestType == "all":
             for row in results:
-                objectList.append({"object": row[1]["id"], "separation": row[0], "objectname": row[1]["ps1_designation"]})
+                objectList.append({"object": row[1]["id"], "separation": row[0], "objectname": row[1]["ps1_designation"], "ra": row[1]["ra_psf"], "dec": row[1]["dec_psf"]})
             info = objectList
         if requestType == "count":
             info = {'count': len(results)}

@@ -26,7 +26,6 @@
 #
 # export DJANGO_SURVEY_FIELD='3P'
 # 
-# export DJANGO_LASAIR_TOKEN=''
 # export DJANGO_DISPLAY_AGNS=''
 # export DJANGO_DUSTMAP_LOCATION=''
 #
@@ -36,6 +35,10 @@
 #
 # export DJANGO_ATLAS_TOKEN=''
 # export DJANGO_ATLAS_BASE_URL=''
+
+# DJANGO_LASAIR_DESCRIPTIONS='Comma,Separated,Descriptions'
+# DJANGO_LASAIR_BASE_URLS='https://baseurl1.com/,https://baseurl2.com/,https://baseurl3.com/'
+# DJANGO_LASAIR_TOKENS='aaa','bbb','ccc'
 
 # DJANGO_PANSTARRS_DESCRIPTIONS='Comma,Separated,Descriptions'
 # DJANGO_PANSTARRS_BASE_URLS='https://baseurl1.com/,https://baseurl2.com/,https://baseurl3.com/'

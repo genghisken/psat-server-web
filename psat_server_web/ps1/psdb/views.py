@@ -805,27 +805,32 @@ def candidateflot(request, tcs_transient_objects_id):
 
     # 2024-10-18 KWS Moved the code down to after the average RA and Dec are calculated
     #                so we don't need to calculate it twice.
-    token = settings.LASAIR_TOKEN
     # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
     #                version v0.0.5+. This should help if Lasair goes offline for any
     #                reason. But extra (Requests)ConnectionError catch needed.
-    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api', timeout = 2.0)
+    # 2026-02-02 KWS Refactored the Lasair crossmatch code to use a list of Lasair endpoints
+    #                so that we can crossmatch against lasair-ztf and lasair-lsst.
+    lasairCrossmatches = []
+    if len(settings.LASAIR_TOKENS) > 0 and len(settings.LASAIR_TOKENS) == len(settings.LASAIR_BASE_URLS) and len(settings.LASAIR_TOKENS) == len(settings.LASAIR_DESCRIPTIONS):
+        for i in range(len(settings.LASAIR_TOKENS)):
+            L = lasair(settings.LASAIR_TOKENS[i], endpoint = settings.LASAIR_BASE_URLS[i] + '/api/', timeout = 2.0)
+            try:
+                pc = L.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
+                if len(pc) > 0:
+                    lasairCrossmatches.append({'description': settings.LASAIR_DESCRIPTIONS[i], 'crossmatches': pc, 'baseurl': settings.LASAIR_BASE_URLS[i]})
+            except RequestsConnectionError as e:
+                # If the API URL is incorrect or times out we will get a connection error.
+                sys.stderr.write('Lasair API Connection Error\n')
+                sys.stderr.write('%s\n' % str(e))
+            except RequestsConnectionTimeoutError as e:
+                # If the API times out, we will get a timeout error.
+                sys.stderr.write('Lasair API Timeout Error\n')
+                sys.stderr.write('%s\n' % str(e))
+            except LasairError as e:
+                sys.stderr.write('Lasair Error\n')
+                sys.stderr.write('%s\n' % str(e))
 
-    lasairZTFCrossmatches = None
-    try:
-        lasairZTFCrossmatches = L.cone(avgCoords['ra'], avgCoords['dec'], 2.0, requestType='all')
-    except RequestsConnectionError as e:
-        # If the API URL is incorrect or times out we will get a connection error.
-        sys.stderr.write('Lasair API Connection Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except RequestsConnectionTimeoutError as e:
-        # If the API times out, we will get a timeout error.
-        sys.stderr.write('Lasair API Timeout Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except LasairError as e:
-        sys.stderr.write('Lasair Error\n')
-        sys.stderr.write('%s\n' % str(e))
-        
+
     # 2024-10-15 KWS Talk to the ATLAS API. Are there any ATLAS objects nearby?
     sys.path.append('../../common')
     from psat_api_client import PSATAPIError, psat_client as psat
@@ -946,7 +951,7 @@ def candidateflot(request, tcs_transient_objects_id):
     # 2011-04-04 KWS Add the user defined list to the objects passed to the web page.
     # 2013-10-24 KWS Added context_instance=RequestContext(request) to the render_to_response call.
     #                If not included, the specified template won't understand STATIC_URL.
-    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedinput': lcDataForcedInput, 'lcdataforcedfluxinput': lcDataForcedFluxInput, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'colourdataforcedInput': colourDataForcedInput, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairZTFCrossmatches': lasairZTFCrossmatches, 'atlasCrossmatches': atlasCrossmatches, 'atlasBaseURL': settings.ATLAS_BASE_URL, 'displayagns': settings.DISPLAY_AGNS, 'panstarrsCrossmatches': panstarrsCrossmatches})
+    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedinput': lcDataForcedInput, 'lcdataforcedfluxinput': lcDataForcedFluxInput, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'colourdataforcedInput': colourDataForcedInput, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairCrossmatches': lasairCrossmatches, 'atlasCrossmatches': atlasCrossmatches, 'atlasBaseURL': settings.ATLAS_BASE_URL, 'displayagns': settings.DISPLAY_AGNS, 'panstarrsCrossmatches': panstarrsCrossmatches})
 
 
 

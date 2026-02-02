@@ -99,7 +99,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-LASAIR_TOKEN = os.environ.get('DJANGO_LASAIR_TOKEN')
+# Lasair API. Info is comma separated. We will loop through the cone searches.
+LASAIR_DESCRIPTIONS = [s for s in os.environ.get('DJANGO_LASAIR_DESCRIPTIONS', '').split(',') if s]
+LASAIR_BASE_URLS = [s for s in os.environ.get('DJANGO_LASAIR_BASE_URLS', '').split(',') if s]
+LASAIR_TOKENS = [s for s in os.environ.get('DJANGO_LASAIR_TOKENS', '').split(',') if s]
+
 NAMESERVER_TOKEN = os.environ.get('DJANGO_NAMESERVER_TOKEN')
 NAMESERVER_API_URL = os.environ.get('DJANGO_NAMESERVER_API_URL')
 NAMESERVER_MULTIPLIER = os.environ.get('DJANGO_NAMESERVER_MULTIPLIER')

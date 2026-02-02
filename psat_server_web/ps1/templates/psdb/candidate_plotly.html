@@ -500,24 +500,29 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         {% endfor %}        
         {% endif %}
 
-        {% if lasairZTFCrossmatches %}
+        <!-- 2026-02-02 Lasair Crossmatches START. -->
+
+        {% if lasairCrossmatches %}
+        {% for l in lasairCrossmatches %}
+
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <span class="parameter-label">Lasair ZTF Crossmatches: </span>
+          <span class="parameter-label">{{ l.description }} Crossmatches: </span>
         </div>
 
-        {% for row in lasairZTFCrossmatches %}
+        {% for row in l.crossmatches %}
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <h3><a href="https://lasair-ztf.lsst.ac.uk/objects/{{ row.object }}/">{{ row.object }}</a></h3>
+          <h3><a href="{{ l.baseurl }}/objects/{{ row.object }}/">{{ row.object }}</a></h3>
         </div>
 
-        {% if row.separation %}
         <div class="col-lg-12 col-md-12 col-sm-12">
           <span class="parameter-value">Offset = {{ row.separation|floatformat:"2" }}"</span>
         </div>
-        {% endif %}
+        {% endfor %}
 
         {% endfor %}
         {% endif %}
+
+        <!-- 2026-02-02 Lasair Crossmatches END. -->
 
         {% if atlasCrossmatches %}
         <div class="col-lg-12 col-md-12 col-sm-12">
@@ -537,6 +542,8 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
         {% endfor %}
         {% endif %}
+
+        <!-- 2026-02-02 Pan-STARRS Crossmatches START. -->
 
         {% if panstarrsCrossmatches %}
         {% for p in panstarrsCrossmatches %}
@@ -558,6 +565,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
         {% endfor %}
         {% endif %}
 
+        <!-- 2026-02-02 Pan-STARRS Crossmatches END. -->
 
         {% if tnsXMs %}
         <div class="col-lg-12 col-md-12 col-sm-12">
