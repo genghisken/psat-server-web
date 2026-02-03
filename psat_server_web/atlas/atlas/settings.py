@@ -144,13 +144,19 @@ USE_L10N = True
 
 USE_TZ = True
 
-LASAIR_TOKEN = os.environ.get('DJANGO_LASAIR_TOKEN')
 NAMESERVER_TOKEN = os.environ.get('DJANGO_NAMESERVER_TOKEN')
 NAMESERVER_API_URL = os.environ.get('DJANGO_NAMESERVER_API_URL')
 NAMESERVER_MULTIPLIER = os.environ.get('DJANGO_NAMESERVER_MULTIPLIER')
-# Introduce Pan-STARRS API
-PANSTARRS_TOKEN = os.environ.get('DJANGO_PANSTARRS_TOKEN')
-PANSTARRS_BASE_URL = os.environ.get('DJANGO_PANSTARRS_BASE_URL')
+
+# Lasair API. Info is comma separated. We will loop through the cone searches.
+LASAIR_DESCRIPTIONS = [s for s in os.environ.get('DJANGO_LASAIR_DESCRIPTIONS', '').split(',') if s]
+LASAIR_BASE_URLS = [s for s in os.environ.get('DJANGO_LASAIR_BASE_URLS', '').split(',') if s]
+LASAIR_TOKENS = [s for s in os.environ.get('DJANGO_LASAIR_TOKENS', '').split(',') if s]
+
+# Pan-STARRS API. Info is comma separated. We will loop through the cone searches.
+PANSTARRS_DESCRIPTIONS = [s for s in os.environ.get('DJANGO_PANSTARRS_DESCRIPTIONS', '').split(',') if s]
+PANSTARRS_BASE_URLS = [s for s in os.environ.get('DJANGO_PANSTARRS_BASE_URLS', '').split(',') if s]
+PANSTARRS_TOKENS = [s for s in os.environ.get('DJANGO_PANSTARRS_TOKENS', '').split(',') if s]
 
 DUSTMAP_LOCATION = os.environ.get('DJANGO_DUSTMAP_LOCATION')
 

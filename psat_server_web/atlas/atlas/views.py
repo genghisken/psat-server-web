@@ -1255,49 +1255,59 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
     # 2021-10-21 KWS Use the Lasair API to do a cone search so we can check for nearby ZTF objects
     from lasair import LasairError, lasair_client as lasair
 
-    token = settings.LASAIR_TOKEN
     # 2022-11-16 KWS Added a new timeout parameter, now available from Lasair client
     #                version v0.0.5+. This should help if Lasair goes offline for any
     #                reason. But extra (Requests)ConnectionError catch needed.
-    L = lasair(token, endpoint = 'https://lasair-ztf.lsst.ac.uk/api', timeout = 2.0)
-
-    lasairZTFCrossmatches = None
-
-    # If Lasair connectivity problems arise, comment out the following 4 lines.
-    try:
-        lasairZTFCrossmatches = L.cone(avgCoords['ra'], avgCoords['dec'], 2.0, requestType='all')
-    except RequestsConnectionError as e:
-        # If the API URL is incorrect or times out we will get a connection error.
-        sys.stderr.write('Lasair API Connection Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except RequestsConnectionTimeoutError as e:
-        # If the API times out, we will get a timeout error.
-        sys.stderr.write('Lasair API Timeout Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except LasairError as e:
-        sys.stderr.write('Lasair Error\n')
-        sys.stderr.write('%s\n' % str(e))
-        
+    lasairCrossmatches = []
+    if len(settings.LASAIR_TOKENS) > 0 and len(settings.LASAIR_TOKENS) == len(settings.LASAIR_BASE_URLS) and len(settings.LASAIR_TOKENS) == len(settings.LASAIR_DESCRIPTIONS):
+        for i in range(len(settings.LASAIR_TOKENS)):
+            L = lasair(settings.LASAIR_TOKENS[i], endpoint = settings.LASAIR_BASE_URLS[i] + '/api/', timeout = 2.0)
+            try:
+                lx = L.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
+                # Bit of a hack - LSST returns a dictionary. The equivalent value to ZTF is in the "objects" key.
+                if "LSST" in settings.LASAIR_DESCRIPTIONS[i]:
+                    lx = lx['objects']
+                if len(lx) > 0:
+                    lasairCrossmatches.append({'description': settings.LASAIR_DESCRIPTIONS[i], 'crossmatches': lx, 'baseurl': settings.LASAIR_BASE_URLS[i]})
+            except RequestsConnectionError as e:
+                # If the API URL is incorrect or times out we will get a connection error.
+                sys.stderr.write('Lasair API Connection Error\n')
+                sys.stderr.write('%s\n' % str(e))
+            except RequestsConnectionTimeoutError as e:
+                # If the API times out, we will get a timeout error.
+                sys.stderr.write('Lasair API Timeout Error\n')
+                sys.stderr.write('%s\n' % str(e))
+            except LasairError as e:
+                sys.stderr.write('Lasair Error\n')
+                sys.stderr.write('%s\n' % str(e))
+            except KeyError as e:
+                sys.stderr.write('KeyError - Description must contain either ZTF or LSST.\n')
+                sys.stderr.write('%s\n' % str(e))
+                lasairCrossmatches = []
+ 
     # 2024-10-15 KWS Talk to the ATLAS API. Are there any ATLAS objects nearby?
     sys.path.append('../../common')
     from psat_api_client import PSATAPIError, psat_client as psat
     
-    P = psat(settings.PANSTARRS_TOKEN, endpoint = settings.PANSTARRS_BASE_URL + '/api/', timeout = 2.0)
-
-    panstarrsCrossmatches = None
-    try:           
-        panstarrsCrossmatches = P.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
-    except RequestsConnectionError as e:
-        # If the API URL is incorrect or times out we will get a connection error.
-        sys.stderr.write('Pan-STARRS API Connection Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except RequestsConnectionTimeoutError as e:
-        # If the API times out, we will get a timeout error.
-        sys.stderr.write('Pan-STARRS API Timeout Error\n')
-        sys.stderr.write('%s\n' % str(e))
-    except PSATAPIError as e:
-        sys.stderr.write('Pan-STARRS Error\n')
-        sys.stderr.write('%s\n' % str(e))
+    panstarrsCrossmatches = []
+    if len(settings.PANSTARRS_TOKENS) > 0 and len(settings.PANSTARRS_TOKENS) == len(settings.PANSTARRS_BASE_URLS) and len(settings.PANSTARRS_TOKENS) == len(settings.PANSTARRS_DESCRIPTIONS):
+        for i in range(len(settings.PANSTARRS_TOKENS)):
+            P = psat(settings.PANSTARRS_TOKENS[i], endpoint = settings.PANSTARRS_BASE_URLS[i] + '/api/', timeout = 2.0)
+            try:
+                pc = P.cone(avgCoords['ra'], avgCoords['dec'], 1.0, requestType='all')
+                if len(pc) > 0:
+                    panstarrsCrossmatches.append({'description': settings.PANSTARRS_DESCRIPTIONS[i], 'crossmatches': pc, 'baseurl': settings.PANSTARRS_BASE_URLS[i]})
+            except RequestsConnectionError as e:
+                # If the API URL is incorrect or times out we will get a connection error.
+                sys.stderr.write('Pan-STARRS API Connection Error\n')
+                sys.stderr.write('%s\n' % str(e))
+            except RequestsConnectionTimeoutError as e:
+                # If the API times out, we will get a timeout error.
+                sys.stderr.write('Pan-STARRS API Timeout Error\n')
+                sys.stderr.write('%s\n' % str(e))
+            except PSATAPIError as e:
+                sys.stderr.write('Pan-STARRS Error\n')
+                sys.stderr.write('%s\n' % str(e))
 
     # Dummy form initialisation
     formSearchObject = SearchForObjectForm()
@@ -1654,9 +1664,8 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
         'gw': gw, 
         'comments': existingComments, 
         'sx': sx, 
-        'lasairZTFCrossmatches': lasairZTFCrossmatches, 
+        'lasairCrossmatches': lasairCrossmatches, 
         'panstarrsCrossmatches': panstarrsCrossmatches, 
-        'panstarrsBaseURL': settings.PANSTARRS_BASE_URL,
         'can_edit_fl': can_edit_fl,
         'extinction': extinction,
     }

@@ -24,16 +24,22 @@
 # export WSGI_PORT=''
 # export WSGI_PREFIX=''
 #
-# export DJANGO_LASAIR_TOKEN=''
 # export DJANGO_DUSTMAP_LOCATION=''
 #
 # export DJANGO_NAMESERVER_API_URL=''
 # export DJANGO_NAMESERVER_TOKEN=''
 # export DJANGO_NAMESERVER_MULTIPLIER=10000000
 #
-# export DJANGO_PANSTARRS_TOKEN=''
-# export DJANGO_PANSTARRS_BASE_URL=''
 # export API_TOKEN_EXPIRY=''
+
+# DJANGO_LASAIR_DESCRIPTIONS='Comma,Separated,Descriptions'
+# DJANGO_LASAIR_BASE_URLS='https://baseurl1.com/,https://baseurl2.com/,https://baseurl3.com/'
+# DJANGO_LASAIR_TOKENS='aaa','bbb','ccc'
+
+# DJANGO_PANSTARRS_DESCRIPTIONS='Comma,Separated,Descriptions'
+# DJANGO_PANSTARRS_BASE_URLS='https://baseurl1.com/,https://baseurl2.com/,https://baseurl3.com/'
+# DJANGO_PANSTARRS_TOKENS='aaa','bbb','ccc'
+
 
 # export DJANGO_DEBUG='True'
 
