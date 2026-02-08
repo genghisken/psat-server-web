@@ -101,6 +101,11 @@ from requests.exceptions import Timeout as RequestsConnectionTimeoutError
 #                Requires an update to gkutils.
 from gkutils.commonutils import getLocalObjectName
 
+# 2026-02-07 KWS Format tables as VOTables so we can display in AladinLite.
+
+from astropy.table import Table
+from io import BytesIO
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -1636,7 +1641,33 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
                 rmsScatter += xmrmsScatter
 
     recurrenceData = [recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter]
-    
+ 
+    # 2026-02-07 KWS Create vo table subsets to pass to AladinLite. Easier to create here in python than in javascript.
+    transientvo = ''
+
+    astropytable = Table(rows=[{'name': transient.atlas_designation, 'tns_name': transient.other_designation,'ra': avgCoords['ra'], 'dec': avgCoords['dec']}])
+    buf = BytesIO()
+    astropytable.write(buf, format="votable")
+    transientvo = buf.getvalue().decode("utf-8")
+
+    # Are there any sherlock crossmatches?
+    svodict = []
+    sherlockvo = ''
+    if sx:
+        for x in sx:
+            ra = x.radeg
+            dec = x.decdeg
+            name = x.catalogue_object_id
+            z = x.z
+            catalogueName = x.catalogue_table_name
+            catalogueType = x.catalogue_object_type
+            svodict.append({'ra': ra, 'dec': dec, 'name': name, 'z': z, 'catalogue_name': catalogueName, 'catalogue_type': catalogueType})
+        astropytable = Table(svodict)
+        buf = BytesIO()
+        astropytable.write(buf, format="votable")
+        sherlockvo = buf.getvalue().decode("utf-8")
+
+
     context = {
         'transient' : transient, 
         'table': table, 
@@ -1668,6 +1699,8 @@ def candidateddc(request, atlas_diff_objects_id, template_name):
         'panstarrsCrossmatches': panstarrsCrossmatches, 
         'can_edit_fl': can_edit_fl,
         'extinction': extinction,
+        'transientvo': transientvo,
+        'sherlockvo': sherlockvo,
     }
 
     return render(request, 'atlas/' + template_name, context)

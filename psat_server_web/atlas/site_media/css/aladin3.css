@@ -1,0 +1,35 @@
+/* Disable the coordinate clipboard */
+.aladin-cooFrame,
+.aladin-location button,
+.aladin-location .search-box {
+  display: none !important;
+}
+
+.aladin-location {
+  font-size: 9px;
+}
+
+.aladin-restore {
+        position: absolute;
+    top: 6px;
+    right: 3px;
+    z-index: 20; 
+    width: 30px;
+    height: 30px;
+    background-image: url('data:image/gif;base64,R0lGODlhFgAWAOMJAAAAAAEBAQICAgMDAwUFBAUFBQcHBwgICAsLCv///////////////////////////yH5BAEKAA8ALAAAAAAWABYAAARk8MlJ60zJapsAyhsFPp1xfKHUZeVhAOPWwYD5xjIABDacXrseLtQhFAiBIVEwEOh8P9VzquRgrhgrNhudTaHdJ1NQ1SQCRgL41zIE1sSa6w0361y0eqXtW7EReCNlIgh6XYMbEQA7');
+    background-repeat:  no-repeat;
+    background-position:center center;
+}   
+    
+.aladin-fullscreen {
+        position: fixed !important;
+        z-index: 9999;
+        top: 0;
+        left: 0; 
+        height: 100% !important;
+        width: 100% !important;
+        border: 0 !important;
+    max-width: none !important;
+    background: #fff; /* allows to hide all HTML elements in the background */
+}   
+
