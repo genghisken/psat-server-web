@@ -301,7 +301,11 @@ A.init.then(() => {
   // ------------------------------------------------------------
   // Add overlays (LOW priority first, HIGH priority last = on top)
   // ------------------------------------------------------------
-  aladin.setOverlayImageLayer('CDS/P/PanSTARRS/DR1/color', 'panstarrs');
+
+  // Quick hack - because Pan-STARRS gets in the way of other layers below -30.5 degrees dec
+  if (localobjectcoordsdeg[1] > -30.5){
+    aladin.setOverlayImageLayer('CDS/P/PanSTARRS/DR1/color', 'panstarrs');
+  }
   aladin.setOverlayImageLayer('CDS/P/DESI-Legacy-Surveys/DR10/color', 'desi');
   aladin.setOverlayImageLayer('CDS/P/DECaPS/DR2/color', 'decaps');
 
