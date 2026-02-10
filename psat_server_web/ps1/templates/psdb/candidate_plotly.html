@@ -23,6 +23,13 @@ var jsrecurrencelimitsglobal = new Object();
 </script>
 {% endblock %}
 
+{% block aladindataglobal %}
+<link rel="stylesheet" href="{{ STATIC_URL }}css/aladin3.css" />
+<script language="javascript" type="text/javascript">
+var jsaladinglobal = new Object();
+</script>
+{% endblock %}
+
 {% block lightcurvedata %}
 <script language="javascript" type="text/javascript">
 var jslcdata = new Array();
@@ -246,6 +253,39 @@ jslabelsglobal["#flot-lightcurve-forced-stack-flux"] = jslabelsforcedstackflux;
 var jscolourdataglobal = new Object();
 var jscolourlabelsglobal = new Object();
 var jscolourlimitsglobal = new Object();
+</script>
+{% endblock %}
+
+{% block aladindata %}
+<script language="javascript" type="text/javascript">
+jsaladinglobal['#aladin-lite-div'] = {};
+jsaladinglobal['#aladin-lite-div'].coords = ["{{ avg_coords.ra_sex }}", "{{ avg_coords.dec_sex }}"];
+jsaladinglobal['#aladin-lite-div'].coordsdeg = ["{{ avg_coords.ra }}", "{{ avg_coords.dec }}"];
+jsaladinglobal['#aladin-lite-div'].name = "{% if transient.ps1_designation %}{{ transient.ps1_designation }}{% else %}{{ transient.id }}{% endif %}{% if transient.other_designation %} ({{ transient.other_designation }}){% endif %}";
+jsaladinglobal['#aladin-lite-div'].sherlock = [];
+jsaladinglobal['#aladin-lite-div'].fov = 0.021;
+
+// Experiment with new marker types. The data needs to be in vo format.
+{% if sherlockvo %}
+jsaladinglobal['#aladin-lite-div'].sherlockvo = `{{ sherlockvo|safe }}`;
+{% else %}
+jsaladinglobal['#aladin-lite-div'].sherlockvo = null;
+{% endif %}
+
+{% if transientvo %}
+jsaladinglobal['#aladin-lite-div'].transientvo = `{{ transientvo|safe }}`;
+{% else %}
+jsaladinglobal['#aladin-lite-div'].transientvo = null;
+{% endif %}
+
+{% for x in sx %}
+jsaladinglobal['#aladin-lite-div'].sherlock.push({
+  name: "{{ x.catalogue_table_name|escapejs }}",
+  marker: [{{ x.radeg }}, {{ x.decdeg }}],
+  popupTitle: "{{ x.catalogue_table_name|escapejs }} ({{ x.catalogue_object_type|escapejs }}): {{ x.catalogue_object_id|escapejs }}{% if x.z %} (z = {{ x.z|floatformat:4 }}){% endif %}"
+});
+{% endfor %}
+
 </script>
 {% endblock %}
 
@@ -829,6 +869,10 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
 
         <div class="col-lg-12 col-md-12 col-sm-12">
           <div id="aladin-lite-div" style="width:250px;height:250px;"></div>
+          <script type="text/javascript" src="{{ STATIC_URL }}js/aladin3.js" charset="utf-8"></script>
+          <script language="javascript" type="text/javascript">var aladindivname = "#aladin-lite-div";</script>
+          <script src="{{ STATIC_URL }}js/aladin_display_vo.js"></script>
+<!--
           <script type="text/javascript" src="{{ STATIC_URL }}js/aladin.js" charset="utf-8"></script>
           <script type="text/javascript">
               var imagesurvey = {% if avg_coords.dec > -30.0 %}"P/PanSTARRS/DR1/color-i-r-g"{% else %}"P/DSS2/color"{% endif %};
@@ -855,6 +899,7 @@ jscolourlabelsglobal["#flot-colourplot-forced"] = jscolourlabelsforced;
               aladin.addCatalog(cat, {shape: "square"});
               cat.addSources([A.marker({{ avg_coords.ra }}, {{ avg_coords.dec }}, {popupTitle: "{% if transient.ps1_designation %}{{ transient.ps1_designation }}{% elif transient.local_designation %}{{ transient.local_designation }}{% else %}{{ transient.id }}{% endif %}"})]);
           </script>
+-->
         </div>
 
         {% if finderImages %}

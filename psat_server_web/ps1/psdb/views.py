@@ -77,6 +77,11 @@ from psdb.helpers import processSearchForm, sendMessage, filterGetParameters, fi
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import Timeout as RequestsConnectionTimeoutError
 
+# 2026-02-07 KWS Format tables as VOTables so we can display in AladinLite.
+
+from astropy.table import Table
+from io import BytesIO
+
 class TcsDetectionListsForm(forms.Form):
     """TcsDetectionListsForm.
     """
@@ -955,10 +960,86 @@ def candidateflot(request, tcs_transient_objects_id):
     # if other objects are nearby.
     recurrenceData = [recurrencePlotData, recurrencePlotLabels, averageObjectCoords, rmsScatter]
 
+    # 2026-02-10 KWS Add a fake VO version of the transient and Sherlock crossmatches
+    #                so we can send that to the AladinLite v3 code.
+
+    # 2026-02-07 KWS Create vo table subsets to pass to AladinLite. Easier to create here in python than in javascript.
+    transientvo = ''
+
+    astropytable = Table(rows=[{'name': transient.ps1_designation, 'tns_name': transient.other_designation,'ra': avgCoords['ra'], 'dec': avgCoords['dec']}])
+    buf = BytesIO()
+    astropytable.write(buf, format="votable")
+    transientvo = buf.getvalue().decode("utf-8")
+
+    # Are there any sherlock crossmatches?
+    svodict = []
+    sherlockvo = ''
+    if sx:
+        for x in sx:
+            ra = x.radeg
+            dec = x.decdeg
+            name = x.catalogue_object_id
+            z = x.z
+            catalogueName = x.catalogue_table_name
+            catalogueType = x.catalogue_object_type
+            svodict.append({'ra': ra, 'dec': dec, 'name': name, 'z': z, 'catalogue_name': catalogueName, 'catalogue_type': catalogueType})
+        astropytable = Table(svodict)
+        buf = BytesIO()
+        astropytable.write(buf, format="votable")
+        sherlockvo = buf.getvalue().decode("utf-8")
+
+
     # 2011-04-04 KWS Add the user defined list to the objects passed to the web page.
     # 2013-10-24 KWS Added context_instance=RequestContext(request) to the render_to_response call.
     #                If not included, the specified template won't understand STATIC_URL.
-    return render(request, 'psdb/candidate_plotly.html',{'transient' : transient, 'table' : table, 'images' : transient_images, 'form' : form, 'crossmatches' : crossmatches, 'userList': userListQuerySet, 'cfaMatch': cfaMatch, 'conesearchresults': xmList, 'avg_coords': avgCoords, 'lcdata': lcData, 'lclimits': lcLimits, 'lcdataforced': lcDataForced, 'lcdataforcedflux': lcDataForcedFlux, 'lcdataforcedinput': lcDataForcedInput, 'lcdataforcedfluxinput': lcDataForcedFluxInput, 'colourdata': colourData, 'colourplotlimits': colourPlotLimits, 'colourdataforced': colourDataForced, 'colourdataforcedInput': colourDataForcedInput, 'recurrencedata': recurrenceData, 'conesearchold': oldDBXmList, 'olddburl': oldDBURL, 'externalXMs': externalXMs, 'tnsXMs': tnsXMs, 'public': public, 'form_searchobject': formSearchObject, 'dbName': dbName, 'finderImages': finderImages, 'processingStatus': processingStatus, 'galactic': galactic, 'comments': existingComments, 'sc': sc, 'gw': gw, 'citizens': z, 'sx': sx, 'lasairCrossmatches': lasairCrossmatches, 'atlasCrossmatches': atlasCrossmatches, 'atlasBaseURL': settings.ATLAS_BASE_URL, 'displayagns': settings.DISPLAY_AGNS, 'panstarrsCrossmatches': panstarrsCrossmatches})
+
+
+    context = {
+        'transient': transient,
+        'table': table,
+        'images': transient_images,
+        'form': form,
+        'crossmatches': crossmatches,
+        'userList': userListQuerySet,
+        'cfaMatch': cfaMatch,
+        'conesearchresults': xmList,
+        'avg_coords': avgCoords,
+        'lcdata': lcData,
+        'lclimits': lcLimits,
+        'lcdataforced': lcDataForced,
+        'lcdataforcedflux': lcDataForcedFlux,
+        'lcdataforcedinput': lcDataForcedInput,
+        'lcdataforcedfluxinput': lcDataForcedFluxInput,
+        'colourdata': colourData,
+        'colourplotlimits': colourPlotLimits,
+        'colourdataforced': colourDataForced,
+        'colourdataforcedInput': colourDataForcedInput,
+        'recurrencedata': recurrenceData,
+        'conesearchold': oldDBXmList,
+        'olddburl': oldDBURL,
+        'externalXMs': externalXMs,
+        'tnsXMs': tnsXMs,
+        'public': public,
+        'form_searchobject': formSearchObject,
+        'dbName': dbName,
+        'finderImages': finderImages,
+        'processingStatus': processingStatus,
+        'galactic': galactic,
+        'comments': existingComments,
+        'sc': sc,
+        'gw': gw,
+        'citizens': z,
+        'sx': sx,
+        'lasairCrossmatches': lasairCrossmatches,
+        'atlasCrossmatches': atlasCrossmatches,
+        'atlasBaseURL': settings.ATLAS_BASE_URL,
+        'displayagns': settings.DISPLAY_AGNS,
+        'panstarrsCrossmatches': panstarrsCrossmatches,
+        'transientvo': transientvo,
+        'sherlockvo': sherlockvo,
+    }
+
+    return render(request, 'psdb/candidate_plotly.html', context)
 
 
 

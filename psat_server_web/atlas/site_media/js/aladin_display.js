@@ -12,6 +12,7 @@ var localobjectcoords = jsaladinglobal[localaladindivname].coords
 var localobjectcoordsdeg = jsaladinglobal[localaladindivname].coordsdeg
 var localobjectname = jsaladinglobal[localaladindivname].name
 var localsherlock = jsaladinglobal[localaladindivname].sherlock
+var localfov = jsaladinglobal[localaladindivname].fov
 
 var SURVEYS = [
      {
@@ -185,7 +186,7 @@ A.init.then(() => {
   // ------------------------------------------------------------
   const aladin = A.aladin(localaladindivname, {
     survey: 'P/DSS2/color',
-    fov: 0.1033,
+    fov: localfov,
     target: localobjectcoords[0] + " " + localobjectcoords[1],
     showReticle: false,
     reticleSize: 40,

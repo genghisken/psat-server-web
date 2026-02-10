@@ -352,6 +352,7 @@ jsaladinglobal['#aladin-lite-div'].coords = ["{{ avg_coords.ra_sex }}", "{{ avg_
 jsaladinglobal['#aladin-lite-div'].coordsdeg = ["{{ avg_coords.ra }}", "{{ avg_coords.dec }}"];
 jsaladinglobal['#aladin-lite-div'].name = "{% if transient.atlas_designation %}{{ transient.atlas_designation }}{% else %}{{ transient.id }}{% endif %}{% if transient.other_designation %} ({{ transient.other_designation }}){% endif %}";
 jsaladinglobal['#aladin-lite-div'].sherlock = [];
+jsaladinglobal['#aladin-lite-div'].fov = 0.1033;
 
 // Experiment with new marker types. The data needs to be in vo format.
 {% if sherlockvo %}
