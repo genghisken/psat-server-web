@@ -926,6 +926,7 @@ class SherlockClassifications(models.Model):
 
 
 # 2017-06-20 KWS Dave has updated the definition of sherlock_crossmatches.
+# 2026-04-13 KWS Added 22 new attributes for new Sherlock version from merged_rank to w4err.
 class SherlockCrossmatches(models.Model):
     """SherlockCrossmatches.
     """
@@ -998,6 +999,29 @@ class SherlockCrossmatches(models.Model):
     updated = models.IntegerField(blank=True, null=True)
     classificationreliability = models.IntegerField(db_column='classificationReliability', blank=True, null=True)  # Field name made lowercase.
     transientabsmag = models.FloatField(db_column='transientAbsMag', blank=True, null=True)  # Field name made lowercase.
+    merged_rank = models.IntegerField(blank=True, null=True)
+    w1 = models.FloatField(db_column='W1', blank=True, null=True)  # Field name made lowercase.
+    w1err = models.FloatField(db_column='W1Err', blank=True, null=True)  # Field name made lowercase.
+    z_distance = models.FloatField(blank=True, null=True)
+    z_distance_modulus = models.FloatField(blank=True, null=True)
+    pz_distance_scale = models.FloatField(blank=True, null=True)
+    pz_distance = models.FloatField(blank=True, null=True)
+    pz_distance_modulus = models.FloatField(blank=True, null=True)
+    best_distance = models.FloatField(blank=True, null=True)
+    best_distance_flag = models.CharField(max_length=9, blank=True, null=True)
+    best_distance_source = models.CharField(max_length=45, blank=True, null=True)
+    direct_distance_cat = models.CharField(max_length=100, blank=True, null=True)
+    pz_distance_cat = models.CharField(max_length=100, blank=True, null=True)
+    sm_axis_arcsec = models.FloatField(blank=True, null=True)
+    z_distance_cat = models.CharField(max_length=100, blank=True, null=True)
+    z_distance_scale = models.FloatField(blank=True, null=True)
+    w2 = models.FloatField(db_column='W2', blank=True, null=True)  # Field name made lowercase.
+    w2err = models.FloatField(db_column='W2Err', blank=True, null=True)  # Field name made lowercase.
+    w3 = models.FloatField(db_column='W3', blank=True, null=True)  # Field name made lowercase.
+    w3err = models.FloatField(db_column='W3Err', blank=True, null=True)  # Field name made lowercase.
+    w4 = models.FloatField(db_column='W4', blank=True, null=True)  # Field name made lowercase.
+    w4err = models.FloatField(db_column='W4Err', blank=True, null=True)  # Field name made lowercase.
+
 
     class Meta:
         """Meta.
