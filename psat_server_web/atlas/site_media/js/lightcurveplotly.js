@@ -52,10 +52,10 @@ var colors = ["#6A5ACD", //SlateBlue
               "#DAA520", //GoldenRod
               "#A0522D", //Sienna
               "#FF69B4", //HotPink
-              "#DC143C", //Crimson
+              "#0000FF", //Blue
               "#708090", //SlateGray
               "#FFD700", //Gold
-              "#0000FF", //Blue
+              "#DC143C", //Crimson
               "#4B0082", //Indigo
               "#800080", //Purple
               "#008B8B", //DarkCyan
