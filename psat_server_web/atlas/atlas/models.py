@@ -11,6 +11,29 @@ import sys
 
 from django.db import models
 from gkutils.commonutils import FLAGS, PROCESSING_FLAGS, getFlagDefs, ra_to_sex, dec_to_sex, getDateFractionMJD, getMJDFromSqlDate
+from django.core.serializers.json import DjangoJSONEncoder
+### New Model from Heloise - Logging API usage
+
+class TcsAPIUsageLog(models.Model):
+    """TcsAPIUsageLog [not yet created in DB - name may change]"""
+
+    # No need to create the id column, Django models does a PK auto increment by default
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    user = models.CharField(db_index=True, max_length=64)
+    endpoint = models.CharField(max_length=256) # e.g. /api/objectlist
+    validated_data = models.JSONField(encoder = DjangoJSONEncoder) # summary of data sent by user in their request (not our response!)
+    # The DjangoJSONEncoder is there in case I have weird variable types
+    # coming through the validated data such as datetime. It will 
+    # handle automatically all things that are not neat strings or numbers 
+    
+    class Meta:
+        """Meta.
+        """
+
+        #managed = False
+        db_table = 'tcs_api_usage_log' # NOTE: DOESN'T EXIST YET
+
+#### END HELOISE SHENANIGANS ###
 
 
 class TcsDetectionLists(models.Model):

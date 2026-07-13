@@ -10,7 +10,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.throttling import AnonRateThrottle
 
 # 2024-01-29 KWS Need the model to do inserts.
-from atlas.models import TcsObjectGroups, TcsVraScores
+from atlas.models import TcsObjectGroups, TcsVraScores, TcsAPIUsageLog
 from .serializers import (
     ConeSerializer, 
     ObjectsSerializer, 
@@ -34,6 +34,41 @@ def retcode(message):
     if 'error' in message: return status.HTTP_400_BAD_REQUEST
     else:                  return status.HTTP_200_OK
     
+### HELOISE SHENANIGANS EXPLORING LOGGING API USAGE ####
+class LoggingAPIView(APIView):
+    def log_request(self, validated_data):
+        ### Need to use my model TcsAPIUsageLog to fill in the 
+        ### values in the DB
+        summary_dict = {}
+        for key in validated_data.keys():
+            if not isinstance(validated_data[key], str):
+                summary_dict[key] = validated_data[key]
+                continue
+
+            if len(validated_data[key]) <= 1280: 
+                # corresponds to 64 ATLAS ID + their commas
+                # Could have used .split but then less general
+                # if we have another string field later that can grow very big this won't work
+                summary_dict[key] = validated_data[key]
+                continue
+            else:
+                # The summary REMAINS comma separated because in general the large
+                # fields are lists of ATLAS IDs. So for the biggest use case thats
+                # the summary info I absolutely want
+                summary_dict[key+"_count"] = len(validated_data[key].split(','))
+
+        TcsAPIUsageLog.objects.create(
+            user = str(self.request.user),
+            endpoint = self.request.path, #always a string
+            validated_data=summary_dict
+        )
+
+
+
+
+### END HELOISE SHENANIGANS ###
+
+
 class ObtainExpiringAuthToken(ObtainAuthToken):
     throttle_classes = [AnonRateThrottle]
    
@@ -67,7 +102,7 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
             'refreshed': created,
         })
 
-class ConeView(APIView):
+class ConeView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
 
@@ -75,6 +110,7 @@ class ConeView(APIView):
         serializer = ConeSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -82,11 +118,12 @@ class ConeView(APIView):
         serializer = ConeSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ObjectsView(APIView):
+class ObjectsView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
 
@@ -94,6 +131,7 @@ class ObjectsView(APIView):
         serializer = ObjectsSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -101,11 +139,12 @@ class ObjectsView(APIView):
         serializer = ObjectsSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ObjectListView(APIView):
+class ObjectListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
 
@@ -113,6 +152,7 @@ class ObjectListView(APIView):
         serializer = ObjectListSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -120,11 +160,12 @@ class ObjectListView(APIView):
         serializer = ObjectListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class VRAScoresView(APIView):
+class VRAScoresView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
 
@@ -136,12 +177,13 @@ class VRAScoresView(APIView):
 
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
 
             return Response(message, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class VRAScoresListView(APIView):
+class VRAScoresListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
 
@@ -149,6 +191,7 @@ class VRAScoresListView(APIView):
         serializer = VRAScoresListSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -156,12 +199,13 @@ class VRAScoresListView(APIView):
         serializer = VRAScoresListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # 2024-04-16 KWS Added VRATodoView. NOTE: Add code to read the reply message and generate a sensible HTTP response
 #                appropriate to the circumstances. E.g. if object is not found generate a 404, etc.
-class VRATodoView(APIView):
+class VRATodoView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
 
@@ -173,12 +217,13 @@ class VRATodoView(APIView):
     
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
     
             return Response(message, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
 # 2024-05-07 KWS Added VRATodoListView.
-class VRATodoListView(APIView):
+class VRATodoListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
 
@@ -186,6 +231,7 @@ class VRATodoListView(APIView):
         serializer = VRATodoListSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -193,10 +239,11 @@ class VRATodoListView(APIView):
         serializer = VRATodoListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class TcsObjectGroupsView(APIView):
+class TcsObjectGroupsView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
 
@@ -208,11 +255,11 @@ class TcsObjectGroupsView(APIView):
     
         if serializer.is_valid():
             message = serializer.save()
-    
+            self.log_request(serializer.validated_data)
             return Response(message, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class TcsObjectGroupsListView(APIView):
+class TcsObjectGroupsListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
 
@@ -220,6 +267,7 @@ class TcsObjectGroupsListView(APIView):
         serializer = TcsObjectGroupsListSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -227,11 +275,12 @@ class TcsObjectGroupsListView(APIView):
         serializer = TcsObjectGroupsListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TcsObjectGroupsDeleteView(APIView):
+class TcsObjectGroupsDeleteView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     # TODO: Change this to HasDeleteAccess?
     permission_classes = [IsAuthenticated&HasWriteAccess]
@@ -244,7 +293,8 @@ class TcsObjectGroupsDeleteView(APIView):
     
         if serializer.is_valid():
             message = serializer.save()
-    
+            self.log_request(serializer.validated_data)
+            
         if "deleted" in message['info']:
             # No point returning the message info. 204s will drop the message content anyway.
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -255,7 +305,7 @@ class TcsObjectGroupsDeleteView(APIView):
 
 # 2024-05-22 KWS Added VRARankView. NOTE: Add code to read the reply message and generate a sensible HTTP response
 #                appropriate to the circumstances. E.g. if object is not found generate a 404, etc.
-class VRARankView(APIView):
+class VRARankView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
 
@@ -267,12 +317,12 @@ class VRARankView(APIView):
     
         if serializer.is_valid():
             message = serializer.save()
-    
+            self.log_request(serializer.validated_data)
             return Response(message, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
 # 2024-05-22 KWS Added VRARankListView.
-class VRARankListView(APIView):
+class VRARankListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
 
@@ -280,6 +330,7 @@ class VRARankListView(APIView):
         serializer = VRARankListSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -287,12 +338,13 @@ class VRARankListView(APIView):
         serializer = VRARankListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # 2024-09-24 KWS Added ExternalCrossmatchesListView.
-class ExternalCrossmatchesListView(APIView):
+class ExternalCrossmatchesListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
 
@@ -300,6 +352,7 @@ class ExternalCrossmatchesListView(APIView):
         serializer = ExternalCrossmatchesListSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -307,12 +360,13 @@ class ExternalCrossmatchesListView(APIView):
         serializer = ExternalCrossmatchesListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # 2024-09-24 KWS Added ExternalCrossmatchesListView.
-class ObjectDetectionListView(APIView):
+class ObjectDetectionListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
 
@@ -320,6 +374,7 @@ class ObjectDetectionListView(APIView):
         serializer = ObjectDetectionListSerializer(data=request.GET, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -327,6 +382,7 @@ class ObjectDetectionListView(APIView):
         serializer = ObjectDetectionListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             message = serializer.save()
+            self.log_request(serializer.validated_data)
             return Response(message, status=retcode(message))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
