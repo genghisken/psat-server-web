@@ -121,6 +121,16 @@ class ObjectListSerializer(serializers.Serializer):
     objectlistid = serializers.IntegerField(required=True)
     getcustomlist = serializers.BooleanField(required=False, default = False)
     datethreshold = serializers.DateTimeField(required=False, default=None)
+    vra_gte = serializers.FloatField(required=False, default=None)
+    vra_lte = serializers.FloatField(required=False, default=None)
+    rb_pix_gte = serializers.FloatField(required=False, default=None)
+    rb_pix_lte = serializers.FloatField(required=False, default=None)
+    ra_gte = serializers.FloatField(required=False, default=None)
+    ra_lte = serializers.FloatField(required=False, default=None)
+    dec_gte = serializers.FloatField(required=False, default=None)
+    dec_lte = serializers.FloatField(required=False, default=None)
+    sherlock_class = serializers.CharField(required=False, default=None)
+    spec_type = serializers.CharField(required=False, default=None)
 
     def save(self):
         objectlistid = self.validated_data['objectlistid']
