@@ -8,7 +8,7 @@ from datetime import datetime
 from gkutils.commonutils import coneSearchHTM, FULL, QUICK, COUNT, CAT_ID_RA_DEC_COLS, base26, Struct
 from rest_framework import serializers
 import sys
-from atlas.apiutils import candidateddcApi, getObjectList
+from atlas.apiutils import candidateddcApi, getObjectList, buildObjectListQueryFilter
 from atlas.apiutils import getVRAScoresList
 from atlas.apiutils import getVRATodoList
 from atlas.apiutils import getCustomListObjects
@@ -143,7 +143,9 @@ class ObjectListSerializer(serializers.Serializer):
         if datethreshold is not None:
             dateThreshold = self.validated_data['datethreshold']
 
-        objectList = getObjectList(request, objectlistid, getCustomList = getcustomlist, dateThreshold = dateThreshold)
+        queryFilter = buildObjectListQueryFilter(self.validated_data)
+
+        objectList = getObjectList(request, objectlistid, getCustomList = getcustomlist, dateThreshold = dateThreshold, queryFilter = queryFilter)
         return objectList
 
 
