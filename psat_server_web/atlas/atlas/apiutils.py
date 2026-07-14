@@ -118,21 +118,49 @@ def candidateddcApi(request, atlas_diff_objects_id, mjdThreshold = None):
     return data
 
 
-def getObjectList(request, listId, getCustomList = False, dateThreshold = None):
+OBJECT_LIST_FIELD_TO_LOOKUP = {
+    'vra_gte': 'vra__gte',
+    'vra_lte': 'vra__lte',
+    'rb_pix_gte': 'rb_pix__gte',
+    'rb_pix_lte': 'rb_pix__lte',
+    'ra_gte': 'ra__gte',
+    'ra_lte': 'ra__lte',
+    'dec_gte': 'dec__gte',
+    'dec_lte': 'dec__lte',
+    'sherlock_class': 'sherlockClassification',
+    'spec_type': 'observation_status',
+}
+
+
+def buildObjectListQueryFilter(validated_data):
+    queryFilter = {}
+    for field, lookup in OBJECT_LIST_FIELD_TO_LOOKUP.items():
+        value = validated_data.get(field)
+        if value is not None:
+            queryFilter[lookup] = value
+    return queryFilter
+
+
+def getObjectList(request, listId, getCustomList = False, dateThreshold = None, queryFilter = None):
 
     querySet = None
 
+    if queryFilter is None:
+        queryFilter = {}
+
     if getCustomList:
+        filters = {'object_group_id': listId}
         if dateThreshold is not None:
-            querySet = WebViewUserDefined.objects.filter(object_group_id = listId, followup_flag_date__gt = dateThreshold)
-        else:
-            querySet = WebViewUserDefined.objects.filter(object_group_id = listId)
+            filters['followup_flag_date__gt'] = dateThreshold
+        filters.update(queryFilter)
+        querySet = WebViewUserDefined.objects.filter(**filters)
     else:
         # There are currently 11 valid lists.
+        filters = {}
         if dateThreshold is not None:
-            querySet = followupClassList[int(listId)].objects.filter(followup_flag_date__gt = dateThreshold)
-        else:
-            querySet = followupClassList[int(listId)].objects.all()
+            filters['followup_flag_date__gt'] = dateThreshold
+        filters.update(queryFilter)
+        querySet = followupClassList[int(listId)].objects.filter(**filters)
 
     objectList = []
 

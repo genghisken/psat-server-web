@@ -8,7 +8,7 @@ from datetime import datetime
 from gkutils.commonutils import coneSearchHTM, FULL, QUICK, COUNT, CAT_ID_RA_DEC_COLS, base26, Struct
 from rest_framework import serializers
 import sys
-from atlas.apiutils import candidateddcApi, getObjectList
+from atlas.apiutils import candidateddcApi, getObjectList, buildObjectListQueryFilter
 from atlas.apiutils import getVRAScoresList
 from atlas.apiutils import getVRATodoList
 from atlas.apiutils import getCustomListObjects
@@ -121,6 +121,16 @@ class ObjectListSerializer(serializers.Serializer):
     objectlistid = serializers.IntegerField(required=True)
     getcustomlist = serializers.BooleanField(required=False, default = False)
     datethreshold = serializers.DateTimeField(required=False, default=None)
+    vra_gte = serializers.FloatField(required=False, default=None)
+    vra_lte = serializers.FloatField(required=False, default=None)
+    rb_pix_gte = serializers.FloatField(required=False, default=None)
+    rb_pix_lte = serializers.FloatField(required=False, default=None)
+    ra_gte = serializers.FloatField(required=False, default=None)
+    ra_lte = serializers.FloatField(required=False, default=None)
+    dec_gte = serializers.FloatField(required=False, default=None)
+    dec_lte = serializers.FloatField(required=False, default=None)
+    sherlock_class = serializers.CharField(required=False, default=None)
+    spec_type = serializers.CharField(required=False, default=None)
 
     def save(self):
         objectlistid = self.validated_data['objectlistid']
@@ -133,7 +143,9 @@ class ObjectListSerializer(serializers.Serializer):
         if datethreshold is not None:
             dateThreshold = self.validated_data['datethreshold']
 
-        objectList = getObjectList(request, objectlistid, getCustomList = getcustomlist, dateThreshold = dateThreshold)
+        queryFilter = buildObjectListQueryFilter(self.validated_data)
+
+        objectList = getObjectList(request, objectlistid, getCustomList = getcustomlist, dateThreshold = dateThreshold, queryFilter = queryFilter)
         return objectList
 
 
