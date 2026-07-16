@@ -254,8 +254,6 @@ def getCustomListObjects(request, objectid = None, objectgroupid = None, queryFi
         querySet = TcsObjectGroups.objects.filter(object_group_id = objectgroupid)
     elif objectid is not None and objectgroupid is None:
         querySet = TcsObjectGroups.objects.filter(transient_object_id__id = objectid)
-    else:
-        querySet = TcsObjectGroups.objects.all()
 
     if querySet is not None:
         for row in querySet:
