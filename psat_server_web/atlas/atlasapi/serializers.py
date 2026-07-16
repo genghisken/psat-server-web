@@ -445,6 +445,11 @@ class TcsObjectGroupsListSerializer(serializers.Serializer):
     sherlock_class = serializers.CharField(required=False, default=None)
     spec_type = serializers.CharField(required=False, default=None)
 
+    def validate(self, data):
+        if data.get('objectid') is None and data.get('objectgroupid') is None:
+            raise serializers.ValidationError("Either objectid or objectgroupid must be provided.")
+        return data
+
     def save(self):
         objectid = self.validated_data['objectid']
         objectGroupId = self.validated_data['objectgroupid']
