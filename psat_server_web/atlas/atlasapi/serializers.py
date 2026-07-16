@@ -434,6 +434,16 @@ class TcsObjectGroupsDeleteSerializer(serializers.Serializer):
 class TcsObjectGroupsListSerializer(serializers.Serializer):
     objectid = serializers.IntegerField(required=False, default=None)
     objectgroupid = serializers.IntegerField(required=False, default=None)
+    vra_gte = serializers.FloatField(required=False, default=None)
+    vra_lte = serializers.FloatField(required=False, default=None)
+    rb_pix_gte = serializers.FloatField(required=False, default=None)
+    rb_pix_lte = serializers.FloatField(required=False, default=None)
+    ra_gte = serializers.FloatField(required=False, default=None)
+    ra_lte = serializers.FloatField(required=False, default=None)
+    dec_gte = serializers.FloatField(required=False, default=None)
+    dec_lte = serializers.FloatField(required=False, default=None)
+    sherlock_class = serializers.CharField(required=False, default=None)
+    spec_type = serializers.CharField(required=False, default=None)
 
     def save(self):
         objectid = self.validated_data['objectid']
@@ -441,7 +451,9 @@ class TcsObjectGroupsListSerializer(serializers.Serializer):
 
         request = self.context.get("request")
 
-        customListObjects = getCustomListObjects(request, objectid, objectGroupId)
+        queryFilter = buildObjectListQueryFilter(self.validated_data)
+
+        customListObjects = getCustomListObjects(request, objectid, objectGroupId, queryFilter = queryFilter)
         return customListObjects
 
 

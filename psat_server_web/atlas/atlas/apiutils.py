@@ -234,11 +234,23 @@ def getVRATodoList(request, objects = [], dateThreshold = None, idThreshold = 0)
 
 
 # 2024-05-20 KWS Added getCustomListObjects
-def getCustomListObjects(request, objectid = None, objectgroupid = None):
+def getCustomListObjects(request, objectid = None, objectgroupid = None, queryFilter = None):
 
     customListObjects = []
 
-    if objectid is None and objectgroupid is not None:
+    if queryFilter:
+        # 2026-07-17 Claude wrote this for the objectgroupslist filtering task.
+        # tcs_object_groups has no vra/rb_pix/ra/dec/sherlock/spec_type columns, so
+        # resolve matching transient object ids via the enriched WebViewUserDefined
+        # view first, then filter tcs_object_groups by those ids.
+        filters = dict(queryFilter)
+        if objectgroupid is not None:
+            filters['object_group_id'] = objectgroupid
+        if objectid is not None:
+            filters['id'] = objectid
+        matchingIds = list(WebViewUserDefined.objects.filter(**filters).values_list('id', flat=True))
+        querySet = TcsObjectGroups.objects.filter(transient_object_id__id__in = matchingIds)
+    elif objectid is None and objectgroupid is not None:
         querySet = TcsObjectGroups.objects.filter(object_group_id = objectgroupid)
     elif objectid is not None and objectgroupid is None:
         querySet = TcsObjectGroups.objects.filter(transient_object_id__id = objectid)
