@@ -250,6 +250,8 @@ def getCustomListObjects(request, objectid = None, objectgroupid = None, queryFi
             filters['id'] = objectid
         matchingIds = list(WebViewUserDefined.objects.filter(**filters).values_list('id', flat=True))
         querySet = TcsObjectGroups.objects.filter(transient_object_id__id__in = matchingIds)
+        if objectgroupid is not None:
+            querySet = querySet.filter(object_group_id = objectgroupid)
     elif objectid is None and objectgroupid is not None:
         querySet = TcsObjectGroups.objects.filter(object_group_id = objectgroupid)
     elif objectid is not None and objectgroupid is None:
