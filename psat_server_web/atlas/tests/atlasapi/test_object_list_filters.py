@@ -2,7 +2,7 @@ import unittest
 
 from django.test import TestCase
 
-from atlasapi.serializers import ObjectListSerializer
+from atlasapi.serializers import ObjectListSerializer, TcsObjectGroupsListSerializer
 from atlas.apiutils import buildObjectListQueryFilter
 
 
@@ -54,6 +54,30 @@ class TestObjectListSerializerFilters(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertEqual(serializer.validated_data['sherlock_class'], 'SN')
         self.assertEqual(serializer.validated_data['spec_type'], 'confirmed')
+
+
+class TestTcsObjectGroupsListSerializerFilters(TestCase):
+    def test_filters_default_to_none_when_absent(self):
+        serializer = TcsObjectGroupsListSerializer(data={})
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        for field in NEW_FILTER_FIELDS:
+            self.assertIsNone(serializer.validated_data[field])
+
+    def test_numeric_and_string_filters_accept_values(self):
+        data = {
+            'objectgroupid': 3,
+            'vra_gte': 0.8, 'rb_pix_lte': 0.9,
+            'sherlock_class': 'SN', 'spec_type': 'confirmed',
+        }
+        serializer = TcsObjectGroupsListSerializer(data=data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertEqual(serializer.validated_data['vra_gte'], 0.8)
+        self.assertEqual(serializer.validated_data['sherlock_class'], 'SN')
+
+    def test_numeric_filter_rejects_non_numeric_value(self):
+        serializer = TcsObjectGroupsListSerializer(data={'vra_gte': 'not-a-number'})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('vra_gte', serializer.errors)
 
 
 class TestBuildObjectListQueryFilter(unittest.TestCase):
