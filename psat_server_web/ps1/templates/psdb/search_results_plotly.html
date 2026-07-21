@@ -155,7 +155,7 @@ jslimitsglobal["#flot-lightcurve{{row.id}}"] = jslclimits;
 <div class="col-lg-2 col-md-6 col-sm-12">
     <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12">
-    <a href="{% url "candidate" row.id %}">{% if row.ps1_designation %}{{ row.ps1_designation }}{% elif row.local_designation %}{{ row.local_designation }}{% else %}{{ row.id }}{% endif %}</a>{% if row.other_designation %} (<a href="https://wis-tns.org/object/{{row.other_designation}}">{{ row.other_designation }}</a>){% endif %} {% if row.xmseparation %}({{ row.xmseparation|floatformat:2 }}&quot;){% endif %}<br />
+    <a href="{% url "candidate" row.id %}">{% if row.ps1_designation %}{{ row.ps1_designation }}{% elif row.local_designation %}{{ row.local_designation }}{% else %}{{ row.id }}{% endif %}</a>{% if row.other_designation %} (<a href="https://www.wis-tns.org/object/{{row.other_designation}}">{{ row.other_designation }}</a>){% endif %} {% if row.xmseparation %}({{ row.xmseparation|floatformat:2 }}&quot;){% endif %}<br />
     </div>
     </div>
     <div class="row parameter-label">
