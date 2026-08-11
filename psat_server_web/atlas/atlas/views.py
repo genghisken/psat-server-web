@@ -1963,6 +1963,30 @@ def atelsFast(request, userDefinedListNumber):
 
     return render(request, 'atlas/atelsfast.txt',{'table': results, 'listHeader' : listHeader}, content_type="text/plain")
 
+@user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
+@login_required
+def userlisttxt(request, userDefinedListNumber):
+    """Create a text only Discovery ATel list"""
+
+    userDefinedListRow = get_object_or_404(TcsObjectGroupDefinitions, pk=userDefinedListNumber)
+    listHeader = userDefinedListRow.description
+
+    # Let's do this properly!!  This is horribly inefficient, but we are
+    # only dealing with handfulls of objects.
+    qs = TcsObjectGroups.objects.filter(object_group_id = userDefinedListNumber)
+    results = []
+    for row in qs:
+        # Get the stats and the sherlock classifications. Use 'filter' not 'get'.
+        stats = TcsLatestObjectStats.objects.filter(id = row.transient_object_id)
+        sxm = SherlockCrossmatches.objects.filter(transient_object_id = row.transient_object_id, rank = 1)
+        scomments = SherlockClassifications.objects.filter(transient_object_id = row.transient_object_id)
+        results.append({'stats': stats, 'data': row, 'sherlockCrossmatches': sxm, 'sherlockComments': scomments})
+
+
+    #table = WebViewUserDefinedTable(initial_queryset, order_by=request.GET.get('sort', 'earliest_mjd'))
+
+    return render(request, 'atlas/customlist.txt',{'table': results, 'listHeader' : listHeader}, content_type="text/plain")
+
 
 @user_passes_test(lambda u: not needs_to_change_password(u), login_url="change_password")
 @login_required

@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^userlist_atel_fast/(?P<userDefinedListNumber>\d+)/$', views.atelsFast, name='atelfast'),
     url(r'^userlist_visibility/(?P<userDefinedListNumber>\d+)/$', views.visibility, name='visibility'),
     url(r'^userlist_iobserve/(?P<userDefinedListNumber>\d+)/$', views.iobserve, name='iobserve'),
+    url(r'^userlisttxt/(?P<userDefinedListNumber>\d+)/$', views.userlisttxt, name='userlisttxt'),
 
 
     url(r'^externalcrossmatches/$', views.displayExternalCrossmatches, name='externalcrossmatches'),

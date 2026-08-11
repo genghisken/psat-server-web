@@ -66,6 +66,7 @@ urlpatterns = [
 # 2023-06-09 KWS GCN notification with custom lists combined with GW events
     url(r'^psdb/userlist_gcn/(?P<userDefinedListNumber>\d+)/$', views.gcn, {'template_name':'gcn.txt'}, name='gcn'),
     url(r'^psdb/userlist_gcn_latex/(?P<userDefinedListNumber>\d+)/$', views.gcn, {'template_name':'gcn_latex.txt'}, name='gcn'),
+    url(r'^psdb/userlisttxt/(?P<userDefinedListNumber>\d+)/$', views.userlisttxt, name='userlisttxt'),
 
 # 2014-07-23 KWS Added New CSV lists
     url(r'^psdb/followupcsv/(?P<listNumber>\d+)/$', views.followupCsv),
