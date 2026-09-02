@@ -1,6 +1,7 @@
 # Create your views here.
 
 #from django.conf.urls.defaults import *
+from accounts.permissions import has_write_permissions
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -65,8 +66,6 @@ from .lightcurvequeries import *
 #                file that can be called by both scripts and Django code.
 from .commonqueries import lightcurvePlainQuery, colourDataPlainQuery
 
-# 2016-07-07 KWS Required for authentication
-from django.contrib import auth
 #from django.core.context_processors import csrf
 from django.template.context_processors import csrf
 
@@ -184,79 +183,6 @@ LC_LIMITS = {'ps1md': LC_LIMITS_MD,
 
 # 2016-07-07 KWS Required for authentication
 from django.contrib.auth.decorators import login_required
-
-class LoginForm(forms.Form):
-    """LoginForm.
-    """
-
-    username = forms.CharField(required=False, widget=forms.TextInput(attrs={'size':'30'}))
-    password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'size':'30'}))
-
-def login(request):
-    """login.
-
-    Args:
-        request:
-    """
-    auth.logout(request)
-    username = password = ''
-    form = LoginForm()
-    return render(request, 'login.html', {'form': form})
-
-
-def authView(request):
-    """authView.
-
-    Args:
-        request:
-    """
-    # Although we picked up the "next" parameter via GET in our template,
-    # we submitted it via POST.
-    next = request.POST.get('next', '')
-
-    username = request.POST.get('username', '')
-    password = request.POST.get('password', '')
-    user = auth.authenticate(username=username, password=password)
-
-    if user is not None:
-        # Expire the login session after 1 day.
-        # 2017-11-28 KWS Changed login session to 30 days. Too irritating to have to login every day.
-        request.session.set_expiry(30 * 86400)
-        auth.login(request, user)
-        if next == '':
-            #return HttpResponseRedirect('../../accounts/loggedin')
-            return HttpResponseRedirect('../../')
-        else:
-            return HttpResponseRedirect(next)
-
-    else:
-        return HttpResponseRedirect('../../accounts/invalid')
-
-def loggedin(request):
-    """loggedin.
-
-    Args:
-        request:
-    """
-    return render(request, 'loggedin.html',
-                              {'full_name': request.user.username})
-
-def invalidLogin(request):
-    """invalidLogin.
-
-    Args:
-        request:
-    """
-    return render(request, 'invalid_login.html')
-
-def logout(request):
-    """logout.
-
-    Args:
-        request:
-    """
-    auth.logout(request)
-    return render(request, 'logout.html')
 
 def csrf_failure(request, reason=""):
     """csrf_failure.
@@ -383,6 +309,8 @@ def candidateflot(request, tcs_transient_objects_id):
 
     transient = get_object_or_404(TcsTransientObjects, pk=tcs_transient_objects_id)
 
+    can_edit_fl = has_write_permissions(request.user)
+
     # 2015-11-17 KWS Get the processing status. If it's not 2, what is it?
     processingStatusData = TcsProcessingStatus.objects.all().exclude(status = 2)
     processingStatus = None
@@ -494,7 +422,7 @@ def candidateflot(request, tcs_transient_objects_id):
             formSearchObject = SearchForObjectForm(request.POST)
             objectName = formSearchObject.cleaned_data['searchText']
             # Processing is done in the searchResults method
-        else:
+        elif can_edit_fl:
             form = PromoteAndCommentsForm(request.POST)
             if form.is_valid(): # All validation rules pass
                 # Do stuff here
@@ -1037,6 +965,7 @@ def candidateflot(request, tcs_transient_objects_id):
         'panstarrsCrossmatches': panstarrsCrossmatches,
         'transientvo': transientvo,
         'sherlockvo': sherlockvo,
+        'can_edit_fl': can_edit_fl,
     }
 
     return render(request, 'psdb/candidate_plotly.html', context)
@@ -1857,6 +1786,8 @@ def followupQuickView(request, listNumber):
     detectionListRow = get_object_or_404(TcsDetectionLists, pk=listNumber)
     listHeader = detectionListRow.description
 
+    can_edit_fl = has_write_permissions(request.user)
+
     # We just want to pass the list Id to the HTML page, if it exists
     list_id = None
 
@@ -1906,7 +1837,7 @@ def followupQuickView(request, listNumber):
             if formSearchObject.is_valid(): # All validation rules pass
                 objectName = formSearchObject.cleaned_data['searchText']
             # Processing is done in the searchResults method
-        else:
+        elif can_edit_fl:
             # We're using the submit form for the object updates
             objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter)
 
@@ -2032,7 +1963,7 @@ def followupQuickView(request, listNumber):
 
     RequestConfig(request, paginate={"per_page": nobjects}).configure(table)
 
-    return render(request, 'psdb/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'public': public, 'fgss': fgss, 'processingStatus': processingStatus, 'nobjects': nobjects, 'displayagns': settings.DISPLAY_AGNS})
+    return render(request, 'psdb/followup_quickview_bs.html', {'table': table, 'rows': table.rows, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'public': public, 'fgss': fgss, 'processingStatus': processingStatus, 'nobjects': nobjects, 'displayagns': settings.DISPLAY_AGNS, 'can_edit_fl': can_edit_fl})
 
 
 # 2013-12-12 KWS Added followupQuickViewAll mainly for the public pages.
@@ -2851,6 +2782,8 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
     detectionListRow = get_object_or_404(TcsDetectionLists, pk=listNumber)
     listHeader = detectionListRow.description
 
+    can_edit_fl = has_write_permissions(request.user)
+
     # We just want to pass the list Id to the HTML page, if it exists
     list_id = None
 
@@ -2928,7 +2861,7 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
             if formSearchObject.is_valid(): # All validation rules pass
                 objectName = formSearchObject.cleaned_data['searchText']
             # Processing is done in the searchResults method
-        else:
+        elif can_edit_fl:
             # We're using the submit form for the object updates
             objectsQueryset = TcsTransientObjects.objects.filter(**queryFilter).order_by(*sort)
             sys.stderr.write('\nAAAAH - FILTER = %s\n' % str(queryFilter))
@@ -3102,7 +3035,7 @@ def followupQuickViewBootstrapPlotly(request, listNumber):
             sc = SherlockClassifications.objects.filter(transient_object_id_id = row.id)
             row.sc = sc
 
-    return render(request, 'psdb/search_results_plotly.html', {'subdata': subdata, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'processingStatus': processingStatus, 'nobjects': nobjects, 'public': public, 'searchText': searchText, 'urlsuffix': urlsuffix, 'classifyform': True, 'displayagns': settings.DISPLAY_AGNS, 'connection': connection, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT})
+    return render(request, 'psdb/search_results_plotly.html', {'subdata': subdata, 'listHeader': listHeader, 'form_searchobject': formSearchObject, 'dbname': dbName, 'list_id': list_id, 'processingStatus': processingStatus, 'nobjects': nobjects, 'public': public, 'searchText': searchText, 'urlsuffix': urlsuffix, 'classifyform': True, 'displayagns': settings.DISPLAY_AGNS, 'connection': connection, 'showObjectLCThreshold': SHOW_LC_DATA_LIMIT, 'can_edit_fl': can_edit_fl})
 
 
 @login_required

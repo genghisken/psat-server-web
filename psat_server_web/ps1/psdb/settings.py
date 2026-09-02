@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = ['https://star.pst.qub.ac.uk', 'https://psweb.mp.qub.ac.u
 
 CSRF_FAILURE_VIEW = 'psdb.views.csrf_failure'
 
-LOGIN_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'redirectedhome'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
@@ -190,8 +190,28 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
+    'django_registration',
     'psdb',
+    'accounts',
     'django_tables2',
     'rest_framework',
     'rest_framework.authtoken',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'psdbapi.throttling.UserAdminRateThrottle',    # Allow admin users unlimited rate, otherwise use the default rate
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/hour',       # The only anonymous endpoint is the token refresh endpoint
+        'user': '100/hour',      # Limit regular authenticated users to 100 requests per hour
+        'admin': '100000/hour',  # Allow admin users (basically) unlimited rate
+    }
+}
+
+# Token expiry time in days, default 1 day (24*60*60 seconds)
+TOKEN_EXPIRY = int(os.environ.get("API_TOKEN_EXPIRY") or 86400) # seconds
+
+# Variables for the django_registration app
+ACCOUNT_ACTIVATION_DAYS = int(os.environ.get("ACCOUNT_ACTIVATION_DAYS") or 7)
+REGISTRATION_OPEN = True
