@@ -58,4 +58,4 @@ django_tables2/
 *.log
 
 # Django migrations. Always run from scratch.
-/migrations/
+migrations/
