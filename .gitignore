@@ -61,4 +61,4 @@ django_tables2/
 migrations/
 
 # Except this package's data directory
-!celestial/data/
+!data/
