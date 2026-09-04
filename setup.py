@@ -33,8 +33,8 @@ setup(
     install_requires=[
           'numpy',
           'mysqlclient',
-          'django<4.2',
-          'django_tables2',
+          'django',
+          'django-tables2==2.7.0',
           'djangorestframework',
           'django-registration',
           'mod-wsgi',
