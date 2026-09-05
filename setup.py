@@ -34,7 +34,7 @@ setup(
           'numpy',
           'mysqlclient',
           'django',
-          'django-tables2==2.7.0',
+          'django-tables2==2.7.3',
           'djangorestframework',
           'django-registration',
           'mod-wsgi',
