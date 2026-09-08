@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle
-from .serializers import ConeSerializer, ObjectListSerializer
+from .serializers import ConeSerializer, ObjectListSerializer, TcsObjectGroupsSerializer
 from .authentication import QueryAuthentication, ExpiringTokenAuthentication
 from .permissions import HasReadAccess, HasWriteAccess
 from django.core.exceptions import ObjectDoesNotExist
@@ -87,4 +87,19 @@ class ObjectListView(APIView):
         if serializer.is_valid():
             message = serializer.save()
             return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TcsObjectGroupsView(APIView):
+    authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
+    permission_classes = [IsAuthenticated&HasWriteAccess]
+
+    def get(self, request):
+        return Response({"Error": "GET is not implemented for this service."})
+
+    def post(self, request, format=None):
+        serializer = TcsObjectGroupsSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response(message, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
