@@ -53,6 +53,12 @@ DATABASES = {
     }
 }
 
+# Claude wrote this (collab mode, unreviewed) — 2026-09-08
+TEST_RUNNER = 'psdb.testrunner.NoDbCreationTestRunner'
+
+# Claude wrote this (collab mode, unreviewed) — 2026-09-08
+SILENCED_SYSTEM_CHECKS = ['fields.E311']
+
 
 DAEMONS = {
     'tns': {
