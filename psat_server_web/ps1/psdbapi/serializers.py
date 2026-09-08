@@ -88,34 +88,23 @@ class ConeSerializer(serializers.Serializer):
         return info
 
 
-#class ObjectsSerializer(serializers.Serializer):
-#    objects = serializers.CharField(required=True)
-#    mjd = serializers.FloatField(required=False, default=None)
-#
-#    def save(self):
-#        objects = self.validated_data['objects']
-#        mjd = self.validated_data['mjd']
-#
-#        olist = []
-#        for tok in objects.split(','):
-#            olist.append(tok.strip())
-#
-#        if len(olist) > 100:
-#            return {"info": "Max number of objects for each requests is 100"}
-##        olist = olist[:10] # restrict to 10
-#
-#        # Get the authenticated user, if it exists.
-#        userId = 'unknown'
-#        request = self.context.get("request")
-#        if request and hasattr(request, "user"):
-#            userId = request.user
-#
-#
-#        result = []
-#        for candidate in olist:
-#            result.append(candidateddcApi(request, candidate, mjdThreshold=mjd))
-#        return result
-#
+from psdb.apiutils import transientObjectApi
+
+class ObjectsSerializer(serializers.Serializer):
+    objects = serializers.CharField(required=True)
+    mjd = serializers.FloatField(required=False, default=None)
+
+    def save(self):
+        objects = self.validated_data['objects']
+        mjd = self.validated_data['mjd']
+
+        olist = [tok.strip() for tok in objects.split(',')]
+        if len(olist) > 50_000:
+            return {"info": "Max number of objects for each requests is 50,000"}
+
+        request = self.context.get("request")
+        return [transientObjectApi(request, candidate, mjdThreshold=mjd) for candidate in olist]
+
 #
 from psdb.apiutils import buildObjectListQueryFilter, getObjectList
 

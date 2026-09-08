@@ -10,5 +10,6 @@ urlpatterns = [
     path('api/objectgroupslist/',      views.TcsObjectGroupsListView.as_view()),
     path('api/externalxmlist/',        views.ExternalCrossmatchesListView.as_view()),
     path('api/objectdetectionlist/',   views.ObjectDetectionListView.as_view()),
+    path('api/objects/',               views.ObjectsView.as_view()),
     path('api/auth-token/',            views.ObtainExpiringAuthToken.as_view(), name='auth_token'),
 ]

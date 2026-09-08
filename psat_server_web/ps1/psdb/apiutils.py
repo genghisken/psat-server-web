@@ -1,8 +1,10 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 
-from .dbviews import WebViewUserDefined
+from .dbviews import WebViewUserDefined, CustomLCPoints
 from .views import followupClassList
-from .models import TcsObjectGroups, TcsCrossMatchesExternal
+from .models import TcsObjectGroups, TcsCrossMatchesExternal, TcsTransientObjects, TcsForcedPhotometry, SherlockClassifications, SherlockCrossmatches
+from .commonqueries import getLightcurvePoints, getLightcurveNonDetections
 
 
 OBJECT_LIST_FIELD_TO_LOOKUP = {
@@ -78,3 +80,51 @@ def getExternalCrossmatchesList(request, externalObjects=[]):
         if miniList:
             externalCrossmatchesList.append(miniList)
     return externalCrossmatchesList
+
+
+def _lcPointsToDicts(fullList):
+    return [{'mjd': row[0], 'mag': row[1], 'magerr': row[2]} for row in fullList]
+
+
+def _lcNonDetsToDicts(fullList):
+    return [{'mjd': row[0]} for row in fullList]
+
+
+def transientObjectApi(request, transient_object_id, mjdThreshold=None):
+    try:
+        transient = TcsTransientObjects.objects.get(pk=transient_object_id)
+    except ObjectDoesNotExist as e:
+        return {
+            'object': str(e),
+            'lc': None,
+            'lcnondets': None,
+            'fp': None,
+            'sherlock_crossmatches': None,
+            'sherlock_classifications': None,
+            'tns_crossmatches': None,
+            'external_crossmatches': None,
+        }
+
+    sc = SherlockClassifications.objects.filter(transient_object_id_id=transient.id)
+    sx = SherlockCrossmatches.objects.filter(transient_object_id_id=transient.id)
+    externalXMs = TcsCrossMatchesExternal.objects.filter(transient_object_id=transient.id).exclude(matched_list='Transient Name Server').order_by('external_designation')
+    tnsXMs = TcsCrossMatchesExternal.objects.filter(transient_object_id=transient.id, matched_list='Transient Name Server')
+
+    if mjdThreshold is not None:
+        forcedPhotometry = TcsForcedPhotometry.objects.filter(transient_object_id=transient.id).filter(mjd_obs__gte=mjdThreshold).order_by('mjd_obs')
+    else:
+        forcedPhotometry = TcsForcedPhotometry.objects.filter(transient_object_id=transient.id).order_by('mjd_obs')
+
+    *_, lcFullList = getLightcurvePoints(transient.id, djangoRawObject=CustomLCPoints)
+    *_, lcNonDetsFullList = getLightcurveNonDetections(transient.id, djangoRawObject=CustomLCPoints)
+
+    return {
+        'object': model_to_dict(transient),
+        'lc': _lcPointsToDicts(lcFullList),
+        'lcnondets': _lcNonDetsToDicts(lcNonDetsFullList),
+        'fp': [model_to_dict(f) for f in forcedPhotometry],
+        'sherlock_crossmatches': [model_to_dict(s) for s in sx],
+        'sherlock_classifications': [model_to_dict(s) for s in sc],
+        'tns_crossmatches': [model_to_dict(t) for t in tnsXMs],
+        'external_crossmatches': [model_to_dict(e) for e in externalXMs],
+    }
