@@ -116,25 +116,36 @@ class ConeSerializer(serializers.Serializer):
 #        return result
 #
 #
-#class ObjectListSerializer(serializers.Serializer):
-#    objectlistid = serializers.IntegerField(required=True)
-#    getcustomlist = serializers.BooleanField(required=False, default = False)
-#    datethreshold = serializers.DateTimeField(required=False, default=None)
-#
-#    def save(self):
-#        objectlistid = self.validated_data['objectlistid']
-#        getcustomlist = self.validated_data['getcustomlist']
-#        datethreshold = self.validated_data['datethreshold']
-#
-#        request = self.context.get("request")
-#
-#        dateThreshold = None
-#        if datethreshold is not None:
-#            dateThreshold = self.validated_data['datethreshold']
-#
-#        objectList = getObjectList(request, objectlistid, getCustomList = getcustomlist, dateThreshold = dateThreshold)
-#        return objectList
-#
+from psdb.apiutils import buildObjectListQueryFilter, getObjectList
+
+class ObjectListSerializer(serializers.Serializer):
+    objectlistid = serializers.IntegerField(required=True)
+    getcustomlist = serializers.BooleanField(required=False, default=False)
+    datethreshold = serializers.DateTimeField(required=False, default=None)
+    rb_pix_gte = serializers.FloatField(required=False, default=None)
+    rb_pix_lte = serializers.FloatField(required=False, default=None)
+    ra_gte = serializers.FloatField(required=False, default=None)
+    ra_lte = serializers.FloatField(required=False, default=None)
+    dec_gte = serializers.FloatField(required=False, default=None)
+    dec_lte = serializers.FloatField(required=False, default=None)
+    sherlock_class = serializers.CharField(required=False, default=None)
+    spec_type = serializers.CharField(required=False, default=None)
+
+    def save(self):
+        objectlistid = self.validated_data['objectlistid']
+        getcustomlist = self.validated_data['getcustomlist']
+        datethreshold = self.validated_data['datethreshold']
+
+        request = self.context.get("request")
+
+        dateThreshold = None
+        if datethreshold is not None:
+            dateThreshold = self.validated_data['datethreshold']
+
+        queryFilter = buildObjectListQueryFilter(self.validated_data)
+
+        return getObjectList(request, objectlistid, getCustomList=getcustomlist, dateThreshold=dateThreshold, queryFilter=queryFilter)
+
 #
 ## 2024-01-17 KWS Insert a VRA row for an object. For the time being do this one at a time.
 ## 2024-02-21 KWS Changed required to False for all three prob values.
