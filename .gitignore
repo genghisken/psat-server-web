@@ -56,3 +56,9 @@ django_tables2/
 
 # Log files
 *.log
+
+# Django migrations. Always run from scratch.
+migrations/
+
+# Except this package's data directory
+!data/

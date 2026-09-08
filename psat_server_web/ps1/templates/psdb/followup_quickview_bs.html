@@ -33,7 +33,12 @@
 
 {% if listHeader %}
   {% if list_id >= 0 and list_id < 9 and table.rows|length > 0 %}
+    {% if can_edit_fl == 1 %}
 <input type="submit" value="Classify Objects" name="classify" /></p>
+    {% else %}
+<input type="submit" value="Classify Objects" name="classify" disabled /></p>
+{% include "permissions_alert.html" %}
+    {% endif %}
   {% endif %}
 </form>
 {% endif %}

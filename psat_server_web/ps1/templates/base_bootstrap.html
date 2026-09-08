@@ -146,8 +146,34 @@
           <a class="dropdown-item" href="https://github.com/thespacedoctor/sherlock/issues" target="_blank">Context issues</a>
         </div>
       </li>
-      <li class="nav-item"><a class="nav-link disabled" href="#">{{request.user.username}}</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt" title="Sign out"></i><span class="d-xl-inline d-md-inline d-sm-inline d-lg-none"> logout<span></a></li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+          {% if request.user.profile.image_b64 %}
+          <img
+            src="data:image/png;base64,{{ request.user.profile.image_b64 }}"
+            alt="{{ request.user.username }}'s profile picture"
+            class="rounded-circle"
+            width="30"
+            height="30"
+          >
+          {% else %}
+          <i class="fa-solid fa-spaghetti-monster-flying" title="User Profile"></i>
+          {% endif %}
+          {{ request.user.username }}
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+          {% if user.is_staff %}
+          <a class="dropdown-item" href="{% url 'create_user' %}"><i class="fa-solid fa-user-plus"></i> create user</a>
+          <div class="dropdown-divider"></div>
+          {% endif %}
+          <a class="dropdown-item" href="{% url 'change_password' %}"><i class="fa-solid fa-user-secret"></i> change
+            password</a>
+          <a class="dropdown-item" href="{% url 'change_profile_image' %}"><i class="fa-solid fa-image"></i> change
+            profile image</a>
+          <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-solid fa-sign-out-alt" title="Sign out"></i>
+            logout</a>
+        </div>
+      </li>
     </ul>
 
   </div>
