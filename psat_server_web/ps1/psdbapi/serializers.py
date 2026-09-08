@@ -363,54 +363,32 @@ class TcsObjectGroupsSerializer(serializers.Serializer):
 
         return {"objectgroupid": objectid, "info": replyMessage}
 
-## 2024-02-21 KWS Changed required to False for all three prob values.
-#class TcsObjectGroupsDeleteSerializer(serializers.Serializer):
-#    objectid = serializers.IntegerField(required=True)
-#    objectgroupid = serializers.IntegerField(required=True)
-#
-#    import sys
-#
-#    def save(self):
-#
-#        from django.conf import settings
-#        objectid = self.validated_data['objectid']
-#        objectGroupId = self.validated_data['objectgroupid']
-#
-#        replyMessage = 'Row deleted.'
-#
-#        # This is what gets inserted into the database.
-#        data = {'transient_object_id_id': objectid,
-#                'object_group_id': objectGroupId}
-#
-#        # Does the objectId actually exit - not allowed to comment on objects that don't exist!
-#        # This should really return a 404 message.
-#        try:
-#            transient = AtlasDiffObjects.objects.get(pk=objectid)
-#        except ObjectDoesNotExist as e:
-#            replyMessage = 'Object does not exist.'
-#            info = { "objectid": objectid, "info": replyMessage }
-#            return info
-#
-#        try:
-#            group = TcsObjectGroupDefinitions.objects.get(pk=objectGroupId)
-#        except ObjectDoesNotExist as e:
-#            replyMessage = 'Object group ID does not exist.'
-#            info = { "objectgroupid": objectGroupId, "info": replyMessage }
-#            return info
-#
-#        try:
-#            instance = TcsObjectGroups.objects.get(transient_object_id__id = objectid, object_group_id = objectGroupId)
-#        except ObjectDoesNotExist as e:
-#            replyMessage = 'Object group ID does not exist or object ID does not exist.'
-#            info = { "objectgroupid": objectGroupId, "objectid": objectid, "info": replyMessage }
-#            return info
-#
-#        i = instance.delete()
-#        #replyMessage = 'Duplicate row. Cannot add row.'
-#
-#        info = { "objectgroupid": objectid, "info": replyMessage }
-#        return info
-#
+class TcsObjectGroupsDeleteSerializer(serializers.Serializer):
+    objectid = serializers.IntegerField(required=True)
+    objectgroupid = serializers.IntegerField(required=True)
+
+    def save(self):
+        objectid = self.validated_data['objectid']
+        objectGroupId = self.validated_data['objectgroupid']
+
+        try:
+            TcsTransientObjects.objects.get(pk=objectid)
+        except ObjectDoesNotExist:
+            return {"objectid": objectid, "info": "Object does not exist."}
+
+        try:
+            TcsObjectGroupDefinitions.objects.get(pk=objectGroupId)
+        except ObjectDoesNotExist:
+            return {"objectgroupid": objectGroupId, "info": "Object group ID does not exist."}
+
+        try:
+            instance = TcsObjectGroups.objects.get(transient_object_id__id=objectid, object_group_id_id=objectGroupId)
+        except ObjectDoesNotExist:
+            return {"objectgroupid": objectGroupId, "objectid": objectid, "info": "Object group ID does not exist or object ID does not exist."}
+
+        instance.delete()
+        return {"objectgroupid": objectid, "info": "Row deleted."}
+
 #class TcsObjectGroupsListSerializer(serializers.Serializer):
 #    objectid = serializers.IntegerField(required=False, default=None)
 #    objectgroupid = serializers.IntegerField(required=False, default=None)

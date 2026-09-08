@@ -44,3 +44,34 @@ class TestObjectGroupsInsert(TestCase):
     def test_insert_rejects_missing_group(self):
         response = self.client.post('/api/objectgroups/', {'objectid': self.transient.id, 'objectgroupid': 60002})
         self.assertEqual(response.data['info'], 'Object group ID does not exist.')
+
+
+class TestObjectGroupsDelete(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='deleteuser', password='testpassword')
+        self.write_group = Group.objects.create(name="Write Access 2")
+        GroupProfile.objects.create(api_write_access=True, group=self.write_group, token_expiration_time=timedelta(days=365))
+        self.user.groups.add(self.write_group)
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+        self.transient = TcsTransientObjects.objects.create(id=900000002, ra_psf=11.0, dec_psf=-6.0, date_inserted=now())
+        self.group_def = TcsObjectGroupDefinitions.objects.create(id=60003, name='Test Group 2')
+        TcsObjectGroups.objects.create(transient_object_id_id=self.transient.id, object_group_id_id=self.group_def.id)
+
+    def tearDown(self):
+        TcsObjectGroups.objects.filter(transient_object_id=self.transient.id).delete()
+        self.transient.delete()
+        self.group_def.delete()
+
+    def test_delete_removes_row(self):
+        response = self.client.post('/api/objectgroupsdelete/', {'objectid': self.transient.id, 'objectgroupid': self.group_def.id})
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(
+            TcsObjectGroups.objects.filter(transient_object_id=self.transient.id, object_group_id_id=self.group_def.id).exists()
+        )
+
+    def test_delete_missing_row_returns_400(self):
+        response = self.client.post('/api/objectgroupsdelete/', {'objectid': self.transient.id, 'objectgroupid': 60004})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
