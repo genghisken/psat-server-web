@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.serializers.json import DjangoJSONEncoder
 from gkutils.commonutils import FLAGS, PROCESSING_FLAGS, getFlagDefs, ra_to_sex, dec_to_sex, getDateFractionMJD, getMJDFromSqlDate
 from math import log10
 import sys
@@ -1210,5 +1211,16 @@ class TcsForcedPhotometry(models.Model):
 
         managed = False
         db_table = 'tcs_forced_photometry'
+
+
+# Claude wrote this (collab mode, unreviewed) — 2026-09-08
+class TcsAPIUsageLog(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    user = models.CharField(db_index=True, max_length=64)
+    endpoint = models.CharField(max_length=256)
+    validated_data = models.JSONField(encoder=DjangoJSONEncoder)
+
+    class Meta:
+        db_table = 'tcs_api_usage_log'
 
 
