@@ -389,20 +389,33 @@ class TcsObjectGroupsDeleteSerializer(serializers.Serializer):
         instance.delete()
         return {"objectgroupid": objectid, "info": "Row deleted."}
 
-#class TcsObjectGroupsListSerializer(serializers.Serializer):
-#    objectid = serializers.IntegerField(required=False, default=None)
-#    objectgroupid = serializers.IntegerField(required=False, default=None)
-#
-#    def save(self):
-#        objectid = self.validated_data['objectid']
-#        objectGroupId = self.validated_data['objectgroupid']
-#
-#        request = self.context.get("request")
-#
-#        customListObjects = getCustomListObjects(request, objectid, objectGroupId)
-#        return customListObjects
-#
-#
+from psdb.apiutils import getCustomListObjects
+
+class TcsObjectGroupsListSerializer(serializers.Serializer):
+    objectid = serializers.IntegerField(required=False, default=None)
+    objectgroupid = serializers.IntegerField(required=False, default=None)
+    rb_pix_gte = serializers.FloatField(required=False, default=None)
+    rb_pix_lte = serializers.FloatField(required=False, default=None)
+    ra_gte = serializers.FloatField(required=False, default=None)
+    ra_lte = serializers.FloatField(required=False, default=None)
+    dec_gte = serializers.FloatField(required=False, default=None)
+    dec_lte = serializers.FloatField(required=False, default=None)
+    sherlock_class = serializers.CharField(required=False, default=None)
+    spec_type = serializers.CharField(required=False, default=None)
+
+    def validate(self, data):
+        if data.get('objectid') is None and data.get('objectgroupid') is None:
+            raise serializers.ValidationError("Either objectid or objectgroupid must be provided.")
+        return data
+
+    def save(self):
+        objectid = self.validated_data['objectid']
+        objectGroupId = self.validated_data['objectgroupid']
+        request = self.context.get("request")
+        queryFilter = buildObjectListQueryFilter(self.validated_data)
+        return getCustomListObjects(request, objectid, objectGroupId, queryFilter=queryFilter)
+
+
 ## 2024-05-22 KWS Added VRARank and VRARankList Serializers.
 #class VRARankSerializer(serializers.Serializer):
 #    objectid = serializers.IntegerField(required=True)

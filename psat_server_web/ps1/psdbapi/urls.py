@@ -7,5 +7,6 @@ urlpatterns = [
     path('api/objectlist/',            views.ObjectListView.as_view()),
     path('api/objectgroups/',          views.TcsObjectGroupsView.as_view()),
     path('api/objectgroupsdelete/',    views.TcsObjectGroupsDeleteView.as_view()),
+    path('api/objectgroupslist/',      views.TcsObjectGroupsListView.as_view()),
     path('api/auth-token/',            views.ObtainExpiringAuthToken.as_view(), name='auth_token'),
 ]
