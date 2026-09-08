@@ -4,6 +4,7 @@ import json
 import requests
 from django.db import IntegrityError
 from django.db import connection
+from django.utils import timezone
 from datetime import datetime
 from gkutils.commonutils import coneSearchHTM, FULL, QUICK, COUNT, CAT_ID_RA_DEC_COLS, base26, Struct
 from rest_framework import serializers
@@ -509,3 +510,32 @@ class ExternalCrossmatchesListSerializer(serializers.Serializer):
             olist = [tok.strip() for tok in externalObjects.split(',')]
 
         return getExternalCrossmatchesList(request, externalObjects=olist)
+
+
+class ObjectDetectionListSerializer(serializers.Serializer):
+    objectid = serializers.IntegerField(required=True)
+    objectlist = serializers.IntegerField(required=True)
+    insertdate = serializers.DateTimeField(required=False, default=None)
+
+    def save(self):
+        objectid = self.validated_data['objectid']
+        objectlist = self.validated_data['objectlist']
+        insertdate = self.validated_data['insertdate']
+
+        insertDate = insertdate if insertdate is not None else timezone.now()
+
+        try:
+            transient = TcsTransientObjects.objects.get(pk=objectid)
+        except ObjectDoesNotExist:
+            return {"objectid": objectid, "info": "Object does not exist."}
+
+        # Claude wrote this (collab mode, unreviewed) — 2026-09-08
+        VALID_TARGET_LISTS = (4,)
+        if objectlist not in VALID_TARGET_LISTS:
+            return {"objectid": objectid, "info": "Error updating row."}
+
+        transient.detection_list_id_id = objectlist
+        transient.date_modified = insertDate
+        transient.save()
+
+        return {"objectid": objectid, "info": "Row created."}
