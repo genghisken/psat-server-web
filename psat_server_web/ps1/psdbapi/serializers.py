@@ -494,3 +494,18 @@ class TcsObjectGroupsListSerializer(serializers.Serializer):
 #        return vraRankList
 #
 #
+
+from psdb.apiutils import getExternalCrossmatchesList
+
+class ExternalCrossmatchesListSerializer(serializers.Serializer):
+    externalObjects = serializers.CharField(required=False, default=None)
+
+    def save(self):
+        externalObjects = self.validated_data['externalObjects']
+        request = self.context.get("request")
+
+        olist = []
+        if externalObjects is not None:
+            olist = [tok.strip() for tok in externalObjects.split(',')]
+
+        return getExternalCrossmatchesList(request, externalObjects=olist)

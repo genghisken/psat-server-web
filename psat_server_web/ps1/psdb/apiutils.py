@@ -2,7 +2,7 @@ from django.forms.models import model_to_dict
 
 from .dbviews import WebViewUserDefined
 from .views import followupClassList
-from .models import TcsObjectGroups
+from .models import TcsObjectGroups, TcsCrossMatchesExternal
 
 
 OBJECT_LIST_FIELD_TO_LOOKUP = {
@@ -68,3 +68,13 @@ def getCustomListObjects(request, objectid=None, objectgroupid=None, queryFilter
     if querySet is None:
         return []
     return [model_to_dict(row) for row in querySet]
+
+
+def getExternalCrossmatchesList(request, externalObjects=[]):
+    externalCrossmatchesList = []
+    for xm in externalObjects:
+        querySet = TcsCrossMatchesExternal.objects.filter(external_designation=xm)
+        miniList = [model_to_dict(x) for x in querySet]
+        if miniList:
+            externalCrossmatchesList.append(miniList)
+    return externalCrossmatchesList
