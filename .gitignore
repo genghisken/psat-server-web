@@ -66,5 +66,8 @@ migrations/
 # Claude superpowers plugin. We don't need it in github
 superpowers/
 
-# Ignore any Claude MD file. 
+# Ignore any Claude MD file.
 CLAUDE.md
+
+# Claude session handover doc -- local reference only
+docs/ps1-api-atlas-parity-handover.md
