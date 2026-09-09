@@ -65,3 +65,6 @@ migrations/
 
 # Claude superpowers plugin. We don't need it in github
 superpowers/
+
+# Ignore any Claude MD file. 
+CLAUDE.md
