@@ -8,7 +8,16 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle
-from .serializers import ConeSerializer, ObjectListSerializer, TcsObjectGroupsSerializer, TcsObjectGroupsDeleteSerializer, TcsObjectGroupsListSerializer, ExternalCrossmatchesListSerializer, ObjectDetectionListSerializer, ObjectsSerializer
+from .serializers import (
+    ConeSerializer,
+    ObjectListSerializer,
+    TcsObjectGroupsSerializer,
+    TcsObjectGroupsDeleteSerializer,
+    TcsObjectGroupsListSerializer,
+    ExternalCrossmatchesListSerializer,
+    ObjectDetectionListSerializer,
+    ObjectsSerializer,
+)
 from .authentication import QueryAuthentication, ExpiringTokenAuthentication
 from .permissions import HasReadAccess, HasWriteAccess
 from django.core.exceptions import ObjectDoesNotExist
@@ -19,7 +28,10 @@ def retcode(message):
     if 'error' in message: return status.HTTP_400_BAD_REQUEST
     else:                  return status.HTTP_200_OK
 
-# Claude wrote this (collab mode, unreviewed) — 2026-09-08
+# 2026-09-08 KWS Claude wrote this. All code here reviewed by KWS.
+#                See TODO list.
+
+# 2026-09-28 KWS LoggingAPIView is identical to the ATLAS version.
 class LoggingAPIView(APIView):
     def log_request(self, validated_data):
         summary_dict = {}
@@ -38,6 +50,7 @@ class LoggingAPIView(APIView):
             validated_data=summary_dict,
         )
 
+# 2026-09-28 KWS ObtainExpiringAuthToken identical to the ATLAS version. 
 class ObtainExpiringAuthToken(ObtainAuthToken):
     throttle_classes = [AnonRateThrottle]
 
@@ -93,6 +106,7 @@ class ConeView(LoggingAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 2026-09-28 KWS ObjectListView identical to the ATLAS version. 
 class ObjectListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
@@ -114,6 +128,7 @@ class ObjectListView(LoggingAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 2026-09-28 KWS TcsObjectGroupsView identical to the ATLAS version. 
 class TcsObjectGroupsView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
@@ -130,6 +145,10 @@ class TcsObjectGroupsView(LoggingAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 2026-09-28 KWS TcsObjectGroupsDeleteView almost identical to the ATLAS version. Some slight logic changes.
+#                TODO: Verify that the logic works correctly. What happens when you try to delete a group
+#                      that does not exist? (Just HTTP_400_BAD_REQUEST I think, which is fine.) Note that we
+#                      don't currently have requirements to delete any groups. But we must test this.
 class TcsObjectGroupsDeleteView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
@@ -150,6 +169,7 @@ class TcsObjectGroupsDeleteView(LoggingAPIView):
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 2026-09-28 KWS TcsObjectGroupsListView identical to the ATLAS version. 
 class TcsObjectGroupsListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
@@ -171,6 +191,7 @@ class TcsObjectGroupsListView(LoggingAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 2026-09-28 KWS ExternalCrossmatchesListView identical to the ATLAS version. 
 class ExternalCrossmatchesListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]
@@ -192,12 +213,21 @@ class ExternalCrossmatchesListView(LoggingAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 2026-09-28 KWS ObjectDetectionListView similar to the ATLAS version but for some reason we skipped the GET
+#                version of the code. Since there is no reason to skip it, I've restored it to be identical
+#                to the ATLAS version. (Perhaps the ATLAS one is in fact incorrect.)
+#                TODO: Check why we need write access to use this method.
 class ObjectDetectionListView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasWriteAccess]
 
     def get(self, request):
-        return Response({"Error": "GET is not implemented for this service."})
+        serializer = ObjectDetectionListSerializer(data=request.GET, context={'request': request})
+        if serializer.is_valid():
+            message = serializer.save()
+            self.log_request(serializer.validated_data)
+            return Response(message, status=retcode(message))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, format=None):
         serializer = ObjectDetectionListSerializer(data=request.data, context={'request': request})
@@ -208,6 +238,7 @@ class ObjectDetectionListView(LoggingAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 2026-09-28 KWS ObjectsView identical to the ATLAS version. 
 class ObjectsView(LoggingAPIView):
     authentication_classes = [ExpiringTokenAuthentication, QueryAuthentication]
     permission_classes = [IsAuthenticated&HasReadAccess]

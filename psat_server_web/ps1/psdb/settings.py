@@ -53,10 +53,10 @@ DATABASES = {
     }
 }
 
-# Claude wrote this (collab mode, unreviewed) — 2026-09-08
+# 026-09-08 KWS Claude added this for testing purposes.
 TEST_RUNNER = 'psdb.testrunner.NoDbCreationTestRunner'
 
-# Claude wrote this (collab mode, unreviewed) — 2026-09-08
+# 026-09-08 KWS Claude added this for testing purposes.
 SILENCED_SYSTEM_CHECKS = ['fields.E311']
 
 

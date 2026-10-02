@@ -18,7 +18,7 @@ OBJECT_LIST_FIELD_TO_LOOKUP = {
     'spec_type': 'observation_status',
 }
 
-# 2026-09-08 KWS Claude built this - reflects what we have in ATLAS.
+# 2026-09-08 KWS Identical to the ATLAS code.
 def buildObjectListQueryFilter(validated_data):
     queryFilter = {}
     for field, lookup in OBJECT_LIST_FIELD_TO_LOOKUP.items():
@@ -28,7 +28,7 @@ def buildObjectListQueryFilter(validated_data):
     return queryFilter
 
 
-# 2026-09-08 KWS Claude built this - reflects what we have in ATLAS.
+# 2026-09-08 KWS Similar to ATLAS code with some optimisation.
 def getObjectList(request, listId, getCustomList=False, dateThreshold=None, queryFilter=None):
     if queryFilter is None:
         queryFilter = {}
@@ -46,9 +46,16 @@ def getObjectList(request, listId, getCustomList=False, dateThreshold=None, quer
         filters.update(queryFilter)
         querySet = followupClassList[int(listId)].objects.filter(**filters)
 
+    # 2026-09-25 KWS Unlike ATLAS we don't check for not None querySet. Is this OK?
+    #                I think the reason we set this in the past is that model_to_dict
+    #                couldn't cope with a None querySet.
+    #                TODO: Check some corner cases where we query a list with no
+    #                contents. If test fails, copy the ATLAS check.
+
     return [model_to_dict(row) for row in querySet]
 
-
+# 2026-09-25 KWS Identical to the equivalent ATLAS code, except in the return
+#                logic. Possibly slightly more efficient here.
 def getCustomListObjects(request, objectid=None, objectgroupid=None, queryFilter=None):
     querySet = None
 
@@ -71,7 +78,7 @@ def getCustomListObjects(request, objectid=None, objectgroupid=None, queryFilter
         return []
     return [model_to_dict(row) for row in querySet]
 
-
+# 2026-09-25 KWS Similar to the ATLAS code. Again attempts more efficient logic.
 def getExternalCrossmatchesList(request, externalObjects=[]):
     externalCrossmatchesList = []
     for xm in externalObjects:
@@ -82,6 +89,13 @@ def getExternalCrossmatchesList(request, externalObjects=[]):
     return externalCrossmatchesList
 
 
+# 2026-09-25 KWS This is claude's idea of what the transient object should contain in the return values.
+#                Main review is that it's fine. Created two help functions. For my own sanity:
+#                The name _ is just a Python convention meaning "unused/ignored value".
+#                The * is what tells Python to gather multiple values into that variable.
+#                TODO: Add an MJD threshold into the getLightcurvePoints and getLightcurveNonDetections
+#                      so we can use it here. Otherwise the code will return ALL data points regardless
+#                      of the fact that we specified an mjdThreshold.
 def _lcPointsToDicts(fullList):
     return [{'mjd': row[0], 'mag': row[1], 'magerr': row[2]} for row in fullList]
 

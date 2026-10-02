@@ -1213,7 +1213,7 @@ class TcsForcedPhotometry(models.Model):
         db_table = 'tcs_forced_photometry'
 
 
-# Claude wrote this (collab mode, unreviewed) — 2026-09-08
+# 2026-09-08 KWS New code from Claude. Identical to the ATLAS code.
 class TcsAPIUsageLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
     user = models.CharField(db_index=True, max_length=64)
