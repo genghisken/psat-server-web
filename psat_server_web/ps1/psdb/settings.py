@@ -53,6 +53,12 @@ DATABASES = {
     }
 }
 
+# 026-09-08 KWS Claude added this for testing purposes.
+TEST_RUNNER = 'psdb.testrunner.NoDbCreationTestRunner'
+
+# 026-09-08 KWS Claude added this for testing purposes.
+SILENCED_SYSTEM_CHECKS = ['fields.E311']
+
 
 DAEMONS = {
     'tns': {
