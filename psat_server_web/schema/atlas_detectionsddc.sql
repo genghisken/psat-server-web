@@ -37,9 +37,9 @@ CREATE TABLE `atlas_detectionsddc` (
 `dflx` float, 
 `date_modified` datetime,            -- when was the detection modified?
 `image_group_id` bigint unsigned, -- a reference to the group of images that refers to this detection
-`quality_threshold_pass` bool,    -- does this detection pass some specified cuts?
+`quality_threshold_pass` bool,    -- does this detection pass some specified cuts? (HFS: ken said it's deprecated 2026-10-02)
 `deprecated` bool,                -- option to ignore this detection
-`realbogus_factor` float,         -- machine learning real/bogus value
+`realbogus_factor` float,         -- machine learning real/bogus value (HFS: Ken said it's never been used - 2026-10-02)
 `htm16ID` bigint unsigned,
 `date_inserted` datetime NOT NULL,   -- when was the detection inserted?
 PRIMARY KEY `key_id` (`id`),
