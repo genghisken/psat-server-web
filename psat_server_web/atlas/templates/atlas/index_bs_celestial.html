@@ -77,6 +77,9 @@ var cfgLG = {
 
 var scale = 1, baseScale, 
     showMW = true, showM31 = true, showLG = true;
+// 2026-11-21 KWS/Claude Holder for the objects loaded from snejson (drawn using the local group (lg) code), so that
+//                       pickObject can search them later.
+var lgFeatures = [];
 
 
 Celestial.add({file:"{% url 'snejson' %}", type:"dso", callback: function(error, json) {
@@ -84,6 +87,8 @@ Celestial.add({file:"{% url 'snejson' %}", type:"dso", callback: function(error,
   if (error) return console.warn(error);
   baseScale = Celestial.mapProjection.scale();
   var lg = Celestial.getData(json, config.transform)
+  // 2026-11-21 KWS/Claude Get the features.
+  lgFeatures = lg.features;
   //Add the symbols  
   Celestial.container.selectAll(".lgs").data(lg.features.filter( function(d) { return d.properties.type.search(/GC/) === -1; }))
     .enter().append("path")
@@ -168,6 +173,50 @@ function lgName(prop) {
 } 
 
 Celestial.display(config);
+
+// 2026-11-21 KWS/Claude One candidate URL template, with a dummy value of 0. When an object is clicked, the 0 is replaced with its oid value.
+//                       The nearest thing within bestDist pixels is our object (pickObject).
+var candidateUrl = "{% url 'candidate' 0 %}";
+var canvas = document.querySelector("#celestial-map canvas"), downXY = null;
+
+function pickObject(xy) {
+  var best = null, bestDist = 8;
+  lgFeatures.forEach(function(d) {
+    if (!Celestial.clip(d.geometry.coordinates) || !lgDisplay(d.properties)) return;
+    var pt = Celestial.mapProjection(d.geometry.coordinates),
+        dist = Math.sqrt(Math.pow(pt[0] - xy[0], 2) + Math.pow(pt[1] - xy[1], 2));
+    if (dist < bestDist) { best = d; bestDist = dist; }
+  });
+  return best;
+}
+
+canvas.addEventListener("mousedown", function(e) { downXY = [e.clientX, e.clientY]; });
+// 2026-11-21 KWS/Claude Add the new pickObject function to a mouse event listener (i.e. move and click). The mousemove listener
+//                       shows the default arrow near objects and leaves the grab and grabbing cursors alone during a drag,
+//                       with hit tests throttled to one per frame.
+var hoverPending = false;
+canvas.addEventListener("mousemove", function(e) {
+  if (e.buttons !== 0) { canvas.style.cursor = ""; return; }
+  if (hoverPending) return;
+  hoverPending = true;
+  var clientX = e.clientX, clientY = e.clientY;
+  window.requestAnimationFrame(function() {
+    hoverPending = false;
+    var rect = canvas.getBoundingClientRect();
+    canvas.style.cursor = pickObject([clientX - rect.left, clientY - rect.top]) ? "default" : "";
+  });
+});
+canvas.addEventListener("mouseleave", function() { canvas.style.cursor = ""; });
+
+canvas.addEventListener("click", function(e) {
+  if (downXY && Math.abs(e.clientX - downXY[0]) + Math.abs(e.clientY - downXY[1]) > 4) return;
+  var rect = canvas.getBoundingClientRect(),
+      d = pickObject([e.clientX - rect.left, e.clientY - rect.top]);
+  if (d === null) return;
+  var url = candidateUrl.replace(/\/0\/$/, "/" + d.properties.oid + "/");
+  if (e.ctrlKey || e.metaKey) window.open(url, "_blank");
+  else window.location.href = url;
+});
 
 
 function $(id) { return document.getElementById(id); }
