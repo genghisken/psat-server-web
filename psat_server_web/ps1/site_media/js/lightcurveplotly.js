@@ -194,16 +194,17 @@ else
   ylabel = 'AB Mag';
 }
 
+// 2026-11-20 KWS/Claude Changed title to explicitly text: "title". For future plotly compatibility.
 var layout = { showlegend: true,
                yaxis: {range:[ymin, ymax],
                        autorange: yautorange,
                        tickformat: ".1f",
                        hoverformat: ".2f",
-                       title: ylabel},
+                       title: {text: ylabel}},
                 xaxis: { tickformat: ".f",
                          hoverformat: ".5f",
                          range: [xmin, xmax],
-                         title: "mjd" },
+                         title: {text: "mjd"} },
                margin: {l: 50, r: 0, b: 30, t: 30},
                width: w, //window.innerWidth,
                height: lcplotheight} //window.innerHeight 
@@ -219,29 +220,45 @@ if (!(locallcdivname.includes("forced")))
                        side: "top",
                        hoverformat: ".5f",
                        range: [x2min, x2max],
-                       title: "days since earliest detection" }
+                       title: {text: "days since earliest detection"} }
 }
 
 Plotly.newPlot(locallcdivname.replace('#',''), data, layout, {displayModeBar: false});
 
 // Resize all the lightcurve plots when the window size is changed.
-$(window).bind("resize.lcplot", function() {
-  Object.keys(jslcdataglobal).forEach(function(key) {
-    if (typeof lcplotwidth !== 'undefined')
-    {
-      w = lcplotwidth;
-      // No need to resize - do nothing.
-    }
-    else
-    {
-      w = 0.9 * $(locallcdivname).innerWidth();
-      Plotly.relayout(key.replace('#',''), {
-        width: w, //window.innerWidth,
+// 2026-11-20 KWS/Claude Rewrite of the window resizing function to put less strain on the browser.
+//                       In particular, resizing waits, e.g. 100ms instead of resizing on every pixel.
+var lcResizeTimer;
+var lcResizeGeneration = 0;
+$(window).off("resize.lcplot").on("resize.lcplot", function() {
+  if (typeof lcplotwidth !== 'undefined')
+  {
+    return;
+  }
+  clearTimeout(lcResizeTimer);
+  lcResizeTimer = setTimeout(function() {
+    var generation = ++lcResizeGeneration;
+    var pending = Object.keys(jslcdataglobal).map(function(key) {
+      return {div: document.getElementById(key.replace('#','')),
+              width: 0.9 * $(key).innerWidth()};
+    }).filter(function(p) {
+      return p.div && p.div._fullLayout && Math.round(p.width) !== Math.round(p.div._fullLayout.width);
+    });
+    var relayoutNext = function() {
+      var p = pending.shift();
+      if (!p || generation !== lcResizeGeneration)
+      {
+        return;
+      }
+      Plotly.relayout(p.div, {
+        width: p.width, //window.innerWidth,
         height: lcplotheight //window.innerHeight
-      })
-    }
-
-  });
+      }).then(function() {
+        requestAnimationFrame(relayoutNext);
+      });
+    };
+    relayoutNext();
+  }, 100);
 });
 
 })();

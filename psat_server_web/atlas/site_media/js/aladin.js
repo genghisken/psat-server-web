@@ -3510,6 +3510,8 @@ HiPSDefinition = (function() {
         listHipsProperties = merge(listHipsProperties, localDefs);
 
         // third, retrieve remote definitions, merge and save
+        // 2026-11-17 KWS/Claude MocServer (CDS) query on load disabled
+        return;
         HiPSDefinition.getRemoteDefinitions({dataproduct_type: 'image', client_application: 'AladinLite'}, function(remoteDefs) {
             // adding timestamp of retrieval
             var now = new Date().getTime();
@@ -8970,280 +8972,49 @@ HpxImageSurvey = (function() {
     HpxImageSurvey.DEFAULT_SURVEY_ID = "P/DSS2/color";
     
     HpxImageSurvey.SURVEYS_OBJECTS = {};
+    // 2026-11-17 KWS/Claude CDS-hosted surveys removed, non-French mirrors only
     HpxImageSurvey.SURVEYS = [
      {
-        "id": "P/2MASS/color",
-        "url": "http://alasky.u-strasbg.fr/2MASS/Color",
-        "name": "2MASS colored",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
         "id": "P/DSS2/color",
-        "url": "http://alasky.u-strasbg.fr/DSS/DSSColor",
-        "name": "DSS colored",
+        "url": "https://stpubdata.s3.us-east-1.amazonaws.com/mast/skybackgrounds/DSSColor",
+        "name": "DSS colored (MAST mirror)",
         "maxOrder": 9,
         "frame": "equatorial",
         "format": "jpeg"
      },
      {
-        "id": "P/DSS2/red",
-        "url": "http://alasky.u-strasbg.fr/DSS/DSS2Merged",
-        "name": "DSS2 Red (F+R)",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "jpeg fits"
-     },
-     {
-        "id": "P/DECaLS/DR5/color",
-        "url": "http://alasky.u-strasbg.fr/DECaLS/DR5/color",
-        "name": "DECaLS DR5 color",
+        "id": "P/PanSTARRS/DR1/color-i-r-g",
+        "url": "https://stpubdata.s3.us-east-1.amazonaws.com/mast/skybackgrounds/PanSTARRS",
+        "name": "PanSTARRS DR1 color i-r-g (MAST mirror)",
         "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/DECaPS/DR2/color",
-        "url": "http://alasky.u-strasbg.fr/DECaPS/DR2/CDS_P_DECaPS_DR2_color",
-        "name": "DECaPS DR2 color",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/DES-DR1/ColorIRG",
-        "url": "http://alasky.u-strasbg.fr/DES/CDS_P_DES-DR1_ColorIRG",
-        "name": "DES-DR1 color (I-R-G bands)",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/DESI-Legacy-Surveys/DR10/color",
-        "url": "https://alasky.cds.unistra.fr/DESI-legacy-surveys/DR10/CDS_P_DESI-Legacy-Surveys_DR10_color",
-        "name": "DESI Legacy Surveys color (g, r, i, z)",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Fermi/color",
-        "url": "http://alasky.u-strasbg.fr/Fermi/Color",
-        "name": "Fermi color",
-        "maxOrder": 3,
         "frame": "equatorial",
         "format": "jpeg"
      },
      {
         "id": "P/Finkbeiner",
-        "url": "http://alasky.u-strasbg.fr/FinkbeinerHalpha",
+        "url": "https://skies.esac.esa.int/FinkbeinerHa",
         "maxOrder": 3,
         "frame": "galactic",
         "format": "jpeg fits",
         "name": "Halpha"
      },
      {
-        "id": "P/GALEXGR6/AIS/color",
-        "url": "http://alasky.u-strasbg.fr/GALEX/GR6-02-Color",
-        "name": "GALEX Allsky Imaging Survey colored",
-        "maxOrder": 8,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/IRIS/color",
-        "url": "http://alasky.u-strasbg.fr/IRISColor",
-        "name": "IRIS colored",
-        "maxOrder": 3,
-        "frame": "galactic",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/Mellinger/color",
-        "url": "http://alasky.u-strasbg.fr/MellingerRGB",
-        "name": "Mellinger colored",
-        "maxOrder": 4,
-        "frame": "galactic",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/SDSS9/color",
-        "url": "http://alasky.u-strasbg.fr/SDSS/DR9/color",
-        "name": "SDSS9 colored",
-        "maxOrder": 10,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/color-z-zg-g",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/color-z-zg-g",
-        "name": "PanSTARRS DR1 color z-zg-g",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/color-i-r-g",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/color-i-r-g",
-        "name": "PanSTARRS DR1 color i-r-g",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/g",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/g",
-        "name": "PanSTARRS DR1 g",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/r",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/r",
-        "name": "PanSTARRS DR1 r",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/i",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/i",
-        "name": "PanSTARRS DR1 i",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/z",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/z",
-        "name": "PanSTARRS DR1 z",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/y",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/y",
-        "name": "PanSTARRS DR1 y",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
         "id": "P/Skymapper-color-IRG",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_color",
+        "url": "https://skymapper.anu.edu.au/CDS_P_skymapper-color",
         "name": "Skymapper color (red-I,green-R,blue-G)",
         "maxOrder": 9,
         "frame": "equatorial",
         "format": "jpeg"
      },
      {
-        "id": "P/Skymapper-U",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_U",
-        "name": "Skymapper U-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-V",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_V",
-        "name": "Skymapper V-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-G",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_G",
-        "name": "Skymapper G-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-R",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_R",
-        "name": "Skymapper R-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-I",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_I",
-        "name": "Skymapper I-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-Z",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_Z",
-        "name": "Skymapper Z-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/HSC/DR2/wide/color-i-r-g",
-        "url": "http://alasky.u-strasbg.fr/HSC/DR2/CDS_P_HSC_DR2_wide_color-i-r-g",
-        "name": "HSC DR2 wide color i-r-g",
-        "maxOrder": 12,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
         "id": "P/SPITZER/color",
-        "url": "http://alasky.u-strasbg.fr/SpitzerI1I2I4color",
+        "url": "https://casda.csiro.au/hips/SpitzerI1I2I4color",
         "name": "IRAC color I1,I2,I4 - (GLIMPSE, SAGE, SAGE-SMC, SINGS)",
         "maxOrder": 9,
         "frame": "galactic",
         "format": "jpeg"
-     },
-     {
-        "id": "P/VTSS/Ha",
-        "url": "http://alasky.u-strasbg.fr/VTSS/Ha",
-        "maxOrder": 3,
-        "frame": "galactic",
-        "format": "png jpeg fits",
-        "name": "VTSS-Ha"
-     },
-     {
-        "id": "P/XMM/EPIC",
-        "url": "http://saada.u-strasbg.fr/xmmallsky",
-        "name": "XMM-Newton stacked EPIC images (no phot. normalization)",
-        "maxOrder": 7,
-        "frame": "equatorial",
-        "format": "png fits"
-     },
-     {
-         "id": "P/XMM/PN/color",
-          "url": "http://saada.unistra.fr/xmmpnsky",
-          "name": "XMM PN colored",
-          "maxOrder": 7,
-          "frame": "equatorial",
-          "format": "png jpeg"
-     },
-     {
-         "id": "P/allWISE/color",
-         "url": "http://alasky.u-strasbg.fr/AllWISE/RGB-W4-W2-W1/",
-         "name": "AllWISE color",
-         "maxOrder": 8,
-         "frame": "equatorial",
-         "format": "jpeg"
-     },
-     {
-         "id": "P/GLIMPSE360",
-         "url": "http://www.spitzer.caltech.edu/glimpse360/aladin/data",
-         "name": "GLIMPSE360",
-         "maxOrder": 9,
-         "frame": "equatorial",
-         "format": "jpeg"
      }
-  ];
+    ];
 
 
     
@@ -12041,7 +11812,7 @@ Aladin = (function() {
         fullScreen:             false,
         reticleColor:           "rgb(178, 50, 178)",
         reticleSize:            22,
-        log:                    true,
+        log:                    false,  // 2026-11-17 KWS/Claude - disabled.
         allowFullZoomout:       false
     };
 

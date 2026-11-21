@@ -174,8 +174,9 @@ else
 
 // 2018-09-07 KWS Still experimenting with legend and layout. Use scaleanchor to force
 //                1:1 aspect ratio, so circles are always circular!
-var layout = { xaxis: {range: [jsrecurrencelimits["xmin"], jsrecurrencelimits["xmax"]], title: "\u0394RA / arcsec"},
-               yaxis: {range: [jsrecurrencelimits["ymin"], jsrecurrencelimits["ymax"]], title: "\u0394Dec / arcsec", scaleanchor: "x"},
+// 2026-11-20 KWS/Claude Changed title to explicitly text: "title". For future plotly compatibility.
+var layout = { xaxis: {range: [jsrecurrencelimits["xmin"], jsrecurrencelimits["xmax"]], title: {text: "\u0394RA / arcsec"}},
+               yaxis: {range: [jsrecurrencelimits["ymin"], jsrecurrencelimits["ymax"]], title: {text: "\u0394Dec / arcsec"}, scaleanchor: "x"},
                hovermode: false,
                margin: {l: 30, r: 0, b: 0, t: 0},
                width: rw,
@@ -194,24 +195,38 @@ var layout = { xaxis: {range: [jsrecurrencelimits["xmin"], jsrecurrencelimits["x
 Plotly.newPlot(localrecurrencedivname.replace('#',''), recdata, layout, {displayModeBar: false});
 
 // Resize all the recurrence plots when the window size is changed.
-$(window).bind("resize.recplot", function() {
-  Object.keys(jsrecurrencedataglobal).forEach(function(key) {
-    if (typeof recplotheight !== 'undefined')
-    {
-      rw = recplotheight;
-      // No need to resize - do nothing.
-    }
-    else
-    {
-      rw = 0.9 * $(localrecurrencedivname).innerWidth();
+// 2026-11-20 KWS/Claude Rewrite of the window resizing function to put less strain on the browser.
+//                       In particular, resizing waits, e.g. 100ms instead of resizing on every pixel.
+var recResizeTimer;
+var recResizeGeneration = 0;
+$(window).off("resize.recplot").on("resize.recplot", function() {
+  if (typeof recplotheight !== 'undefined')
+  {
+    return;
+  }
+  clearTimeout(recResizeTimer);
+  recResizeTimer = setTimeout(function() {
+    var generation = ++recResizeGeneration;
+    var pending = Object.keys(jsrecurrencedataglobal).map(function(key) {
+      var rw = 0.9 * $(key).innerWidth();
       if (rw > recplotmaxwidth)
       {
         rw = recplotmaxwidth;
       }
-      Plotly.relayout(key.replace('#',''), {
+      return {div: document.getElementById(key.replace('#','')), width: rw};
+    }).filter(function(p) {
+      return p.div && p.div._fullLayout && Math.round(p.width) !== Math.round(p.div._fullLayout.width);
+    });
+    var relayoutNext = function() {
+      var p = pending.shift();
+      if (!p || generation !== recResizeGeneration)
+      {
+        return;
+      }
+      Plotly.relayout(p.div, {
         margin: {l: 30, r: 0, b: 0, t: 0},
-        width: rw,
-        height: 2.1*rw,
+        width: p.width,
+        height: 2.1*p.width,
         legend:{
             xanchor:"left",
             yanchor:"bottom",
@@ -219,10 +234,12 @@ $(window).bind("resize.recplot", function() {
             y: -0.9,
             x: 0
           },
-      })
-    }
-
-  });
+      }).then(function() {
+        requestAnimationFrame(relayoutNext);
+      });
+    };
+    relayoutNext();
+  }, 100);
 });
 
 //console.log(recdata);

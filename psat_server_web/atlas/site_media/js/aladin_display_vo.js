@@ -16,166 +16,43 @@ var localtransientvo = jsaladinglobal[localaladindivname].transientvo
 var localsherlockvo = jsaladinglobal[localaladindivname].sherlockvo
 var localfov = jsaladinglobal[localaladindivname].fov
 
+// 2026-11-17 KWS/Claude Emergency fix for CDS outage.
+var MIRROR_DSS2_COLOR = "https://stpubdata.s3.us-east-1.amazonaws.com/mast/skybackgrounds/DSSColor";
+var MIRROR_PANSTARRS_GRI = "https://stpubdata.s3.us-east-1.amazonaws.com/mast/skybackgrounds/PanSTARRS";
+
 var SURVEYS = [
+     // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
      {
-        "id": "P/DECaLS/DR5/color",
-        "url": "http://alasky.u-strasbg.fr/DECaLS/DR5/color",
-        "name": "DECaLS DR5 color",
+        "id": "P/PanSTARRS/DR1/color-i-r-g",
+        "url": MIRROR_PANSTARRS_GRI,
+        "name": "PanSTARRS DR1 color i-r-g (MAST mirror)",
         "maxOrder": 11,
         "frame": "equatorial",
         "format": "jpeg"
      },
      {
-        "id": "P/DES-DR1/ColorIRG",
-        "url": "http://alasky.u-strasbg.fr/DES/CDS_P_DES-DR1_ColorIRG",
-        "name": "DES-DR1 color (I-R-G bands)",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/DESI-Legacy-Surveys/DR10/color",
-        "url": "https://alasky.cds.unistra.fr/DESI-legacy-surveys/DR10/CDS_P_DESI-Legacy-Surveys_DR10_color",
-        "name": "DESI Legacy Surveys color (g, r, i, z)",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
         "id": "P/Finkbeiner",
-        "url": "http://alasky.u-strasbg.fr/FinkbeinerHalpha",
+        "url": "https://skies.esac.esa.int/FinkbeinerHa",  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
         "maxOrder": 3,
         "frame": "galactic",
         "format": "jpeg fits",
         "name": "Halpha"
      },
      {
-        "id": "P/PanSTARRS/DR1/color-z-zg-g",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/color-z-zg-g",
-        "name": "PanSTARRS DR1 color z-zg-g",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/r",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/r",
-        "name": "PanSTARRS DR1 r",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/i",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/i",
-        "name": "PanSTARRS DR1 i",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/z",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/z",
-        "name": "PanSTARRS DR1 z",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
-        "id": "P/PanSTARRS/DR1/y",
-        "url": "http://alasky.u-strasbg.fr/Pan-STARRS/DR1/y",
-        "name": "PanSTARRS DR1 y",
-        "maxOrder": 11,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
         "id": "P/Skymapper-color-IRG",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_color",
+        "url": "https://skymapper.anu.edu.au/CDS_P_skymapper-color",  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
         "name": "Skymapper color (red-I,green-R,blue-G)",
         "maxOrder": 9,
         "frame": "equatorial",
         "format": "jpeg"
      },
      {
-        "id": "P/Skymapper-U",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_U",
-        "name": "Skymapper U-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-V",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_V",
-        "name": "Skymapper V-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-G",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_G",
-        "name": "Skymapper G-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-R",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_R",
-        "name": "Skymapper R-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-I",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_I",
-        "name": "Skymapper I-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/Skymapper-Z",
-        "url": "http://alasky.u-strasbg.fr/Skymapper/skymapper_Z",
-        "name": "Skymapper Z-band",
-        "maxOrder": 9,
-        "frame": "equatorial",
-        "format": "png"
-     },
-     {
-        "id": "P/HSC/DR2/wide/color-i-r-g",
-        "url": "http://alasky.u-strasbg.fr/HSC/DR2/CDS_P_HSC_DR2_wide_color-i-r-g",
-        "name": "HSC DR2 wide color i-r-g",
-        "maxOrder": 12,
-        "frame": "equatorial",
-        "format": "jpeg"
-     },
-     {
         "id": "P/SPITZER/color",
-        "url": "http://alasky.u-strasbg.fr/SpitzerI1I2I4color",
+        "url": "https://casda.csiro.au/hips/SpitzerI1I2I4color",  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
         "name": "IRAC color I1,I2,I4 - (GLIMPSE, SAGE, SAGE-SMC, SINGS)",
         "maxOrder": 9,
         "frame": "galactic",
         "format": "jpeg"
-     },
-     {
-        "id": "P/XMM/EPIC",
-        "url": "http://saada.u-strasbg.fr/xmmallsky",
-        "name": "XMM-Newton stacked EPIC images (no phot. normalization)",
-        "maxOrder": 7,
-        "frame": "equatorial",
-        "format": "png fits"
-     },
-     {
-         "id": "P/XMM/PN/color",
-          "url": "http://saada.unistra.fr/xmmpnsky",
-          "name": "XMM PN colored",
-          "maxOrder": 7,
-          "frame": "equatorial",
-          "format": "png jpeg"
      }
   ];
 
@@ -186,17 +63,33 @@ A.init.then(() => {
   // ------------------------------------------------------------
   // Create viewer with DSS2 as base (last resort)
   // ------------------------------------------------------------
+  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
+  const dss2Hips = A.imageHiPS(MIRROR_DSS2_COLOR, {
+    name: 'DSS2 color (MAST mirror)',
+    maxOrder: 9,
+    cooFrame: 'equatorial',
+    imgFormat: 'jpeg'
+  });
+  const panstarrsHips = A.imageHiPS(MIRROR_PANSTARRS_GRI, {
+    name: 'PanSTARRS DR1 color i-r-g (MAST mirror)',
+    maxOrder: 11,
+    cooFrame: 'equatorial',
+    imgFormat: 'jpeg'
+  });
+
 
   const aladin = A.aladin(localaladindivname, {
-    survey: 'P/DSS2/color',
+    survey: dss2Hips,  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
     fov: localfov,
     target: localobjectcoordsdeg[0] + " " + localobjectcoordsdeg[1],
     showReticle: false,
     reticleSize: 40,
     showProjectionControl: false,
-    showShareControl: false
+    showShareControl: false,
+    hipsList: [],  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
+    log: false  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
   });
-  aladin.setBaseImageLayer('P/DSS2/color');
+  aladin.setBaseImageLayer(dss2Hips);  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
 
   // *** Add the sherlock crossmatches (if the exist) as a VO table ***
   if (localsherlockvo !== null){
@@ -270,11 +163,7 @@ A.init.then(() => {
 
   // **************************************
   // Add Custom HIPS cat if it's not already available
-  var hipsCats = {
-    'ps1': A.catalogHiPS('https://axel.u-strasbg.fr/HiPSCatService/II/349/ps1', {name: 'PanSTARRS DR1 sources', shape: 'circle', sourceSize: 8, color: '#6baed6', onClick: 'showTable', name: 'PanSTARRS DR1'})
-  };
-  hipsCats['ps1'].hide();
-  aladin.addCatalog(hipsCats['ps1']);
+  // 2026-11-17 KWS/Claude Emergency fix for CDS outage. - PS1 HiPS catalogue (CDS) removed
 
   // **************************************
 
@@ -305,10 +194,9 @@ A.init.then(() => {
 
   // Quick hack - because Pan-STARRS gets in the way of other layers below -30.5 degrees dec
   if (localobjectcoordsdeg[1] > -30.5){
-    aladin.setOverlayImageLayer('CDS/P/PanSTARRS/DR1/color', 'panstarrs');
+    aladin.setOverlayImageLayer(panstarrsHips, 'panstarrs');  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
   }
-  aladin.setOverlayImageLayer('CDS/P/DESI-Legacy-Surveys/DR10/color', 'desi');
-  aladin.setOverlayImageLayer('CDS/P/DECaPS/DR2/color', 'decaps');
+  // 2026-11-17 KWS/Claude Emergency fix for CDS outage. - DESI and DECaPS overlays (CDS) removed
 
   // ------------------------------------------------------------
   // Helpers
@@ -359,9 +247,7 @@ A.init.then(() => {
   }
 
   function priorityList(dec) {
-    return dec >= -31
-      ? ['panstarrs', 'desi', 'decaps']
-      : ['desi', 'decaps', 'panstarrs'];
+    return ['panstarrs'];  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
   }
 
   // ------------------------------------------------------------
@@ -383,7 +269,7 @@ A.init.then(() => {
     }
 
     // Hide non-winners
-    ['panstarrs', 'desi', 'decaps'].forEach(id => {
+    ['panstarrs'].forEach(id => {  // 2026-11-17 KWS/Claude Emergency fix for CDS outage.
       if (id === winner) return;
       const ov = aladin.getOverlayImageLayer(id);
       if (ov && typeof ov.hide === 'function') ov.hide();
