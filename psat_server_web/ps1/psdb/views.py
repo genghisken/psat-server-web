@@ -2349,6 +2349,8 @@ def jsonSNe(request):
         features.append({'type': 'Feature',
                          'id': row.ps1_designation,
                          'properties': {'name': row.ps1_designation,
+                                        # 2026-11-21 KWS/Claude Claude wrote this (collab mode, unreviewed)
+                                        'oid': str(row.id),
                                         'mag': '16',
                                         'desig': '',
                                         'con': '',

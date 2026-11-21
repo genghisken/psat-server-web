@@ -2114,6 +2114,8 @@ def jsonSNe(request):
         features.append({'type': 'Feature',
                          'id': row.atlas_designation,
                          'properties': {'name': row.atlas_designation,
+                                        # 2026-11-21 KWS/Claude Claude wrote this (collab mode, unreviewed)
+                                        'oid': str(row.id),
                                         'mag': '16',
                                         'desig': '',
                                         'con': '',
